@@ -40,21 +40,21 @@ Departamento de Estatística}
 \vspace*{\stretch{1}}
 \begin{center}
 \vspace*{5cm}
-{\huge \bf Relatório - Parte II \\[7pt]
-Trabalho ME714 - Parte01 - Exercício 1}
+{\huge \bf Relatório - Parte I \\[7pt]
+Exercício 1}
 \end{center}
 \vspace*{\stretch{1}}
 \begin{center}
 \vspace*{4cm}
-{\Large \bf Eliane Ramos de Siqueira  RA:155233 \\
-Guilherme Pazian  RA:160323 \\
+{\Large \bf Guilherme Pazian  RA:160323 \\
 Henrique Capatto  RA:146406 \\
-Murilo Salgado Razoli  RA:150987 \break
+Hugo Calegari  RA:155738 \\
+Leonardo Uchoa Pedreira RA:156231\break
 }\\[3pt]
 {\large \bf Professor: Caio Lucidius Naberezny Azevedo}\\[5pt]
 \end{center}
 \vspace*{\stretch{1}}
-\centerline{\bf Campinas-SP, 08 de Dezembro de 2016}
+\centerline{\bf Campinas-SP, 05 de Junho de 2017}
 \vspace*{\stretch{1}}
 \end{center}
 \end{titlepage}
