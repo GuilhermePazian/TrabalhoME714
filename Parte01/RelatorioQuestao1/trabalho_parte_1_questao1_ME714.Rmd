@@ -54,7 +54,7 @@ Leonardo Uchoa Pedreira RA:156231\break
 {\large \bf Professor: Caio Lucidius Naberezny Azevedo}\\[5pt]
 \end{center}
 \vspace*{\stretch{1}}
-\centerline{\bf Campinas-SP, 05 de Junho de 2017}
+\centerline{\bf Campinas-SP, 12 de Junho de 2017}
 \vspace*{\stretch{1}}
 \end{center}
 \end{titlepage}
@@ -72,13 +72,12 @@ options(OutDec= ",")
 knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='Figs/', fig.align='center', echo=FALSE, warning=FALSE, message=FALSE)
 ```
 
-Exercício 1
 
 ```{r pacotes,cache = FALSE,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
 #eval= FALSE faz com que o R ignore este chunk
 #echo = FALSE não permite que o chunk apareça no pdf
 
-#pacotes = c("tidyverse","plyr","dplyr","reshape2","knitr","captioner","gdata","gridExtra","car")
+#pacotes = c("tidyverse","plyr","dplyr","reshape2","knitr","captioner","gdata","gridExtra","Matrix","plotrix")
 #install.packages(pacotes)
 
 # pacote utiliado para gráficos
@@ -89,11 +88,12 @@ library(gridExtra)
 library(reshape2)
 library(plyr)
 library(dplyr)
-#pacote que possui o conjunto de dados para o primeiro exercício
-library(car)
+
 #pacote para fazer legenda
 library(captioner)
 
+library(Matrix)
+library(plotrix)
 
 
 figs <- captioner(prefix="Figura")
@@ -111,14 +111,255 @@ tbls <- captioner(prefix="Tabela")
 
 ```
 
-```{r}
+```{r funcoes_exer_1,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
+
+# estima os parâmetros de uma única tabela
+# r x s oriunda de um modelo multinomial
+# ou produto de multinomiais
+# LEMBRETE: A FUNÇÃO SEMPRE CONCATENA VERTICALMENTE AS LINHAS. ASSIM
+# NO CASO DO MODELO PRODUTO DE MULTINOMIAIS, CADA LINHA DEVE REPRESENTAR
+# UMA MULTINOMIAL
+#input= tabela: tabela de contingência
+#       modelo: 1 - multinomial, 2 - produto de multinomais
+#       gama: nível de confiança para a construção dos IC's
+estima.theta<-function(tabela,modelo,gama)
+{
+auxl1 <-c(rownames(tabela))
+auxl2 <-c(colnames(tabela))
+label<-c(paste(auxl1[1],"&",auxl2[1]))
+for(i in 1:nrow(tabela))
+{
+for(j in 1:ncol(tabela))
+{
+label<-rbind(label,c(paste(auxl1[i],"&",auxl2[j])))
+}
+}
+label<-cbind(label[2:nrow(label),])
+if(modelo ==1) # multinomial
+{
+vn <- c(t(tabela))
+n  <- sum(vn)
+ncat <- length(vn)
+vp <- vn/n
+#vp[vp==0]=0.01
+vpc <- cbind(vp)
+aux <- vpc%*%t(vpc)
+mcov <- matrix(as.numeric((as.matrix(Diagonal(ncat,vpc))- aux)/n),ncat,ncat)
+ep <- sqrt(diag(mcov))
+epc<-cbind(ep)
+}
+else if(modelo ==2)# produto de multinomias
+{
+vn <- as.numeric(apply(tabela,1,sum))
+vpg<- tabela/vn#c(t(tabela/vn))
+ncatr<- ncol(tabela)
+nmult<-nrow(tabela)
+#vpg[vpg==0]=0.01
+vp <- vpg[1,]
+vpc <- cbind(vp)
+aux <-vpc%*%t(vpc)
+mcov <- matrix((as.matrix(Diagonal(ncatr,vpc))- aux)/vn[1],ncatr,ncatr)
+mcovg <-mcov
+for(j in 2:nmult)
+{
+vp <- vpg[j,]
+vpc <- cbind(vp)
+aux <-vpc%*%t(vpc)
+mcov <- matrix((as.matrix(Diagonal(ncatr,vpc))- aux)/vn[j],ncatr,ncatr)
+mcovg<-bdiag(mcovg,mcov)
+}
+mcov<-as.matrix(bdiag(mcovg))
+vp<- c(t(vpg))
+vpc<-cbind(vp)
+ep<- sqrt(diag(mcov))
+epc<-cbind(ep)
+}
+qic <- qnorm(0.5*(1+gama))
+LIIC <- c(vpc)-c(qic*epc)
+LSIC <- c(vpc)+ c(qic*epc)
+mIC  <- cbind(LIIC,LSIC)
+mIC[mIC[,1]<=0,1]=0
+mIC[mIC[,2]>=1,2]=1
+m.result <-cbind(round(vpc,2),round(epc,2),round(mIC,2))
+rownames(m.result)<-label
+colnames(m.result)<- c("Estimativa","EP","LIIC","LSIC")
+result<- list(vpc=vpc,epc=epc,mIC=mIC,mcov=mcov,label=label)
+return(result)
+}
+
+
+# gera gráficos das porporções estimadas (sem considerar modelos)
+#input= tabela: tabela de contingência
+#       result: objeto com o resultado da aplicação da função estima.theta
+#       oplas: orientação dos "labels" do eixo "x"
+#       eixo: dimensão dos labels dos eixos
+plot.graf.prop<-function(result,oplas,eixo)
+{
+label<-c(result$label)
+vpc<-cbind(c(result$vpc))
+mIC<-(result$mIC)
+mIC<- cbind(c(mIC[,1]),c(mIC[,2]))
+plotCI(vpc,ui=mIC[,2],li=mIC[,1],axes=F,xlab="categoria",ylab="proporções",pch=19,cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2,cex.axis=1.2) 
+axis(1,1:length(vpc),labels=label,cex.axis=eixo,las=oplas)
+}
+
+
+# Realiza testes do tipo Bpi=D para uma única tabela
+# r x s oriunda de um modelo multinomial
+# ou produto de multinomiais
+#input= result: objeto com o resultado da aplicação da função estima.theta
+#       m.B e v.D: matriz e vetor definidores das hipóteses de interesse, respectivamente
+test.Bpi.D<-function(result,m.B,v.D)
+{
+vpc<-cbind(c(result$vpc))
+mcov<-result$mcov
+mcov[mcov==0]<-0.000000000001
+e.Q <-t(m.B%*%vpc-v.D)%*%solve(m.B%*%mcov%*%t(m.B))%*%(m.B%*%vpc-v.D)
+ngl<-nrow(m.B)
+e.pvalor<-1-pchisq(e.Q,ngl)
+cat("Estatistica Q = ",round(e.Q,2),"\n")
+cat("pvalor = ",round(e.pvalor,4),"\n")
+cat("g.l. =",ngl,"\n")
+cat("Matriz B :","\n")
+print(v.D)
+}
+
+# Ajusta modelos de regressão do tipo Api=Xbeta para uma única tabela
+# r x s oriunda de um modelo multinomial
+# ou produto de multinomiais
+#input= result: objeto com o o resultado da aplicação da função estima.theta
+#       m.B e m.X: matrizes definidoras do modelo de interesse
+MR.Api.Xbeta<-function(result,m.A,m.X)
+{
+label<-c(result$label)
+vpc<-cbind(c(result$vpc))
+mcov<-result$mcov
+mcov[mcov==0]<-0.000000000001
+mcovF <- m.A%*%mcov%*%t(m.A)
+auxav <- eigen(mcovF,only.values=TRUE)$values
+nlmcovF <- nrow(mcovF)
+while(min(auxav) <= 0.000000001)
+{
+ mcovF <- mcovF + diag(0.00001,nlmcovF,nlmcovF)
+ auxav <- eigen(mcovF,only.values=TRUE)$values
+}
+imcovF <- solve(mcovF)
+vF <- m.A%*%vpc
+mcovbeta <- solve(t(m.X)%*%imcovF%*%m.X)
+vbeta<- mcovbeta%*%t(m.X)%*%imcovF%*%vF
+epbeta <- cbind(c(sqrt(diag(mcovbeta))))
+epl <- m.X%*%vbeta
+eQ <-t(vF-epl)%*%imcovF%*%(vF-epl)
+ngl<-nrow(m.X)-nrow(vbeta)
+epvalor<-1-pchisq(eQ,ngl)
+result<- list(vpc=vpc,vbeta=vbeta,epbeta=epbeta,mcovbeta=mcovbeta,label=label)
+return(result)
+}
+
+# Testa hipóteses do tipo CB= M para modelos lineares ajustados
+# via função MR.Api.Xbeta
+# input = result: objeto com o resultado da aplicação da função MR.Api.Xbeta
+# Matrizes m.C e v.M
+
+testa.CB.M.Api.Xbeta<-function(result,m.C,v.M)
+{
+  vbeta <- result$vbeta
+  mcovbeta <- result$mcovbeta
+  e.QC <- t(m.C%*%vbeta - v.M)%*%solve(m.C%*%mcovbeta%*%t(m.C))%*%(m.C%*%vbeta - v.M)
+  ngl<-nrow(m.C)
+  e.pvalor<-1-pchisq(e.QC,ngl)
+  print(v.M)
+}
+
+#Estima proporções sob o modelo Api=Xbeta
+#input= result: objeto com o resultado da aplicação da função MR.Api.Xbeta
+#       m.H e v.F: matriz e vetor que recuperam as proporções originais
+estim.prp.ApiXbeta<-function(result,m.H,v.F,gama)
+
+{
+label<-result$label
+vpc <- result$vpc
+vbeta<-result$vbeta
+mcovbeta<-result$mcovbeta
+vpesm <- m.H%*%vbeta + v.F
+mcovsm <- m.H%*%mcovbeta%*%t(m.H)
+vepsm <- sqrt(diag(mcovsm))
+qic <- qnorm(0.5*(1+gama))
+LIIC <- c(vpesm)-c(qic*vepsm)
+LSIC <- c(vpesm)+ c(qic*vepsm)
+mIC  <- cbind(LIIC,LSIC)
+mIC[mIC[,1]<=0,1]=0
+mIC[mIC[,2]>=1,2]=1
+result<- list(vpesm=vpesm,vepsm=vepsm,mcovbeta=mcovbeta,mIC=mIC)
+plot(vpc,axes=F,ylim=c(min(vpc,mIC),max(vpc,mIC)),xlab="categoria",ylab="proporções",cex=1.2)
+plotCI(vpesm,ui=mIC[,2],li=mIC[,1],axes=F,pch=19,cex=1.2,cex.axis=1.2,cex.lab=1.2,add=T)
+axis(2,cex.axis=1.2) 
+axis(1,1:length(vpc),labels=label,cex.axis=1.2)
+}
+
+
+# Ajusta modelos de regressão do tipo AlnGpi=Xbeta para uma única tabela
+# r x s oriunda de um modelo multinomial
+# ou produto de multinomiais
+# input= result: objeto com o o resultado da aplicação da função estima.theta
+#       m.B, m.G e m.X: matrizes definidoras do modelo de interesse
+MR.AlnGpi.Xbeta<-function(result,m.A,m.G,m.X)
+{
+label<-c(result$label)
+vpc<-cbind(c(result$vpc))
+mcov<-result$mcov
+mcov[mcov==0]<-0.000000000001
+auxmG<-m.G%*%vpc
+auxmG[auxmG==0]<-0.000000000001
+m.B <- solve(diag(c(auxmG)))
+mPsi <- m.A%*%m.B%*%m.G
+mcovF <- mPsi%*%mcov%*%t(mPsi)
+auxav <- eigen(mcovF,only.values=TRUE)$values
+nlmcovF <- nrow(mcovF)
+while(min(auxav) <= 0.001)
+{
+ mcovF <- mcovF + diag(0.00001,nlmcovF,nlmcovF)
+ auxav <- eigen(mcovF,only.values=TRUE)$values
+}
+imcovF <- solve(mcovF)
+vF <- m.A%*%(log(auxmG))
+mcovbeta <- solve(t(m.X)%*%imcovF%*%m.X)
+vbeta<- mcovbeta%*%t(m.X)%*%imcovF%*%vF
+epbeta <- cbind(c(sqrt(diag(mcovbeta))))
+epl <- m.X%*%vbeta
+eQ <-t(vF-epl)%*%imcovF%*%(vF-epl)
+ngl<-nrow(m.X)-nrow(vbeta)
+epvalor<-1-pchisq(eQ,ngl)
+cat("Est. dos par. beta","\n")
+print(round(cbind(vbeta,epbeta),2))
+cat("Teste para a qualidade do ajuste do modelo = ",round(eQ,2),"\n")
+cat("pvalor = ",round(epvalor,4),"\n")
+cat("g.l. =",ngl,"\n")
+cat("Matriz A :","\n")
+print(m.A)
+cat("Matriz X :","\n")
+print(m.X)
+result<- list(vpc=vpc,vbeta=vbeta,epbeta=epbeta,mcovbeta=mcovbeta,label=label)
+return(result)
+}
+
+```
+
+
+
+
+Exercício 1
+
+```{r,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
 df_1 = read.csv("WitzelGrande_Singer2000.csv", header = TRUE)
 names(df_1) = c("Material","A","B","C")
 
 ```
 
 
-```{r}
+```{r,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
+library(printr)
 medidas_allbound = as.vector(as.vector(table(subset(df_1,df_1$Material=="Allbond")$A))+as.vector(table(subset(df_1,df_1$Material=="Allbond")$B))+c(table(subset(df_1,df_1$Material=="Allbond")$C),0))
 sum(medidas_allbound)
 
@@ -126,22 +367,43 @@ medidas_optibond = as.vector(c(table(subset(df_1,df_1$Material=="Optibond")$A),0
 sum(medidas_optibond)
 
 medidas_Scotchbond = as.vector(as.vector(table(subset(df_1,df_1$Material=="Scotchbond")$A))+as.vector(table(subset(df_1,df_1$Material=="Scotchbond")$B))+c(table(subset(df_1,df_1$Material=="Scotchbond")$C)))
-
+sum(medidas_Scotchbond)
 
 #o df_11 refere-se a contagem de cada nível de microinfiltração por tipo de material
 df_11 = matrix(c(medidas_allbound,medidas_optibond,medidas_Scotchbond),3,5,byrow=T)
-rownames(df_11)=c("Allbond","Optibond","Scotchbond")
-colnames(df_11)=c("0","1","2","3","4")
 
-data.frame(df_11)
+totais = c(sum(df_11[1,]),sum(df_11[2,]),sum(df_11[3,]))
+
+df_111 = data.frame(df_11,totais)
+
+rownames(df_111)=c("Allbond","Optibond","Scotchbond")
+colnames(df_111)=c("0","1","2","3","4")
+
+df_111
 ```
 
-```{r}
-#cinco níveis
+```{r,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
+#análise descritiva
+estimado_theta_1 = estima.theta(df_11,2,0.05)
+plot.graf.prop(estimado_theta_1,1,0.5)
+```
 
+```{r modelo1_exercicio1,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
+
+B = matrix(c(numeric(15),numeric(15),numeric(15)),3)
+B[1,c(1,6,11)] = c(1,-1,-1)
+
+D = numeric(3)
+```
+
+
+```{r,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
 
 ```
 
+```{r,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
+
+```
 
 
 SUGESTÃO:  
@@ -151,6 +413,8 @@ O código do trabalho poderia terminar antes do início do trabalho de forma a m
 
 ###1.Introdução
 
+
+
 Descrição do problema, conjunto de dados e objetivos.
 
 ###2. Análise Descritiva
@@ -159,13 +423,27 @@ Toda a parte da análise descritiva, incluindo gráficos pertinentes.
 
 ###3. Análise Inferencial
 
-Descrição do(s) modelo(s), análise(s) de resíduo(s), comparações de interesse, gráficos e
+Objetivos: Descrição do(s) modelo(s), análise(s) de resíduo(s), comparações de interesse, gráficos e
 comentários (a escolha dos níveis de significância fica à cargo de cada equipe, devendo os
 valores adotadas, serem informados no relatório). Naturalmente, quando determinado,
 deverão ser usadas as metodologias constantes na questão. Caso a metodologia (modelo)
 usado não se adeque bem aos dados, comentários a respeito deverão ser feitos,
 mencionando que outras metodologias devem ser utilizadas (não, necessariamente, precisa
 ser dito qual(is)).
+
+
+
+
+O Modelo probabílistico gerador da Tabela é o Produto de Multinomiais pois os totais marginais relacionados ao material de Selante em questão e é dado pela seguinte equação:
+
+$N_{i}=(N_{i1},N_{i2},\dots,N_{i(s-1))})^{'}\sim multinomial_{s}(n_{i.},\mathbf{\theta}_{i})$
+
+$\mathbf{{\theta_{i}}}=(\theta_{i1},\theta_{i2},\dots,\theta_{i(s-1))})^{'}$ ((s-1) parâmetros) e $\theta_{ij} \in  (0,1)$
+
+
+Matriz 
+
+
 
 ###4. Conclusões
 
