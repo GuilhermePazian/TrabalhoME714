@@ -361,30 +361,38 @@ names(df_1) = c("Material","A","B","C")
 ```{r,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
 library(printr)
 medidas_allbound = as.vector(as.vector(table(subset(df_1,df_1$Material=="Allbond")$A))+as.vector(table(subset(df_1,df_1$Material=="Allbond")$B))+c(table(subset(df_1,df_1$Material=="Allbond")$C),0))
-sum(medidas_allbound)
+#sum(medidas_allbound)
 
 medidas_optibond = as.vector(c(table(subset(df_1,df_1$Material=="Optibond")$A),0)+c(table(subset(df_1,df_1$Material=="Optibond")$B),0)+c(5,17,1,0,1))
-sum(medidas_optibond)
+#sum(medidas_optibond)
 
 medidas_Scotchbond = as.vector(as.vector(table(subset(df_1,df_1$Material=="Scotchbond")$A))+as.vector(table(subset(df_1,df_1$Material=="Scotchbond")$B))+c(table(subset(df_1,df_1$Material=="Scotchbond")$C)))
-sum(medidas_Scotchbond)
+#sum(medidas_Scotchbond)
 
 #o df_11 refere-se a contagem de cada nível de microinfiltração por tipo de material
 df_11 = matrix(c(medidas_allbound,medidas_optibond,medidas_Scotchbond),3,5,byrow=T)
 
-totais = c(sum(df_11[1,]),sum(df_11[2,]),sum(df_11[3,]))
+dimnames(df_11) <- list(c("A","O","S"),c("0","1","2","3","4"))
+names(dimnames(df_11)) <- c("Material","Nível de microinfiltração")
+df_11
 
-df_111 = data.frame(df_11,totais)
+totais <- c(sum(df_11[1,]),sum(df_11[2,]),sum(df_11[3,]))
 
-rownames(df_111)=c("Allbond","Optibond","Scotchbond")
-colnames(df_111)=c("0","1","2","3","4")
 
-df_111
+tbl_contingencia = as.matrix(data.frame(df_11,totais))
+
+dimnames(tbl_contingencia) <- list(c("Allbond","Optibond","Scotchbond"),c(" 0"," 1"," 2"," 3"," 4"," Total"))
+
+names(dimnames(tbl_contingencia)) <- c("Material","Nível de microinfiltração")
+
+
+tbl_contingencia
 ```
 
 ```{r,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
 #análise descritiva
-estimado_theta_1 = estima.theta(df_11,2,0.05)
+estimado_theta_1 = estima.theta(df_11,2,0.95)
+#fazer uma legenda A = Allbond,  O = Optibond e S = Scotchbond
 plot.graf.prop(estimado_theta_1,1,0.5)
 ```
 
@@ -434,11 +442,12 @@ ser dito qual(is)).
 
 
 
-O Modelo probabílistico gerador da Tabela é o Produto de Multinomiais pois os totais marginais relacionados ao material de Selante em questão e é dado pela seguinte equação:
+O Modelo probabílistico gerador da Tabela é o Produto de Multinomiais Independentes pois os totais marginais relacionados aos tipos de materiais de Selante são fixados, portanto o modelo é dado pela seguinte equação:
 
-$N_{i}=(N_{i1},N_{i2},\dots,N_{i(s-1))})^{'}\sim multinomial_{s}(n_{i.},\mathbf{\theta}_{i})$
+seja i = 1,2,3
+$$N_{i}=(N_{i0},N_{i1},N_{i2},N_{i3},)^{'}\sim multinomial(n_{i.},\mathbf{\theta}_{i})$$
 
-$\mathbf{{\theta_{i}}}=(\theta_{i1},\theta_{i2},\dots,\theta_{i(s-1))})^{'}$ ((s-1) parâmetros) e $\theta_{ij} \in  (0,1)$
+$\mathbf{{\theta_{i}}}=(\theta_{i0},\theta_{i1},\theta_{i2},\theta_{i3})^{'}$ , $\theta_{ij} \in  (0,1)$ e $\theta_{i4} = 1- \sum_{j=0}^{3} \theta_{ij}$
 
 
 Matriz 
