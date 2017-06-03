@@ -444,16 +444,52 @@ ser dito qual(is)).
 
 O Modelo probabílistico gerador da Tabela é o Produto de Multinomiais Independentes pois os totais marginais relacionados aos tipos de materiais de Selante são fixados, portanto o modelo é dado pela seguinte equação:
 
-seja i = 1,2,3
-$$N_{i}=(N_{i0},N_{i1},N_{i2},N_{i3},)^{'}\sim multinomial(n_{i.},\mathbf{\theta}_{i})$$
 
-$\mathbf{{\theta_{i}}}=(\theta_{i0},\theta_{i1},\theta_{i2},\theta_{i3})^{'}$ , $\theta_{ij} \in  (0,1)$ e $\theta_{i4} = 1- \sum_{j=0}^{3} \theta_{ij}$
+
+$$N_{i}=(N_{i0},N_{i1},N_{i2},N_{i3},N_{i4})^{'}\sim multinomial(n_{i.},\mathbf{\theta}_{i}) \ \ i = 1,2,3$$
+
+$N_i\perp N_j\ \forall\ i\neq j \ ;\ i,j=1,2,3$ , $\mathbf{{\theta_{i}}}=(\theta_{i0},\theta_{i1},\theta_{i2},\theta_{i3})^{'}$ e $\theta_{ij} \in  (0,1)$
 
 
 Matriz 
 
+Medida de Desempenho:  
+A medida de desempenho proposta foi a média dos escores ponderadas pela probabilidade de classificação em cada grupo. Temos então que as medidas de desempenho dos materiais são dadas por:
+
+$\bar{S}_{Allbond} = n_{10}\theta_{10} + n_{11}\theta_{11} + n_{12}\theta_{12} + n_{13}\theta_{13} + n_{14}\theta_{14}$  
+$\bar{S}_{Optibond} = n_{20}\theta_{20} + n_{21}\theta_{21} + n_{22}\theta_{22} + n_{23}\theta_{23} + n_{24}\theta_{24}$  
+$\bar{S}_{Scotchbond} = n_{30}\theta_{30} + n_{31}\theta_{31} + n_{32}\theta_{32} + n_{33}\theta_{33} + n_{34}\theta_{34}$
+
+Temos o interesse em testar se as medidas de desempenho dos três materiais são iguais, ou seja, testar a hipóteses:
+
+$$
+H_0: \left\{\begin{matrix}
+\bar{S}_{Allbond} - \bar{S}_{Optibond} = 0\\
+\bar{S}_{Allbond} - \bar{S}_{Scotchbond} = 0
+\end{matrix}\right.\ Vs \ H_1:  Há pelo\ menos\ uma\ diferença
+$$
 
 
+A qual é equivalente a testar:
+
+$$H_0 : \ B\pi = D\ \ Vs\ \ H_1 : B\pi \neq D$$
+
+onde:
+$$
+B = \begin{bmatrix}
+1 & -1 & 0\\ 
+1 & 0 & -1
+\end{bmatrix}\ ; \
+\pi = \begin{bmatrix}
+\bar{S}_{Allbond}\\ 
+\bar{S}_{Optibond}\\ 
+\bar{S}_{Scotchbond}
+\end{bmatrix}\ e \ 
+D = \begin{bmatrix}
+0\\ 
+0
+\end{bmatrix}
+$$
 ###4. Conclusões
 
 O que se pode concluir da análise, em termos do problema apresentado, e críticas em relação
