@@ -83,8 +83,10 @@ knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='Figs/', fig.align='
 
 # pacote utiliado para gráficos
 library(ggplot2)
+
 # pacote que deixa os gráficos do ggplot lado a lado
 library(gridExtra)
+
 # pacotes para manipulação de dados
 library(reshape2)
 library(plyr)
@@ -93,6 +95,7 @@ library(dplyr)
 #pacote para fazer legenda
 library(captioner)
 
+#pacotes para Manipulacao de Matrizes
 library(Matrix)
 library(plotrix)
 library(MASS)
@@ -394,7 +397,7 @@ names(dimnames(tbl_contingencia)) <- c("Material","Nível de microinfiltração"
 
 library(xtable)
 #tbl_contingencia
-#xtable(tbl_contingencia)
+#xtable(tbl_contingencia, digits = 0)
 ```
 
 ```{r estats_descritivas_exerc1}
@@ -417,6 +420,8 @@ g_hist_O = ggplot(data=O, aes(x=Class, y=Valor))+geom_bar(stat="identity",colour
 
 g_hist_S = ggplot(data=S, aes(x=Class, y=Valor))+geom_bar(stat="identity",colour="black", fill="grey",size=1)+ expand_limits(y=c(0,40))+xlab("Tipo de Microinfiltração") + ylab("Quantidade de Dentes") + ggtitle("Quantidade de Dentes selados com Allbond x Tipo de Scotchbond")+theme_bw()
 ```
+
+
 
 ```{r,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
 #análise descritiva
@@ -490,35 +495,30 @@ g1 = ggplot(betas_1, aes(x=c(1,2,3), y=Estimado)) + geom_point(position=pd, size
 #modelo 2
 
 #ajuste do modelo 2
-m.X2 <- matrix(c(1,0,0,1,1,0),3,2,byrow = T)
-A_2 <- matrix(c(rep(c(0:4,rep(0,15)),3)),3,15,byrow = T)
-Resultado_2 = MR.Api.Xbeta(estimado_theta_1,A_2,m.X2)
+m.X2 <- matrix(c(1,0,0,1),2,2,byrow = T)
+
+Resultado_2 = MR.Api.Xbeta(estimado_theta_1,B,m.X2)
 
 # verificação do ajuste do modelo 2
-f_2 = A_2%*%(estimado_theta_1$vpc)
+f_2 = B%*%(estimado_theta_1$vpc)
 
-sigma_f_2 = A_2%*%(estimado_theta_1$mcov)%*%t(A_2)
+sigma_f_2 = B%*%(estimado_theta_1$mcov)%*%t(B)
 
 beta_2 = Resultado_2$vbeta
 
 f_menos_xbeta_2 = (f_2-m.X2%*%(beta_2))
 
-#estatística qui-quadrado para ajuste do modelo
 qr_2 = t(f_menos_xbeta_2)%*%ginv(sigma_f_2)%*%(f_menos_xbeta_2)
 
 betas_2 = data.frame(Resultado_2$vbeta,Resultado_2$epbeta,Resultado_2$vbeta-1.96*Resultado_2$epbeta,Resultado_2$vbeta+1.96*Resultado_2$epbeta)
 names(betas_2)=c("Estimado","DP","LIIC","LSIC")
 
-# gráfico de de estimativas para o modelo 2 e seus respectivos erros padrão, não tem sentido colocar no trabalho se o modelo não se ajustar bem
+# gráfico de de estimativas para o modelo 2 e seus respectivos erros padrão
 g2 = ggplot(betas_2, aes(x=c(1,2), y=Estimado)) + geom_point(position=pd, size=3, shape=21, fill="white")+ 
   geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)
 ```
 
 
-
-
-SUGESTÃO:  
-O código do trabalho poderia terminar antes do início do trabalho de forma a melhorar a vizualização e organização
 
 \doublespacing
 
@@ -530,6 +530,8 @@ O código do trabalho poderia terminar antes do início do trabalho de forma a m
 
 ###2. Análise Descritiva
 
+
+
 *Toda a parte da análise descritiva, incluindo gráficos pertinentes.*
 
 \begin{table}[ht]
@@ -539,22 +541,16 @@ O código do trabalho poderia terminar antes do início do trabalho de forma a m
   & & \multicolumn{4}{l}{Nível de microinfiltração} & \\
 Material &  0 &  1 &  2 &  3 &  4 &  Total \\ 
   \hline
-Allbond & 9 & 18 & 31 & 12 & 2 & 72 \\ 
-  Optibond & 26 & 34 & 8 & 3 & 1 & 72 \\ 
-  Scotchbond & 9 & 17 & 15 & 25 & 6 & 72 \\ 
+Allbond & 9,00 & 18,00 & 31,00 & 12,00 & 2,00 & 72,00 \\ 
+  Optibond & 26,00 & 34,00 & 8,00 & 3,00 & 1,00 & 72,00 \\ 
+  Scotchbond & 9,00 & 17,00 & 15,00 & 25,00 & 6,00 & 72,00 \\ 
    \hline
 \end{tabular}
 \end{table}
 
 Acima observa-se as contagens das classificações por tipo de material selante.
 
-Definir-se-á uma estatística para podermos captar algum indício de que um Material Selante possui melhor desempenho do que os outros, sabendo que quanto mais dentes forem classificados com 0 ou 1, melhor será o Material, logo:
-
-Seja $soma_{01i}$ definida como sendo a soma das contagens de classificações 0 ou 1 feita no i-ésimo material. Seja $somatotal_{i}$ igual ao total de dentes analisados por tipo de material, que pelo problema sabe-se que são setenta e dois. Essa estatística pode ser considerada uma proporção e visa identificar qual Material produz os casos de Maior interesse em relação ao problema, expressando-se os resultados numa porcentagem.
-
-Logo, $$soma_{01i}=\frac{soma_{0i}+soma_{1i}}{72}$$ para $i=1,2,3$
-
-Portanto, para o material Allbond obteve-se $soma_{011}=\frac{soma_{01}+soma_{11}}{72}=\frac{9}+soma_{18}}{72}=$ `r medias_A`. Já para Optibond, $soma_{012}=\frac{soma_{02}+soma_{12}}{72}=\frac{26}+soma_{34}}{72}=$ `r medias_O`. Para Scotchbond, $soma_{013}=\frac{soma_{03}+soma_{13}}{72}=\frac{9}+soma_{17}}{72}=$ `r medias_S`
+Vamos definir uma estatística para podermos captar algum indício de que um Material Selante possui melhor desempenho do que os outros, sabendo que quanto mais dentes forem classificados com 0 ou 1, melhor será o Material.
 
 ```{r}
 g_hist_A
@@ -562,11 +558,23 @@ g_hist_A
 g_hist_O
 
 g_hist_S
-
-#plot.graf.prop(estimado_theta_1,1,0.5)
 ```
 
-O Modelo probabilistico gerador da Tabela é o Produto de Multinomiais Independentes pois os totais marginais relacionados aos tipos de materiais de Selante são fixados, portanto o modelo é dado pela seguinte equação:
+```{r}
+plot.graf.prop(estimado_theta_1,1,0.5)
+```
+
+
+###3. Análise Inferencial
+
+*Objetivos: Descrição do(s) modelo(s), análise(s) de resíduo(s), comparações de interesse, gráficos e comentários (a escolha dos níveis de significância fica à cargo de cada equipe, devendo os valores adotadas, serem informados no relatório). Naturalmente, quando determinado, deverão ser usadas as metodologias constantes na questão. Caso a metodologia (modelo) usado não se adeque bem aos dados, comentários a respeito deverão ser feitos, mencionando que outras metodologias devem ser utilizadas (não, necessariamente, precisa ser dito qual(is)).*
+
+
+
+
+O Modelo probabílistico gerador da Tabela é o Produto de Multinomiais Independentes pois os totais marginais relacionados aos tipos de materiais de Selante são fixados, portanto o modelo é dado pela seguinte equação:
+
+
 
 $$N_{i}=(N_{i0},N_{i1},N_{i2},N_{i3},N_{i4})^{'}\sim multinomial(n_{i.},\mathbf{\theta}_{i}) \ \ i = 1,2,3$$
 
@@ -588,7 +596,7 @@ $$
 H_0: \left\{\begin{matrix}
 \bar{S}_{Allbond} - \bar{S}_{Optibond} = 0\\
 \bar{S}_{Allbond} - \bar{S}_{Scotchbond} = 0
-\end{matrix}\right.\ Vs \ H_1:  \textrm{Há\ pelo\ menos\ uma\ diferença}
+\end{matrix}\right.\ Vs \ H_1:  Há\ pelo\ menos\ uma\ diferença
 $$
 
 
@@ -650,7 +658,7 @@ Os vetores $B_1$, $\pi$ e D estão definidos em anexo.
 A partir do teste da hipótese acima, observou-se um valor de `r as.double(t.BpiD_ex1b_SaxSo$"Estatistica Q")` que , respeitando-se os graus de liberdade da estatística do teste ("`r t.BpiD_ex1b_SaxSo$g.l.`" nesse caso), obtemos um p-valor de `r ifelse(as.double(t.BpiD_ex1b_SaxSo$pvalor) < 0.0001,"<0.0001",as.double(t.BpiD_ex1b_SaxSo$pvalor))`
 
 $$
-H_{02}: \bar{S}_{Allbond} - \bar{S}_{Scotchbond} = 0 \ Vs \ H_{12}: \bar{S}_{Allbond} - \bar{S}_{Scotchbond} \neq 0
+H_{02}: \bar{S}_{Allbond} - \bar{S}_{Scotchbond} = 0 = 0 \ Vs \ H_{12}: \bar{S}_{Allbond} - \bar{S}_{Scotchbond} \neq 0
 $$
 A qual é equivalente a testar:
 
@@ -671,15 +679,13 @@ Os vetores $B_3$, $\pi$ e D estão definidos em anexo.
 Os vetores $B_2$, $\pi$ e D estão definidos em anexo.
 A partir do teste da hipótese acima, observou-se um valor de `r as.double(t.BpiD_ex1b_SoxSs$"Estatistica Q")` que , respeitando-se os graus de liberdade da estatística do teste ("`r t.BpiD_ex1b_SoxSs$g.l.`" nesse caso), obtemos um p-valor de `r ifelse(as.double(t.BpiD_ex1b_SoxSs$pvalor) < 0.0001,"<0.0001",as.double(t.BpiD_ex1b_SoxSs$pvalor))`.
 
-Portanto, temos a indicação de que as medidas de desempenho dos três materiais diferem estatísticamente entre si.
+Portanto, eles não são iguais dois a dois em nenhum par.
 
+Uma outra análise que pode ser feita é utilizando um modelo de regressão linear para Tabela de Contingência, escrito na forma $A\pi =X\beta$.
 
+Primeiramente, utilizando esse modelo achar-se-á as estimativas para cada medida de desempenho definidas acima, que pode ser vista como o teste para hipótese $H_{0}$. Depois, utilizando a medida de desempenho para Allbond como referência, compararemos as outras duas medidas em relação aquela para determinação de qual é o melhor material
 
-Uma outra análise poderia ser feita a partir de um modelo de regressão linear para Tabela de Contingência, escrito na forma $A\pi =X\beta$.
-
-Dados os resultados expostos anteriormente, podemos testar o ajuste de um modelo que leva em consideração a hipótese de que todos as medidas de desempenho dos materiais são diferentes, e partir desse modelo se obtem as estimativas para a medida de desempenho de cada material. 
-
-Pode-se observar, através da tabela XXX os valores estimados da medida de desempenho de cada material (MD Estimada), seus respectivos desvios padrão (DP) e intervalos de confiança (LIIIC e LSIC são respectivamente os limites inferior e superior dos intervalos de confiança para as medidas de desempenho levando-se um consideração um nível de confiança de 95%).
+Com a primeira abordagem, pode-se observar que os valores estimados para os valores de cada medida, desvios padrões e respectivos intervalos de confiança podem ser visualizados na tabela abaixo
 
 Para fácil identificação, os nomes das colunas indicando as quantidades calculadas foi renomeada para melhor visualização. DP significa desvio Padrão, LIIC significa Limite Inferior do Intervalo de Confiança(IC) e LSIC, Limite Superior do IC. 
 
@@ -687,37 +693,31 @@ Para fácil identificação, os nomes das colunas indicando as quantidades calcu
 \centering
 \begin{tabular}{rrrrr}
   \hline
-Material & MD Estimada & DP & LIIC & LSIC \\ 
+ & Estimado & DP & LIIC & LSIC \\ 
   \hline
-Allbond & 1.72 & 0.11 & 1.50 & 1.95 \\ 
-Optibond & 0.87 & 0.10 & 0.68 & 1.07 \\ 
-Scotchbond & 2.03 & 0.14 & 1.75 & 2.30 \\ 
+1 & 1.72 & 0.11 & 1.50 & 1.95 \\ 
+  2 & 0.87 & 0.10 & 0.68 & 1.07 \\ 
+  3 & 2.03 & 0.14 & 1.75 & 2.30 \\ 
    \hline
 \end{tabular}
 \end{table}
 
-A figura XXX é uma representação gráfica dos Intervalos de confiança apresentados na tabela XXX.
+A estatística 
 
-`r g1`
-
-Note que, os intervalos de confiança para as medidas dos materiais Allbond e Scothbond, apesar de não ter nenhuma intersecção, são bem próximos, o que também indica a proximidade das medidas de desempenho destes materiais. O respectivo intervalo de confiança para o material Opitbond é vizualmente bem distante dos demais, o que nos indica um melhor desempenho deste, uma vez que observamos este intervalo abaixo dos demais. 
-
-Como, a partir dos testes do tipo $B\pi = D$, obtivemos um nível de significância marginal (`r ifelse(as.double(t.BpiD_ex1b_SaxSs$pvalor) < 0.0001,"<0.0001",as.double(t.BpiD_ex1b_SaxSs$pvalor))` ) é interessante fazer um teste do tipo $C\beta = M$ para verificar, utilizando outra metodologia, a igualdade das medidas de desempenho dos materiais $\bar{S}_{Allbond}$ e $\bar{S}_{Scotchbond}$. Temos então o teste:
-
-$$
-H_{0}: \bar{S}_{Allbond} - \bar{S}_{Scotchbond} = 0 \ Vs \ H_{1}: \bar{S}_{Allbond} - \bar{S}_{Scotchbond} \neq 0 \\
-\leftrightarrow \\ 
-C\beta = M
-$$
-Onde
-$$C =  $$
-A estatística  
-**acho que não precisa esse modelo, reservar caso falte algo**
-Depois, utilizando a medida de desempenho para Allbond como referência, compararemos as outras duas medidas em relação aquela para determinação de qual é o melhor material
 
 Já para o segundo modelo, temos a seguinte tabela
 
-
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+  & Estimado & LIIC & LSIC \\ 
+  \hline
+1 & 0.85 & 0.55 & 1.15 \\ 
+  2 & -0.31 & -0.66 & 0.05 \\  
+   \hline
+\end{tabular}
+\end{table}
 
 ###4. Conclusões
 
@@ -866,8 +866,11 @@ H_0: \left\{\begin{matrix}
 \bar{S}_{Allbond} = \alpha_{1} \\
 \bar{S}_{Optibond} = \alpha_{2} \\
 \bar{S}_{Scotchbond} = \alpha_{3} \\
-\end{matrix}\right.\ Vs \ H_1:  \textrm{Há\ pelo\ menos\ uma\ diferença}
-$$
+\end{matrix}\right.\ $$ 
+
+Vs 
+
+$$\ H_1:$$  Há pelo menos uma diferença
 
 Temos então o modelo de regressão definido como
 
