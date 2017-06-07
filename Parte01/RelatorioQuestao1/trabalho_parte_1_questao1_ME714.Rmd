@@ -550,14 +550,26 @@ Seja $soma_{01i}$ definida como sendo a soma das contagens de classificações 0
 
 Logo, $$soma_{01i}=\frac{soma_{0i}+soma_{1i}}{72}$$ para $i=1,2,3$
 
-Portanto, para o material Allbond obteve-se $$soma_{011}=\frac{soma_{01}+soma_{11}}{72}=\frac{9+18}{72}=\frac{27}{72}$$ `r medias_A`. 
-Já para Optibond, $$soma_{012}=\frac{soma_{02}+soma_{12}}{72}=\frac{26+34}{72}=\frac{60}{72}=$$ `r medias_O`. 
-Para Scotchbond, $$soma_{013}=\frac{soma_{03}+soma_{13}}{72}=\frac{9+17}{72}=\frac{26}{72}$$ `r medias_S`
+Portanto, para o material Allbond obteve-se $$soma_{011}=\frac{soma_{01}+soma_{11}}{72}=\frac{9+18}{72}=\frac{27}{72}$$
 
-Logo, medindo esses resultados em porcentagem, temos que para Allbond `r medias_A`% das classificações estão alocadas entre 0 e 1. Utilizando mesmo raciocínio, para Optibond `r medias_O`% e, Scotchbond `r medias_S`%. 
+Já para Optibond, $$soma_{012}=\frac{soma_{02}+soma_{12}}{72}=\frac{26+34}{72}=\frac{60}{72}=$$
+
+Para Scotchbond, $$soma_{013}=\frac{soma_{03}+soma_{13}}{72}=\frac{9+17}{72}=\frac{26}{72}$$
+
+Logo, medindo esses resultados em porcentagem, temos que para Allbond `r medias_soma01_A`% das classificações estão alocadas entre 0 e 1. Utilizando mesmo raciocínio, para Optibond `r medias_soma01_O`% e, Scotchbond `r medias_soma01_S`%. 
 Baseados nestes resultados, observa-se que o Selente Optibond possui maiores classificações situadas entre os menores níveis de microinfiltração, sugerindo que esse material tenha melhor desempenho que os outros. Vê-se também que os resultados para Allbond e Scotchbond são semelhantes porém, nenhuma conclusão pode ser aferida pois há de se observar aonde residem as maiores proporções de classificação, se entre o valor intermediário 2 ou nos valores mais extremos 3 e 4.
 
 Observa-se nas figuras X1,X2,X3 os seguintes comportamentos:
+
+Na primeira destas, observa-se uma prevalecência das classificações em torno de 2, e a identificação com a segunda maior quantidade é a 1 , sugerindo que esse método tem níveis razoáveis de microinfiltração e talvez não seja o que proporciona os menores nívei.
+
+Na segunda figura, especula-se a sua superioridade na retenção de microinfiltração pois constata-se visualmente que as maiores categorizações se situam nos valores de 0 e 1.
+
+A terceira figura evidencia uma pior rotulamento em relacionado aos demais pois há maiores quantidades no valor de 3, e outras razoáveis entre 1 e 2, que sugerem um pior desempenho em relação aos outros métodos de selagem.
+
+
+
+
 ```{r}
 g_hist_A
 
@@ -567,6 +579,17 @@ g_hist_S
 
 #plot.graf.prop(estimado_theta_1,1,0.5)
 ```
+
+
+
+```{r}
+plot.graf.prop(estimado_theta_1,1,0.5)
+```
+
+
+###3. Análise Inferencial
+
+*Objetivos: Descrição do(s) modelo(s), análise(s) de resíduo(s), comparações de interesse, gráficos e comentários (a escolha dos níveis de significância fica à cargo de cada equipe, devendo os valores adotadas, serem informados no relatório). Naturalmente, quando determinado, deverão ser usadas as metodologias constantes na questão. Caso a metodologia (modelo) usado não se adeque bem aos dados, comentários a respeito deverão ser feitos, mencionando que outras metodologias devem ser utilizadas (não, necessariamente, precisa ser dito qual(is)).*
 
 
 
