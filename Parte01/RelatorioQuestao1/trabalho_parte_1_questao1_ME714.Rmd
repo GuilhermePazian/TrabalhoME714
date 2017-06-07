@@ -480,7 +480,7 @@ pd <- position_dodge(0.1)
 
 # gráfico de de estimativas para o modelo 1 e seus respectivos erros padrão
 g1 = ggplot(betas_1, aes(x=c(1,2,3), y=Estimado)) + geom_point(position=pd, size=3, shape=21, fill="white")+ 
-  geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)
+  geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)+theme_bw()
 
 
 #modelo 2
@@ -507,7 +507,7 @@ names(betas_2)=c("Estimado","DP","LIIC","LSIC")
 
 # gráfico de de estimativas para o modelo 2 e seus respectivos erros padrão, não tem sentido colocar no trabalho se o modelo não se ajustar bem
 g2 = ggplot(betas_2, aes(x=c(1,2), y=Estimado)) + geom_point(position=pd, size=3, shape=21, fill="white")+ 
-  geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)
+  geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)+theme_bw()
 ```
 
 
@@ -556,7 +556,7 @@ Já para Optibond, $$soma_{012}=\frac{soma_{02}+soma_{12}}{72}=\frac{26+34}{72}=
 
 Para Scotchbond, $$soma_{013}=\frac{soma_{03}+soma_{13}}{72}=\frac{9+17}{72}=\frac{26}{72}$$
 
-Logo, medindo esses resultados em porcentagem, temos que para Allbond `r medias_soma01_A`% das classificações estão alocadas entre 0 e 1. Utilizando mesmo raciocínio, para Optibond `r medias_soma01_O`% e, Scotchbond `r medias_soma01_S`%. 
+Logo, medindo esses resultados em porcentagem, temos que para Allbond `r medias_soma01_A` % das classificações estão alocadas entre 0 e 1. Utilizando mesmo raciocínio, para Optibond `r medias_soma01_O` % e, Scotchbond `r medias_soma01_S` %. 
 Baseados nestes resultados, observa-se que o Selente Optibond possui maiores classificações situadas entre os menores níveis de microinfiltração, sugerindo que esse material tenha melhor desempenho que os outros. Vê-se também que os resultados para Allbond e Scotchbond são semelhantes porém, nenhuma conclusão pode ser aferida pois há de se observar aonde residem as maiores proporções de classificação, se entre o valor intermediário 2 ou nos valores mais extremos 3 e 4.
 
 Observa-se nas figuras X1,X2,X3 os seguintes comportamentos:
@@ -565,10 +565,11 @@ Na primeira destas, observa-se uma prevalecência das classificações em torno 
 
 Na segunda figura, especula-se a sua superioridade na retenção de microinfiltração pois constata-se visualmente que as maiores categorizações se situam nos valores de 0 e 1.
 
-A terceira figura evidencia uma pior rotulamento em relacionado aos demais pois há maiores quantidades no valor de 3, e outras razoáveis entre 1 e 2, que sugerem um pior desempenho em relação aos outros métodos de selagem.
+A terceira figura, X3, evidencia uma pior rotulamento em relacionado aos demais pois há maiores quantidades no valor de 3, e outras razoáveis entre 1 e 2, que sugerem um pior desempenho em relação aos outros métodos de selagem.
 
+Já na figura 4, pode-se visualizar as diferenças entre as proporções para cada grupo, no eixo das abcissas, pode ser observar que as observações estão ordenadas por Selantes(A=Allbond, O=Optibond e S=Scotchbond) e suas respectivas classificações. Com isso, podemos observar, o que foi obersavo no gráfico de barras, porém nesse gráfico há a informação das proporções de cada categorização e com isso, vemos, que para para Allbond a classificação 2 teve a maior proporção dentre os setente e dois dentes analisados, com cerca de 40% desta. Para Optibond, observa-se que a Classificação 1 é a que possui maior a proporção, com cerca de 40% destas. Para Scotchbond, a categorização 3 foi a mais ocorrente, com cerca de 30%. Levando em conta que quanto maior a proporção de classificação em valores menores, como 0 ou 1, melhor será o material, pode-se inferir que o melhor material é o Optibond, seguido do Allbond e do Scotchbond.
 
-
+Portanto, das análises descritivas podemos concluir que há indicios de termos um material que é relativamente melhor que os outros, este é o Optibond. Seguidamente, pode-se concluir que há distinções entre os materiais Allbond e Scotchbond, tendo aquele melhor desmepenho em relação a este. Portanto, a análise inferencial porcurará confrontar essas conjecturas, ou confirmando-as ou rejeitando-as.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 
 ```{r}
 g_hist_A
@@ -700,8 +701,6 @@ Os vetores $B_2$, $\pi$ e D estão definidos em anexo.
 A partir do teste da hipótese acima, observou-se um valor de `r as.double(t.BpiD_ex1b_SoxSs$"Estatistica Q")` que , respeitando-se os graus de liberdade da estatística do teste ("`r t.BpiD_ex1b_SoxSs$g.l.`" nesse caso), obtemos um p-valor de `r ifelse(as.double(t.BpiD_ex1b_SoxSs$pvalor) < 0.0001,"<0.0001",as.double(t.BpiD_ex1b_SoxSs$pvalor))`.
 
 Portanto, temos a indicação de que as medidas de desempenho dos três materiais diferem estatísticamente entre si.
-
-
 
 Uma outra análise poderia ser feita a partir de um modelo de regressão linear para Tabela de Contingência, escrito na forma $A\pi =X\beta$.
 

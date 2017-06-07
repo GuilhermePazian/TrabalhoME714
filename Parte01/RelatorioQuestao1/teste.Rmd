@@ -12,7 +12,6 @@ header-includes:
 - \usepackage{lipsum}
 - \usepackage{multicol}
 output:
-  pdf_document:
   html_document: default
   fig_caption: yes
   mainfont: Times New Roman
