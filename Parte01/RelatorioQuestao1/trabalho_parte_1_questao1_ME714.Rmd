@@ -78,7 +78,7 @@ knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='Figs/', fig.align='
 #eval= FALSE faz com que o R ignore este chunk
 #echo = FALSE não permite que o chunk apareça no pdf
 
-#pacotes = c("tidyverse","plyr","dplyr","reshape2","knitr","captioner","gdata","gridExtra","Matrix","plotrix")
+#pacotes = c("tidyverse","plyr","dplyr","reshape2","knitr","captioner","gdata","gridExtra","Matrix","plotrix","xtable")
 #install.packages(pacotes)
 
 # pacote utiliado para gráficos
@@ -104,11 +104,7 @@ tbls <- captioner(prefix="Tabela")
 #install.packages(c("tidyverse","gridExtra","car","captioner","gvlma"))
 
 #instalacao de um pacote pra "printar" tabelas mais bonitinhas
-#install.packages(
-# 'printr',
-# type = 'source',
-# repos = c('http://yihui.name/xran', 'http://cran.rstudio.com')
-#)
+#install.packages('printr',type = 'source',repos = c('http://yihui.name/xran', 'http://cran.rstudio.com'))
 
 ```
 
@@ -407,9 +403,9 @@ A = subset(op, Material == "A")
 O = subset(op, Material == "O")
 S = subset(op, Material == "S")
 
-medias_A = sum(as.integer(df_11[1,1:2]))/sum(as.integer(df_11[1,]))
-medias_O = sum(as.integer(df_11[2,1:2]))/sum(as.integer(df_11[2,]))
-medias_S =sum(as.integer(df_11[3,1:2]))/sum(as.integer(df_11[3,]))
+medias_soma01_A = round(sum(as.integer(df_11[1,1:2]))/sum(as.integer(df_11[1,]))*100,2)
+medias_soma01_O = round(sum(as.integer(df_11[2,1:2]))/sum(as.integer(df_11[2,]))*100,2)
+medias_soma01_S = round(sum(as.integer(df_11[3,1:2]))/sum(as.integer(df_11[3,]))*100,2)
 
 g_hist_A = ggplot(data=A, aes(x=Class, y=Valor))+geom_bar(stat="identity",colour="black", fill="grey",size=1)+ expand_limits(y=c(0,40))+xlab("Tipo de Microinfiltração") + ylab("Quantidade de Dentes") + ggtitle("Quantidade de Dentes selados com Allbond x Tipo de Microinfiltração")+theme_bw()
 
@@ -554,8 +550,14 @@ Seja $soma_{01i}$ definida como sendo a soma das contagens de classificações 0
 
 Logo, $$soma_{01i}=\frac{soma_{0i}+soma_{1i}}{72}$$ para $i=1,2,3$
 
-Portanto, para o material Allbond obteve-se $soma_{011}=\frac{soma_{01}+soma_{11}}{72}=\frac{9}+soma_{18}}{72}=$ `r medias_A`. Já para Optibond, $soma_{012}=\frac{soma_{02}+soma_{12}}{72}=\frac{26}+soma_{34}}{72}=$ `r medias_O`. Para Scotchbond, $soma_{013}=\frac{soma_{03}+soma_{13}}{72}=\frac{9}+soma_{17}}{72}=$ `r medias_S`
+Portanto, para o material Allbond obteve-se $$soma_{011}=\frac{soma_{01}+soma_{11}}{72}=\frac{9+18}{72}=\frac{27}{72}$$ `r medias_A`. 
+Já para Optibond, $$soma_{012}=\frac{soma_{02}+soma_{12}}{72}=\frac{26+34}{72}=\frac{60}{72}=$$ `r medias_O`. 
+Para Scotchbond, $$soma_{013}=\frac{soma_{03}+soma_{13}}{72}=\frac{9+17}{72}=\frac{26}{72}$$ `r medias_S`
 
+Logo, medindo esses resultados em porcentagem, temos que para Allbond `r medias_A`% das classificações estão alocadas entre 0 e 1. Utilizando mesmo raciocínio, para Optibond `r medias_O`% e, Scotchbond `r medias_S`%. 
+Baseados nestes resultados, observa-se que o Selente Optibond possui maiores classificações situadas entre os menores níveis de microinfiltração, sugerindo que esse material tenha melhor desempenho que os outros. Vê-se também que os resultados para Allbond e Scotchbond são semelhantes porém, nenhuma conclusão pode ser aferida pois há de se observar aonde residem as maiores proporções de classificação, se entre o valor intermediário 2 ou nos valores mais extremos 3 e 4.
+
+Observa-se nas figuras X1,X2,X3 os seguintes comportamentos:
 ```{r}
 g_hist_A
 
@@ -565,6 +567,9 @@ g_hist_S
 
 #plot.graf.prop(estimado_theta_1,1,0.5)
 ```
+
+
+
 
 O Modelo probabilistico gerador da Tabela é o Produto de Multinomiais Independentes pois os totais marginais relacionados aos tipos de materiais de Selante são fixados, portanto o modelo é dado pela seguinte equação:
 
@@ -698,7 +703,9 @@ Scotchbond & 2.03 & 0.14 & 1.75 & 2.30 \\
 
 A figura XXX é uma representação gráfica dos Intervalos de confiança apresentados na tabela XXX.
 
-`r g1`
+```{r}
+g1
+```
 
 Note que, os intervalos de confiança para as medidas dos materiais Allbond e Scothbond, apesar de não ter nenhuma intersecção, são bem próximos, o que também indica a proximidade das medidas de desempenho destes materiais. O respectivo intervalo de confiança para o material Opitbond é vizualmente bem distante dos demais, o que nos indica um melhor desempenho deste, uma vez que observamos este intervalo abaixo dos demais. 
 
