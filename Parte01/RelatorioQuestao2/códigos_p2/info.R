@@ -1,5 +1,6 @@
 library(dplyr)
 library(ggplot2)
+library(xtable)
 #Tabela dos dados de germinação
 
 teste <- scan("~/Documentos/Discretos/discretos_2017/trabalho/sementes.dat", what = list(integer(), character(), integer(), integer()))
@@ -34,7 +35,7 @@ dados <- cbind(dados, prop_sd)
 par(mfrow=c(1,2))
 plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=1.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas")
 axis(2,cex.axis=1.2)
-axis(1,1:3,c("21","42", "62"),cex.axis=1.2)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=1.2)
 plotCI(dados$`proporção de sementes germinadas`[1:3],liw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],uiw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
 lines(dados$`proporção de sementes germinadas`[1:3],lwd=2,col=4)
 plotCI(dados$`proporção de sementes germinadas`[4:6],liw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],uiw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
@@ -46,7 +47,7 @@ legend(1,0.15,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidad
 
 plot(dados$`proporção de sementes germinadas`[10:12],axes=FALSE,ylim=c(0.0,1.0),cex.lab=1.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas")
 axis(2,cex.axis=1.2)
-axis(1,1:3,c("21","42", "62"),cex.axis=1.2)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=1.2)
 plotCI(dados$`proporção de sementes germinadas`[10:12],liw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],uiw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
 lines(dados$`proporção de sementes germinadas`[10:12],lwd=2,col=4)
 plotCI(dados$`proporção de sementes germinadas`[13:15],liw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],uiw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
@@ -56,6 +57,26 @@ lines(dados$`proporção de sementes germinadas`[16:18],lwd=2,col=1)
 
 legend(1,0.15,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade baixa para germinação em 21ºC","Umidade média para germinação em 21ºC", "Umidade alta para germinação em 21ºC"),bty="n",cex=1)
 
+#Observar o efeito crescente do nível de temperatura e decrescente da proporção de sementes germinadas para ambas as 
+#temperaturas de germinação. Com isso, pode-se perceber que existe interação entre os níveis de umidade e temperatura, dentro
+#de cada nível de temperatura de germinação.
+
+
+########################################################################################################################
+
+#Medidas resumo. Observar que os valores obtidos referem-se a informações por temperatura de germinação, em um determinado
+#nível de umidade, isto é, média para os valores de sementes germinadas em uma determinada temperatura de germinação,
+#a um determinado nível de umidade
+
+ajuda <- dados %>% group_by(temp.germ,nivel.um) %>% summarise(DP=sd(sem.germ), medias = mean(sem.germ))
+ajuda <- data.frame(ajuda)
+cvs <- 100*ajuda$DP/ajuda$medias
+med.resumo <- dados %>% group_by(temp.germ,nivel.um) %>% summarise(media = mean(sem.germ), vari = var(sem.germ), DP = sd(sem.germ), MAX = max(sem.germ), MIN = min(sem.germ))
+med.resumo <- data.frame(med.resumo)
+
+med.resumo <- cbind(med.resumo, cvs)
+
+xtable(med.resumo)
 
 ########################################################################################################################
 #Descritivas
