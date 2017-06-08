@@ -272,7 +272,9 @@ testa.CB.M.Api.Xbeta<-function(result,m.C,v.M)
   e.QC <- t(m.C%*%vbeta - v.M)%*%solve(m.C%*%mcovbeta%*%t(m.C))%*%(m.C%*%vbeta - v.M)
   ngl<-nrow(m.C)
   e.pvalor<-1-pchisq(e.QC,ngl)
-  print(v.M)
+  resultado <- list(round(e.QC,2),round(e.pvalor,4),ngl,m.C,v.M)
+names(resultado) <- c("Estatistica Q","pvalor","g.l.","C","M")
+return(resultado)
 }
 
 #Estima proporções sob o modelo Api=Xbeta
@@ -483,7 +485,7 @@ g1 = ggplot(betas_1, aes(x=c(1,2,3), y=Estimado)) + geom_point(position=pd, size
   geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)+theme_bw()
 
 
-#modelo 2
+#modelo 2 Não vamos usa-lo por enquanto
 
 #ajuste do modelo 2
 m.X2 <- matrix(c(1,0,0,1,1,0),3,2,byrow = T)
@@ -510,6 +512,12 @@ g2 = ggplot(betas_2, aes(x=c(1,2), y=Estimado)) + geom_point(position=pd, size=3
   geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)+theme_bw()
 ```
 
+```{r}
+m.C = matrix(c(1,0,-1),1,3)
+v.M = 0
+testeCB <- testa.CB.M.Api.Xbeta(Resultado_1,m.C,v.M)
+
+```
 
 
 
@@ -739,7 +747,16 @@ H_{0}: \bar{S}_{Allbond} - \bar{S}_{Scotchbond} = 0 \ Vs \ H_{1}: \bar{S}_{Allbo
 C\beta = M
 $$
 Onde
-$$C =  $$
+$$C =  \begin{bmatrix}
+1 & 0 & -1 
+\end{bmatrix} ; \ \  \beta = \begin{bmatrix}
+\bar{S}_{Allbond}\\ 
+\bar{S}_{Optibond}\\ 
+\bar{S}_{Scotchbond}
+\end{bmatrix}\  e\ \  M = \begin{bmatrix}
+0
+\end{bmatrix}
+$$ 
 A estatística  
 **acho que não precisa esse modelo, reservar caso falte algo**
 Depois, utilizando a medida de desempenho para Allbond como referência, compararemos as outras duas medidas em relação aquela para determinação de qual é o melhor material
