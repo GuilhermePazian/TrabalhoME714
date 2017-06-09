@@ -114,7 +114,7 @@ tbls <- captioner(prefix="Tabela")
 
 # legenda para a primeira tabela(estats descr) do primeiro exercício
 legenda_table1 = tbls(name="table_dados",caption = "Dados do Problema")
-legenda_table2 = tbls(name="table_comparacao",caption = "Estimativas dos parâmetros, intervalo de confiança e teste de nulidade para o modelo 1")
+legenda_table2 = tbls(name="table_Estimativa",caption = "Estimativas dos parâmetros e respectivos desvio padrão e intervalo de confiança")
 legenda_table3 = tbls(name="coeff_fit_otimo",caption = "Estimativas dos parâmetros, intervalo de confiança e teste de nulidade para o modelo 2")
 legenda_table4 = tbls(name="table_mult",caption = "Tabela dos coeficientes de correlação linear entre as covariáveis")
 legenda_table5 = tbls(name="table_comp1",caption = "Tabela de Comparação dos modelos 1, 2 e 3")
@@ -127,8 +127,8 @@ legenda_graf1 = figs(name="graf1_barra",caption = "Quantidade de Dentes selados 
 #legenda para o primeiro grárico de dispersão
 legenda_graf2 = figs(name="graf2_barra",caption = "Quantidade de Dentes selados com Optibond x Tipo de Microinfiltração")
 legenda_graf3 = figs(name="graf3_barra",caption = "Quantidade de Dentes selados com Scotchbond x Tipo de Microinfiltração")
-legenda_graf4 = figs(name="graf4_residuos",caption = "Análise residual para o modelo 2")
-legenda_graf5 = figs(name="graf5_envelope",caption = "Gráfico de envelope para os resíduos studentizado para o modelo 2")
+legenda_graf4 = figs(name="graf4_Prop_medias",caption = "Gráfico de Proporções médias com seus respectivos intervalos de confiança")
+legenda_graf5 = figs(name="graf5_estimativas_ics",caption = "Gráfico com as estimativas e seus intervalos de confiança")
 legenda_graf6 = figs(name="grafico_correlacao",caption = "Gráfico de correlação")
 legenda_graf7 = figs(name="anainflu_norm(fit_otimo)",caption = "Pontos alavanca e distância de Cook")
 legenda_graf8 = figs(name="diag2norm(fit_otimo_adj1)",caption = "Análise residual para o modelo 3")
@@ -553,11 +553,8 @@ testeCB <- testa.CB.M.Api.Xbeta(Resultado_1,m.C,v.M)
 ###1.Introdução
 
 
-Um dos maiores problemas da Dentística Restauradora é a falta de adesão dos materiais restauradores às estruturas dentárias, o que permitia uma infiltração marginal, que leva à descoloração marginal, fraturas marginais, reincidência de cárie, sensibilidade pós-operatória e reações pulpares. 
+Um dos maiores problemas da Dentística Restauradora é a falta de adesão dos materiais restauradores às estruturas dentárias, o que permitia uma infiltração marginal, que leva à descoloração marginal, fraturas marginais, reincidência de cárie, sensibilidade pós-operatória e reações pulpares e considerando as implicações disto na saúde bucal de um paciente, o presente estudo busca comparar três tipos de materiais selantes (Allbond, Optibond e Scotchbond), segundo o nível de microinfiltração, numa escala que varia de 0 até 4 (0=sem microinfiltração 4=microinfiltração intensa). Cada um dos três pesquisados classificaram setenta e dois dentes quanto a microinfiltração, totalizando duzentos e dezesseis dentes. Foram fixados para cada tipo de material um total de setenta e dois dentes a serem analisados. Portanto, o objetivo é classificar os tipos de selante quanto ao nível de microinfiltração. Os dados do experiento se encontram abaixo no tabela 1 e maiores detalhes constam em Witzel, Grande & Singer (2000). Na próxima seção iniciamos a análise dos resultados apresentando uma análise descritiva.
 
-O presente estudo busca comparar três tipos de materiais selantes (Allbond, Optibond e Scotchbond), segundo o nível de microinfiltração, numa escala que varia de 0 até 4 (0=sem microinfiltração 4=microinfiltração intensa). Cada um dos três pesquisados classificaram setenta e dois dentes quanto a microinfiltração, totalizando duzentos e dezesseis dentes. Foram fixados para cada tipo de material um total de setenta e dois dentes a serem analisados. Portanto, o objetivo é classificar os tipos de selante quanto ao nível de microinfiltração. Os dados do experiento se encontram abaixo no tabela 1 e maiores detalhes constam em Witzel, Grande & Singer (2000). Na próxima seção iniciamos a análise dos resultados apresentando uma análise descritiva.
-
-Este trabalho é parte do escopo da disciplina ME714 - Análise de Dados Discretos e visa a aplicação dos conhecimentos adquiridos em sala de aula. Grande parte do trabalho foi baseado e adaptado a partir dos materiais e metodologias disponibilizados na página do curso: *[http://www.ime.unicamp.br/~cnaber/Material_ADD_1S_2017.htm]("http://www.ime.unicamp.br/~cnaber/Material_ADD_1S_2017.htm")*.  
 Todas as análises presentes neste trabalho foram obtidas com auxílio dos softwares "R" e "RStudio". Ambos são gratuitos e estão disponíveis nos sites *[https://cran.r-project.org/index.html]("https://cran.r-project.org/index.html")* e *[https://www.rstudio.com/products/rstudio/download/]("https://www.rstudio.com/products/rstudio/download/")* respectivamente. Para os testes estatísticos, foi-se considerado um nível de significância de 10%.
 
 \newpage
@@ -589,7 +586,7 @@ Acima observa-se as contagens das classificações por tipo de material selante.
 
 Sabendo que quanto mais dentes forem classificados com 0 ou 1, melhor será o Material e a fim de podermos captar algum indício de que algum Material Selante possui melhor desempenho do que os outros, definiu-se uma estatística:
 
-Seja $soma_{01i}$ definida como sendo a soma das contagens de classificações 0 ou 1 feita no i-ésimo material (i = 1 . Seja $somatotal_{i}$ igual ao total de dentes analisados por tipo de material, que pelo problema sabe-se que são setenta e dois. Essa estatística pode ser considerada uma proporção e visa identificar qual Material produz os casos de Maior interesse em relação ao problema, expressando-se os resultados numa porcentagem.
+Seja $soma_{01i}$ definida como a soma das contagens de classificações 0 ou 1 feita no i-ésimo material. Seja $somatotal_{i}$ igual ao total de dentes analisados por tipo de material, na qual sabe-se pelo problema ter a medida setenta e dois unidades dentárias. As quantidades $soma_{0i}$ e $soma_{1i}$ são as medidas de 0 e 1 respectivamente para cada tipo de Material. Essa estatística pode ser considerada uma proporção e visa identificar qual material produz os casos de maior interesse em relação ao problema, expressando-se os resultados numa porcentagem.
 
 Logo, $$soma_{01i}=\frac{soma_{0i}+soma_{1i}}{72}$$ para $i=Allbond,Optibond,Scotchbond$
 
@@ -599,10 +596,11 @@ Já para Optibond, $$soma_{01_{Optibond}}=\frac{soma_{0_{Optibond}}+soma_{1_{Opt
 
 Para Scotchbond, $$soma_{01_{Scotchbond}}=\frac{soma_{0_{Scotchbond}}+soma_{1_{Scotchbond}}}{72}=\frac{9+17}{72}=\frac{26}{72}$$
 
-Logo, medindo esses resultados em porcentagem, temos que para Allbond `r medias_soma01_A` % das classificações estão alocadas entre 0 e 1. Utilizando mesmo raciocínio, para Optibond `r medias_soma01_O` % e, Scotchbond `r medias_soma01_S` %. 
+Logo, medindo esses resultados em porcentagem, temos que para Allbond `r medias_soma01_A` % das classificações estão alocadas entre 0 e 1. Utilizando este mesmo raciocínio, para Optibond `r medias_soma01_O` % e, Scotchbond `r medias_soma01_S` %. 
+
 Baseados nestes resultados, observa-se que o Selente Optibond possui maiores classificações situadas entre os menores níveis de microinfiltração (0 e 1), sugerindo que esse material tenha melhor desempenho que os outros. Vê-se também que os resultados para Allbond e Scotchbond são semelhantes porém, nenhuma conclusão pode ser aferida pois há de se observar onde residem as maiores proporções de classificação, se entre o valor intermediário 2 ou nos valores mais extremos 3 e 4.
 
-Observa-se nas figuras X1,X2,X3 os seguintes comportamentos:
+Observa-se nas figuras 1,2 e 3 os seguintes comportamentos:
 
 Na figura 1, observa-se uma prevalecência das classificações em torno de 2, e a identificação com a segunda maior quantidade é a 1 , sugerindo que esse método tem níveis razoáveis de microinfiltração e talvez não seja o que proporciona os menores níveis.
 
@@ -611,13 +609,19 @@ op = melt(as.data.frame(df_11))
 op[3] = rep(c("A","O","S"),5)
 names(op) = c("Class","Valor","Material")
 
-A = subset(op, Material == "A")
+a = subset(op, Material == "A")
 O = subset(op, Material == "O")
 S = subset(op, Material == "S")
 
 
-ggplot(data=A, aes(x=Class, y=Valor))+geom_bar(stat="identity",colour="black", fill="grey",size=1)+ expand_limits(y=c(0,40))+xlab("Tipo de Microinfiltração") + ylab("Quantidade de Dentes") +theme_bw()
+g_A=ggplot(data=a, aes(x=Class,y=Valor))+geom_bar(stat="identity",colour="black",fill="grey",size=1)+ expand_limits(y=c(0,40))+xlab("Tipo de Microinfiltração") + ylab("Quantidade de Dentes") +theme_bw()
 ```
+
+```{r}
+g_A
+```
+
+
 
 \begin{center}
 `r legenda_graf1`
@@ -626,14 +630,17 @@ ggplot(data=A, aes(x=Class, y=Valor))+geom_bar(stat="identity",colour="black", f
 Na figura 2, especula-se a sua superioridade na retenção de microinfiltração pois constata-se visualmente que as maiores categorizações se situam nos valores de 0 e 1.
 
 ```{r}
-ggplot(data=O, aes(x=Class, y=Valor))+geom_bar(stat="identity",colour="black", fill="grey",size=1)+ expand_limits(y=c(0,40))+xlab("Tipo de Microinfiltração") + ylab("Quantidade de Dentes") +theme_bw()
+g_O=ggplot(data=O, aes(x=Class, y=Valor))+geom_bar(stat="identity",colour="black", fill="grey",size=1)+ expand_limits(y=c(0,40))+xlab("Tipo de Microinfiltração") + ylab("Quantidade de Dentes") +theme_bw()
+```
+```{r}
+g_O
 ```
 
 \begin{center}
 `r legenda_graf2`
 \end{center}
 
-A figura3, evidencia uma pior rotulamento em relacionado aos demais pois há maiores quantidades no valor de 3, e outras razoáveis entre 1 e 2, que sugerem um pior desempenho em relação aos outros métodos de selagem.
+A figura3, evidencia uma pior rotulamento em relacionado aos demais pois há maiores quantidades no valor de 3, e outras razoáveis entre 1 e 2, sugerindo um pior desempenho em relação aos outros métodos de selagem.
 
 ```{r}
 ggplot(data=S, aes(x=Class, y=Valor))+geom_bar(stat="identity",colour="black", fill="grey",size=1)+ expand_limits(y=c(0,40))+xlab("Tipo de Microinfiltração") + ylab("Quantidade de Dentes") +theme_bw()
@@ -651,7 +658,7 @@ plot.graf.prop(estimado_theta_1,1,0.5)
 ```
 
 \begin{center}
-"LEGENDE`r #legenda_XXX`"
+`r legenda_graf4`
 \end{center}
 
 Portanto, das análises descritivas podemos concluir que há indicios de termos um material que é relativamente melhor que os outros, este é o Optibond. Seguidamente, pode-se concluir que há distinções entre os materiais Allbond e Scotchbond, tendo aquele melhor desempenho em relação a este. Portanto, a análise inferencial porcurará confrontar essas conjecturas, confirmando-as ou rejeitando-as.                      
@@ -785,7 +792,7 @@ Uma outra análise poderia ser feita a partir de um modelo de regressão linear 
 
 Dados os resultados expostos anteriormente, podemos testar o ajuste de um modelo que leva em consideração a hipótese de que todos as medidas de desempenho dos materiais são diferentes, e partir desse modelo, obter as estimativas para a medida de desempenho de cada material. 
 
-Pode-se observar, através da tabela XXX os valores estimados da medida de desempenho de cada material (MD Estimada), seus respectivos desvios padrão (DP) e intervalos de confiança (LIIIC e LSIC são respectivamente os limites inferior e superior dos intervalos de confiança para as medidas de desempenho levando-se um consideração um nível de confiança de 95%).
+Pode-se observar, através da tabela 2 os valores estimados da medida de desempenho de cada material (MD Estimada), seus respectivos desvios padrão (DP) e intervalos de confiança (LIIIC e LSIC são respectivamente os limites inferior e superior dos intervalos de confiança para as medidas de desempenho levando-se um consideração um nível de confiança de 95%).
 
 \begin{table}[ht]
 \centering
@@ -801,16 +808,16 @@ Scotchbond & 2.03 & 0.14 & 1.75 & 2.30 \\
 \end{table}
 
 \begin{center}
-"LEGENDE`r #legenda_XXX`"
+`r legenda_table2`
 \end{center}
 
-A figura XXX é uma representação gráfica dos Intervalos de confiança apresentados na tabela XXX.
+A figura 5 é uma representação gráfica dos Intervalos de confiança apresentados na tabela 5.
 
 ```{r}
 g1
 ```
 \begin{center}
-"LEGENDE`r #legenda_XXX`"
+`r legenda_graf5`
 \end{center}
 
 Note que, os intervalos de confiança para as medidas dos materiais Allbond e Scothbond, apesar de não ter nenhuma intersecção, são bem próximos, o que indica que, apesar destas medidas serem estatísticamente diferentes, temos uma proximidade das medidas de desempenho destes materiais. O respectivo intervalo de confiança para o material Opitbond é vizualmente bem distante dos demais, o que nos indica um melhor desempenho deste, uma vez que observamos este intervalo abaixo dos demais. 
