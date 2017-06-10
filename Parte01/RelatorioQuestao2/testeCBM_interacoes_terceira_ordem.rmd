@@ -24,7 +24,9 @@ e.pvalor <- 1-pf(e.F,e.q,n-e.p)
 #print(m.M)
 result <- list(round(e.F,2),round(e.pvalor,4),m.C,m.M)
 names(result) <- c("Estatistica F","pvalor","Matriz C","Matriz M")
+return(result)
 }
+
 ```
 
 
