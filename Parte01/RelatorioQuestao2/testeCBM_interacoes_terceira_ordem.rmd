@@ -1,0 +1,96 @@
+---
+title: "teste CB=M"
+author: "Guilherme Pazian"
+date: "10 de junho de 2017"
+output: pdf_document
+---
+
+```{r}
+#Função feita pelo Caio, porém adaptada:
+testeF.CBM <- function(fit.model,m.C,m.M)
+{
+v.beta <-  cbind(fit.model$coef)
+n <- nrow(model.matrix(fit.model))
+e.p <- nrow(v.beta)
+e.q <- nrow(m.C)
+m.cov.beta <- (vcov(fit.model))
+e.F <- t(m.C%*%v.beta-m.M)%*%solve(m.C%*%m.cov.beta%*%t(m.C))%*%(m.C%*%v.beta-m.M)/e.q
+e.pvalor <- 1-pf(e.F,e.q,n-e.p)
+#cat("Estatistica F = ",round(e.F,2),"\n")
+#cat("pvalor = ",round(e.pvalor,4),"\n")
+#cat("Matriz C :","\n")
+#print(m.C)
+#cat("Matriz M :","\n")
+#print(m.M)
+result <- list(round(e.F,2),round(e.pvalor,4),m.C,m.M)
+names(result) <- c("Estatistica F","pvalor","Matriz C","Matriz M")
+}
+```
+
+
+
+```{r Teste CBM}
+#testando a nulidade dos parâmetros de interação de terceira ordem
+m.C_3ordem = matrix(c(numeric(14),1,rep(c(numeric(18),1),3)),4,18,byrow = TRUE)
+v.M_3ordem = c(numeric(4))
+
+# fit.model <- glm (modelo saturado) 
+#testeF.CBM(fit.model,m.C_3ordem,v.M_3ordem)
+
+```
+
+
+
+A partir da análise descritiva observamos a possibilidade da não existência de interações de terceira ordem entre os fatores, portanto, temos o interesse em testar a nulidade de todos os parâmetros de interação de terceira ordem, ou seja, testar:
+$$
+H_0:
+\left\{\begin{matrix}
+(\alpha \gamma \beta )_{222} = 0\\ 
+(\alpha \gamma \beta )_{232} = 0\\ 
+(\alpha \gamma \beta )_{223} = 0\\ 
+(\alpha \gamma \beta )_{233} = 0
+\end{matrix}\right.\ Vs \ H_1: \textrm{Há pelo menos uma diferença}.
+$$
+A qual é equivalente a testar:
+
+$$
+H_0: C\beta = M \ \ Vs \ \ H_1: C\beta \neq M
+$$
+onde
+$$
+C^{´} = 
+\begin{bmatrix}
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 \\ 
+1 & 0 & 0 & 0 \\ 
+0 & 1 & 0 & 0 \\ 
+0 & 0 & 1 & 0 \\ 
+0 & 0 & 0 & 1 \\ 
+\end{bmatrix}
+ \ e\ \  M = 
+\begin{bmatrix}
+0\\ 
+0\\ 
+0\\ 
+0
+\end{bmatrix}
+$$
+
+
+
+
+
+
+
