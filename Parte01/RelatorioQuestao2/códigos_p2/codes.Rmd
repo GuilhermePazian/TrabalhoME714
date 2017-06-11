@@ -29,6 +29,9 @@ sem$Nivel_Umidade <- gsub("m\xe9dio","medio",sem$Nivel_Umidade)
 for(i in 1:3) sem[,i] <- as.factor(sem[,i])
 sapply(sem,class)
 
+prop.germ <- sem$N_de_sementes/100
+sem <- cbind(sem, prop.germ)
+
 print(sem)
 m=rep(100,18)
 ```
@@ -93,4 +96,14 @@ pred <- predict(sem_binfit_mod3,type=c("response"),se.fit = TRUE) #parte da anal
 pred_2 <- predict(sem_binfit_mod3,type=c("response"),se.fit = TRUE) #parte da analise preditiva
 ```
 
+```{r}
+plot(sem$prop.germ,axes=FALSE,ylim=c(0.0,1.0),cex.lab=1,xlab="Número de valores preditos",ylab="Valores preditos de sementes germinadas")
+axis(2,cex.axis=1)
+axis(1,1:18,c(1:18),cex.axis=1)
+
+plotCI(pred$fit,liw=1.96*pred$se.fit,uiw=1.96*pred$se.fit,pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
+#lines(pred$fit,lwd=2,col=4)
+
+
+```
 
