@@ -563,7 +563,7 @@ legend(1,0.3,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Temperatu
 ###3. Análise Inferencial
 
 #### Descrição dos Modelos
-```{r sourcing_analysis,echo=FALSE,cache=TRUE}
+```{r sourcing_analysis,echo=FALSE,results='hide'}
 source("códigos_p2/model_results.R")
 ```
 
@@ -603,12 +603,6 @@ $$
 
 onde $i=1,2$, $j=1,2,3$, $k=1,2,3$, $\alpha_1 = \beta_3 = \gamma_1 = (\beta \gamma)_{j1} = (\beta \gamma)_{3k} = 0$ e 
 
-- $Y_{ijk}$ : reflete a quantidade de sementes germinadas, após 5 dias, de um total de 100, para a i-ésima temperatura de germinação, o j-ésimo nível de umidade e k-ésima temperatura de umidade.
-
-- $\mu$ : 
-
-- $\beta_j$
-
 Todos os modelos considerados foram ajustados através da metodologia de máxima verossimilhança (veja Paula (2013)). 
 
 #### Avaliação dos Ajustes
@@ -619,27 +613,40 @@ Ao observar a tabela \ref{table:model1}, que mostra as características gerais s
 
 ##### Modelo 2
 
-Para a avaliação deste modelo, considere a figura abaixo. Podemos notar que até o ponto 0 do eixo horizontal, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto. Isto pode ser um indicativo de que alguma característica dos dados ainda resta a ser explicada (este argumento é suportado pelo fato de que existem, relativamente, bastante precisão em cada observação). Para isto, pode-se considerar um estudo com outros fatores experimentais. Entretanto, ao considerar que todos os pontos estão dentro do envelope e que seguem a linha de base, não existem indicativos de mal ajuste do modelo.
+Para a avaliação deste modelo, considere a figura abaixo. Podemos notar que até o ponto 0 do eixo horizontal, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto (ou seja, não existe independência entre os resíduos). Isto pode ser um indicativo de que alguma característica dos dados ainda resta a ser explicada (este argumento é suportado pelo fato de que existem, relativamente, bastante precisão em cada observação). Para isto, pode-se considerar um estudo com outros fatores experimentais. Entretanto, ao considerar que todos os pontos estão dentro do envelope e que seguem a linha de base, não existem indicativos de mal ajuste do modelo.
 
-```{r,fig.align='center',fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto."}
+```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto."}
 envelBinom(sem_binfit_mod2,"logit")
 ```
 
-Adicionalmente, os gráficos abaixo indicam
+Adicionalmente, os gráficos 1,2 e 3 abaixo indicam que não há pontos discrepantes pois, para os dois primeiros, todos os pontos estão dentro dos limites e para o último, os pontos estão bem próximos da reta referência. Adicionalmente, o gráfico 1 sugere um comportamente aleatório dos resíduos, que nos leva a concluir que existe um comportamento homocedástico do modelo - ponto à favor do bom ajuste. Pelo gráfico 2, observa-se que os valores ajustados para as médias condizem com os valores das proporções estimadas pela tabela dos dados, ou seja, existem de fato proporções que são muito próximas de um e zero (nos extremos do intervalo [0,1]). Nota-se, ainda, pelo gráfico 3 que o preditor linear é razoável, isto é, as covariáveis utilizadas são adequadas para o ajuste, assim como é razoável a função de ligação.
 
-```{r,fig.align='center',fig.cap="."}
+```{r,fig.align='center',fig.cap="asdasd",fig.asp=.75}
 diagBern(sem_binfit_mod2)
 ```
 
+Ao considerar a tabela \ref{table:model2}, pode-se perceber alta significância de vários parâmetros, ao contrário do modelo 2. Todavia, as interações relativas à Temperatura de Germinação são todas não significativas. Isto é um indicativo de que estes efeitos podem podem não ser estatísticamente nulos. Para verificar esta hipótese, utilizou o teste $H_0$: $C\beta = M$ vs $H_1$: $C\beta \neq M$ para verificar se a hipótese de que $(\alpha \beta )_{21} = (\alpha \beta )_{21} = (\alpha \gamma)_{21} = (\alpha \gamma)_{22} = 0$ (para mais detalhe, ver Azevedo(2017)). O valor-p resultante do teste é `r round(teste1_res,4)`, que indica a não rejeição da hipótese de que todos estes coeficientes são, simultaneamente, nulos. Isto forneceu evidências para uma redução do modelo, que levou ao modelo 3.
 
-Ao considerar a tabela \ref{table:model2}, pode-se perceber alta significância de vários parâmetros, ao contrário do modelo 2. 
 
 ##### Modelo 3
 
+Este modelo é derivado, como citado, do modelo 2. Ao observar a figura abaixo, pode-se perceber um comportamento muito similar ao visto no modelo 2, que sugere que alguma característica dos dados ainda resta a ser explicada (devido à não independência dos resíduos). Logo, pode ser benéfico considerar outras condições experimentais, para explicar esta característica.
+
+```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto. Perceba, também, que este comportamento é similar ao que foi visto no modelo2"}
+envelBinom(sem_binfit_mod3,"logit")
+```
+
+Os gráficos de diagnósticos para o modelo 3 possuem características semelhantes aqueles do modelo 2. Percebe-se para os gráficos 1 e 2, no entanto, que existem valores dos resíduos que estão mais próximos limites inferior e superior. O gráfico 3 representa, assim como para o modelo 2, que a função de ligação utilizada e o preditor linear são razoáveis. No caso do preditor linear, possivelmente, as covariáveis utilizadas não nos indicam a falta de informação.  
+
+```{r,fig.align='center',fig.cap="asdasd",fig.asp=.75}
+diagBern(sem_binfit_mod3)
+```
 
 
+##### Considerações Finais Sobre os Modelos Ajustados
 A tabela a seguir fornece algumas informações sobre o ajuste do modelo. 
 
+pode-se considerar um estudo com outros fatores experimentais
 \begin{table}[ht]
 \centering
 \captionof{table}{Critérios de Seleção para os Modelos Ajustados}
@@ -654,7 +661,25 @@ A tabela a seguir fornece algumas informações sobre o ajuste do modelo.
 \captionof{table}{Nesta tabela, estão relatados os Desvios, AIC (Critério de Informação de Akaike), BIC (Critério de Informação Bayesiana) e o Valor-p associado à cada modelo (de forma que os graus de liberdade são dados pela diferença entre as quantidade de observações e parâmetros ajustados). Pode-se perceber, ao comparar os critérios de informação, o modelo superior é terceiro. Entretanto, modelo 2 apresenta desvio menor do que o modelo 3 (que se reflete no valor-p). Note, também, que o modelo 1 apresenta desvio nulo, isto deve-se à sua saturação, o que não fornece muita informação. (Para mais detalhes, veja (Paula, 2013))}
 \end{table}
 
+
 Dela, podemos depreender que,
+
+##### Escolha do Modelo Final
+
+- $Y_{ijk}$ : reflete a quantidade de sementes germinadas, após 5 dias, de um total de 100, para a i-ésima temperatura de germinação, o j-ésimo nível de umidade e k-ésima temperatura de umidade.
+
+- $e^{\beta_{1}} = \frac{\left(\frac{p_{111}}{1-p_{111}}\right)}{\left(\frac{p_{131}}{1-p_{131}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para umidade baixa em relação a alta.
+
+- $e^{\beta_{2}} = \frac{\left(\frac{p_{121}}{1-p_{121}}\right)}{\left(\frac{p_{131}}{1-p_{131}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para umidade média em relação a alta.
+
+- $e^{\gamma_{2}} = \frac{\left(\frac{p_{232}}{1-p_{232}}\right)}{\left(\frac{p_{231}}{1-p_{231}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de 21ºC em relação à 42ºC.
+
+- $e^{\gamma_{3}} = \frac{\left(\frac{p_{233}}{1-p_{233}}\right)}{\left(\frac{p_{231}}{1-p_{231}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de 21ºC em relação à 62ºC.
+
+- $e^{\alpha_{2}} = \frac{\left(\frac{p_{213}}{1-p_{213}}\right)}{\left(\frac{p_{113}}{1-p_{113}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de germinação de 21ºC em relação à 11ºC.
+
+
+
 
 ###4. Conclusões
 

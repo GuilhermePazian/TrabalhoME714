@@ -21,7 +21,7 @@ sem_binfit_mod1 <- glm(cbind(sem$N_de_sementes,100-sem$N_de_sementes)~ Nivel_Umi
 penal_vec_mod1 <- c(AIC(sem_binfit_mod1),BIC(sem_binfit_mod1))
 m.C_3ordem = matrix(c(numeric(14),1,rep(c(numeric(18),1),3)),4,18,byrow = TRUE)
 v.M_3ordem = c(numeric(4))
-# teste1_res <- testeF.CBM.MLG(sem_binfit_mod1,m.C_3ordem,v.M_3ordem)
+teste1_res <- testeF.CBM.MLG(sem_binfit_mod1,m.C_3ordem,v.M_3ordem)
 
 # ------------------------------------
 # Modelo2 sem interacao tripla
@@ -30,7 +30,7 @@ sem_binfit_mod2 <- glm(cbind(sem$N_de_sementes,100-sem$N_de_sementes)~ Nivel_Umi
 penal_vec_mod2 <- c(AIC(sem_binfit_mod2),BIC(sem_binfit_mod2))
 m.C_mod2 <- cbind(matrix(numeric(10*4),nrow = 4),diag(4))
 v.M_mod2 = c(numeric(4))
-# teste2_res <- testeF.CBM.MLG(sem_binfit_mod2,m.C_mod2,v.M_mod2)
+teste2_res <- testeF.CBM.MLG(sem_binfit_mod2,m.C_mod2,v.M_mod2)
 # diagBern(sem_binfit_mod2)
 # envelBinom(sem_binfit_mod2,"logit")
 # --------------------------------------
