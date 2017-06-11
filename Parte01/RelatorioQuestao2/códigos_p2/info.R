@@ -76,8 +76,8 @@ legend(1,0.15,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidad
 
 par(mfrow=c(1,2))
 plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=1,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil")
-axis(2,cex.axis=1)
-axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=1)
+axis(2,cex.axis=1.5)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=1.5)
 
 plotCI(dados$`proporção de sementes germinadas`[1:3],liw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],uiw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
 lines(dados$`proporção de sementes germinadas`[1:3],lwd=2,col=4)
