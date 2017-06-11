@@ -1,4 +1,4 @@
-predz <- function(modelo1){
+predz <- function(modelo1,datasize){
 library(pROC)
 R <- 500
 mestat1 <- matrix(0,R,4)
@@ -7,7 +7,7 @@ p1 <- predict(modelo1,type="response")
 
 for (r in 1:R)
 {
-  pref1<- rbinom(n,1,p1)
+  pref1<- rbinom(datasize,1,p1)
 
   #
   t1 <- table(v.pref,pref1)
