@@ -82,6 +82,11 @@ penal_vec_mod3 <- c(AIC(sem_binfit_mod3),BIC(sem_binfit_mod3))
 diagBern(sem_binfit_mod3)
 envelBinom(sem_binfit_mod3,"logit")
 rbind(penal_vec_mod1,penal_vec_mod2,penal_vec_mod3)
+desvs <- c(deviance(sem_binfit_mod2),deviance(sem_binfit_mod3))
+desvs_pvals <- c(1-pchisq(desvs[1],df=18-length(sem_binfit_mod2$coefficients)),
+                  1-pchisq(desvs[2],df=18-length(sem_binfit_mod3$coefficients)))
+rownames(cbind(desvs,desvs_pvals)) <- c("modelo2","modelo3")
+
 ```
 
 
@@ -89,6 +94,7 @@ rbind(penal_vec_mod1,penal_vec_mod2,penal_vec_mod3)
 ```{r}
 (betas_coef <- (summary(sem_binfit_mod3))$coef)
 (betas_est <- cbind(betas_coef[,1:2],confint.default(sem_binfit_mod3),betas_coef[,3:4]))
+
 pred <- predict(sem_binfit_mod3,type=c("response"),se.fit = TRUE) #parte da analise preditiva
 ```
 
