@@ -1,20 +1,21 @@
 ---
-title: ""
+title: ''
 geometry: textwidth=18cm,textheight=24cm
-lang: pt-br
 header-includes:
 - \usepackage{setspace}
 - \usepackage{indentfirst}
 - \usepackage[utf8]{inputenc}
 - \usepackage{mathptmx}
 - \usepackage{enumerate}
-- \usepackage{url} 
+- \usepackage{url}
 - \usepackage{lipsum}
 output:
-  pdf_document:
+  pdf_document: null
   html_document: default
-  fig_caption: yes
   mainfont: Times New Roman
+  fig_caption: yes
+  word_document: default
+lang: pt-br
 fontsize: 10bp
 ---
 
@@ -411,12 +412,12 @@ med.resumo <- cbind(med.resumo, cvs)
   \hline
  & 21ºC & 42ºC & 62ºC \\ 
   \hline
-11ºC e BAIXO & 98.00 & 96.00 & 62.00 \\ 
-11ºC e MÉDIO & 94.00 & 79.00 & 3.00 \\ 
-11ºC e ALTO & 92.00 & 41.00 & 1.00 \\ 
-21ºC e BAIXO & 94.00 & 93.00 & 65.00 \\ 
-21ºC e MÉDIO & 94.00 & 71.00 & 2.00 \\ 
-21ºC e ALTO & 91.00 & 30.00 & 1.00 \\ 
+11ºC e BAIXO & 98 & 96 & 62 \\ 
+11ºC e MÉDIO & 94 & 79 & 3 \\ 
+11ºC e ALTO & 92 & 41 & 1 \\ 
+21ºC e BAIXO & 94 & 93 & 65 \\ 
+21ºC e MÉDIO & 94 & 71 & 2 \\ 
+21ºC e ALTO & 91 & 30 & 1 \\ 
    \hline
 \end{tabular}
 \end{table}
@@ -445,22 +446,22 @@ Assim, baseado nessas informações, à princípio pode-se conjecturar de que ao
 
 Além disso, algumas medidas resumo podem ser avaliadas como quantidade de sementes germinadas em diferentes temperaturas de germinação para os diferentes níveis de umidade e temperatura de umidade. Ou seja, é possível obter informações do comportamento da quantidade média de sementes germinadas em diferentes temperaturas de germinação, para cada nível de umidade e observar se as diferenças dos valores médios são muito discrepante.
 
-
 \begin{table}[ht]
 \centering
 \begin{tabular}{rllrrrrrr}
   \hline
  Temperatura germinação & Nível umidade & Média & Variância & DP & MAX & MIN \\ 
   \hline
- 11 & alto & 44.67 & 2080.33 & 45.61 &  92 &   1  \\ 
-   11 & baixo & 85.33 & 409.33 & 20.23 &  98 &  62  \\ 
-   11 & médio & 58.67 & 2380.33 & 48.79 &  94 &   3 \\ 
-   21 & alto & 40.67 & 2110.33 & 45.94 &  91 &   1 \\ 
-   21 & baixo & 84.00 & 271.00 & 16.46 &  94 &  65 \\ 
-   21 & médio & 55.67 & 2292.33 & 47.88 &  94 &   2 \\ 
+ 11ºC & alto & 44.67 & 2080.33 & 45.61 &  92 &   1  \\ 
+   11ºC & baixo & 85.33 & 409.33 & 20.23 &  98 &  62  \\ 
+   11ºC & médio & 58.67 & 2380.33 & 48.79 &  94 &   3 \\ 
+   21ºC & alto & 40.67 & 2110.33 & 45.94 &  91 &   1 \\ 
+   21ºC & baixo & 84.00 & 271.00 & 16.46 &  94 &  65 \\ 
+   21ºC & médio & 55.67 & 2292.33 & 47.88 &  94 &   2 \\ 
    \hline
 \end{tabular}
 \end{table}
+
 
 Pela tabela anterior observa-se que os valores médios de sementes germinadas após 5 dias, para uma dada temperatura de germinação e nível de umidade, desconsiderando-se a temperatura de umidade, diferem entre si. Por exemplo, a maior diferença nos valores médios está associada a seguinte combinação: temperatura de germinação de 11ºC e 21ºC, nível de umidade alta, com diferença média de sementes germinadas de 4. Essa diferença deve ser avaliada em conjunto com o pesquisador, pois deve-se levar em conta se essa diferença é significativa na prática, ou seja, se de fato em média essas quatro sementes teriam uma produtividade em média maior.
 
@@ -469,70 +470,88 @@ Foi possível elaborar, também, gráficos de perfis que avalie o comportamento 
 
 Informação relevante é obtida com o gráfico de perfil das proporções de sementes germinadas depois de 5 dias. Nota-se que para cada nível de temperatura de (11ºC e 21ºC) o comportamento é muito semelhante das proporções estimadas, isto é, para o aumento da temperatura de umidade há diminuição das proporção estimadas de sementes germinadas. Com isso, pode-se cogitar em uma possível interação entre as variáveis nível de umidade e temperatura de umidade.
 
+```{r legendas_graficos_perfil_1, eval=TRUE, echo=FALSE}
+a <- "Gráficos de perfil para temperatura de germinação à 11ºC. É perceptível que, para este perfil, com o aumento do nível de temperatura de umidade reduz-se a proporção estimada de sementes germinadas."
 
-```{r grafico_perfil_para_cada_temperatura_de_germinacao}
+b <- "Gráfico de perfil para temperatura de germinação à 21ºC. É perceptível que, para este perfil, com o aumento do nível de temperatura de umidade reduz-se a proporção estimada de sementes germinadas."
+c <- c(a,b)
+```
+
+
+```{r grafico_perfil_para_cada_temperatura_de_germinacao, fig.cap= c}
 #Tentativa de construir o gráfico de perfil para temp.germ = 11, para os níveis de umidade e temperatura (ok)
 library(plotrix)
 #par(mfrow=c(1,2))
-plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.7,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil", )
+plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Temperatura de germinação à 11ºC")
 axis(2,cex.axis=.5)
-axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
-plotCI(dados$`proporção de sementes germinadas`[1:3],liw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],uiw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[1:3],lwd=2,col=4)
-plotCI(dados$`proporção de sementes germinadas`[4:6],liw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],uiw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[4:6],lwd=2,col=2)
-plotCI(dados$`proporção de sementes germinadas`[7:9],liw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],uiw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=1,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[7:9],lwd=2,col=1)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.3)
+plotCI(dados$`proporção de sementes germinadas`[1:3],liw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],uiw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=0.8,col=4,cex=1)
+lines(dados$`proporção de sementes germinadas`[1:3],lwd=0.8,col=4)
+plotCI(dados$`proporção de sementes germinadas`[4:6],liw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],uiw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=0.8,col=2,cex=1)
+lines(dados$`proporção de sementes germinadas`[4:6],lwd=0.8,col=2)
+plotCI(dados$`proporção de sementes germinadas`[7:9],liw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],uiw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=0.8,col=1,cex=1)
+lines(dados$`proporção de sementes germinadas`[7:9],lwd=0.8,col=1)
 
-legend(1,0.15,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade baixa para germinação em 11ºC","Umidade média para germinação em 11ºC", "Umidade alta para germinação em 11ºC"),bty="n",cex=.4)
+legend(1,0.3,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade baixa","Umidade média", "Umidade alta"),bty="n",cex=.5)
 
-plot(dados$`proporção de sementes germinadas`[10:12],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.7,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil")
+plot(dados$`proporção de sementes germinadas`[10:12],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Temperatura de germinação à 21ºC")
 axis(2,cex.axis=.5)
-axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
-plotCI(dados$`proporção de sementes germinadas`[10:12],liw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],uiw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[10:12],lwd=2,col=4)
-plotCI(dados$`proporção de sementes germinadas`[13:15],liw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],uiw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[13:15],lwd=2,col=2)
-plotCI(dados$`proporção de sementes germinadas`[16:18],liw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],uiw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=1,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[16:18],lwd=2,col=1)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.3)
+plotCI(dados$`proporção de sementes germinadas`[10:12],liw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],uiw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=0.8,col=4,cex=1)
+lines(dados$`proporção de sementes germinadas`[10:12],lwd=0.8,col=4)
+plotCI(dados$`proporção de sementes germinadas`[13:15],liw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],uiw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=0.8,col=2,cex=1)
+lines(dados$`proporção de sementes germinadas`[13:15],lwd=0.8,col=2)
+plotCI(dados$`proporção de sementes germinadas`[16:18],liw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],uiw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=0.8,col=1,cex=1)
+lines(dados$`proporção de sementes germinadas`[16:18],lwd=0.8,col=1)
 
-legend(1,0.15,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade baixa para germinação em 21ºC","Umidade média para germinação em 21ºC", "Umidade alta para germinação em 21ºC"),bty="n",cex=.4)
+legend(1,0.3,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade baixa","Umidade média", "Umidade alta"),bty="n",cex=.5)
 
 ```
 
 Mais do que isso, para os diferentes valores de temperatura de germinação e diferentes níveis de temperatura, num mesmo nível de umidade, o comportamento de decaimento das proporções estimadas de sementes germinadas são muito semelhantes. Isto pode ser observado pelos gráficos de perfis representados abaixo.
 
-```{r grafico_perfil_dentro_de_cada_nivel_de_umidade}
+```{r legendas_graficos_perfil_2, eval=TRUE, echo=FALSE}
+d <- "Gráficos de perfil para temperatura de germinação à 11ºC e 21ºC. É perceptível que, para este perfil, com o aumento do nível de temperatura de umidade reduz-se a proporção de sementes grminadas. Note que o comportamento entre as temperaturas de germinação é semelhante. Com exceção do nível de temperatura de 62ºC, à uma temperatura de germinação de 21ºC, observa-se que a estimativa pontual da proporção de sementes germinadas é inferior em relação aos demais níveis de temperatura."
+
+e <- "Gráfico de perfil para temperatura de germinação à 11ºC e 21ºC. É perceptível que, para este perfil, com o aumento do nível de temperatura de umidade reduz-se a proporção estimada de sementes grminadas. Note que o comportamento entre as temperaturas de germinação é semelhante. Observa-se que, em geral, a proporção estimada de sementes germinadas à temperatura de germinação de 21ºC é inferior em relação à 11ºC."
+
+f <- "Gráfico de perfil para temperatura de germinação à 11ºC e 21ºC. É perceptível que, para este perfil, com o aumento do nível de temperatura de umidade reduz-se a proporção estimada de sementes grminadas. Note que o comportamento entre as temperaturas de germinação é semelhante. Observa-se que, em geral, a proporção estimada de sementes germinadas à temperatura de germinação de 21ºC é inferior em relação à 11ºC."
+  
+g <- c(d,e,f)
+```
+
+
+```{r grafico_perfil_dentro_de_cada_nivel_de_umidade, fig.cap=g}
 library(plotrix)
 #par(mfrow=c(3,1))
 
-plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil")
+plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil para umidade baixa")
 axis(2,cex.axis=.5)
-axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.3)
 
-plotCI(dados$`proporção de sementes germinadas`[1:3],liw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],uiw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[1:3],lwd=2,col=4)
-plotCI(dados$`proporção de sementes germinadas`[10:12],liw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],uiw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[10:12],lwd=2,col=2)
-legend(1,0.15,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade baixa para germinação em 11ºC","Umidade baixa para germinação em 21ºC"),bty="n",cex=.4)
+plotCI(dados$`proporção de sementes germinadas`[1:3],liw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],uiw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=.8,col=4,cex=1)
+lines(dados$`proporção de sementes germinadas`[1:3],lwd=.8,col=4)
+plotCI(dados$`proporção de sementes germinadas`[10:12],liw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],uiw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=.8,col=2,cex=1)
+lines(dados$`proporção de sementes germinadas`[10:12],lwd=.8,col=2)
+legend(1,0.3,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Temperatura de germinação à 11ºC","Temperatura de germinação à 21ºC"),bty="n",cex=.5)
 
-plot(dados$`proporção de sementes germinadas`[4:6],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil")
+plot(dados$`proporção de sementes germinadas`[4:6],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil para umidade média")
 axis(2,cex.axis=.5)
-axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
-plotCI(dados$`proporção de sementes germinadas`[4:6],liw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],uiw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[4:6],lwd=2,col=4)
-plotCI(dados$`proporção de sementes germinadas`[13:15],liw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],uiw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[13:15],lwd=2,col=2)
-legend(1,0.15,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade média para germinação em 11ºC","Umidade média para germinação em 21ºC"),bty="n",cex=.4)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.3)
+plotCI(dados$`proporção de sementes germinadas`[4:6],liw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],uiw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=.8,col=4,cex=1)
+lines(dados$`proporção de sementes germinadas`[4:6],lwd=.8,col=4)
+plotCI(dados$`proporção de sementes germinadas`[13:15],liw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],uiw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=.8,col=2,cex=1)
+lines(dados$`proporção de sementes germinadas`[13:15],lwd=.8,col=2)
+legend(1,0.3,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Temperatura de germinação à 11ºC","Temperatura de germinação à 21ºC"),bty="n",cex=.5)
 
-plot(dados$`proporção de sementes germinadas`[7:9],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil")
+plot(dados$`proporção de sementes germinadas`[7:9],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil para umidade alta")
 axis(2,cex.axis=.5)
-axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
-plotCI(dados$`proporção de sementes germinadas`[7:9],liw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],uiw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[7:9],lwd=2,col=4)
-plotCI(dados$`proporção de sementes germinadas`[16:18],liw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],uiw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
-lines(dados$`proporção de sementes germinadas`[16:18],lwd=2,col=2)
-legend(1,0.15,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade alta para germinação em 11ºC","Umidade alta para germinação em 21ºC"),bty="n",cex=.4)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.3)
+plotCI(dados$`proporção de sementes germinadas`[7:9],liw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],uiw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=.8,col=4,cex=1)
+lines(dados$`proporção de sementes germinadas`[7:9],lwd=.8,col=4)
+plotCI(dados$`proporção de sementes germinadas`[16:18],liw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],uiw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=.8,col=2,cex=1)
+lines(dados$`proporção de sementes germinadas`[16:18],lwd=.8,col=2)
+legend(1,0.3,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Temperatura de germinação à 11ºC","Temperatura de germinação à 21ºC"),bty="n",cex=.5)
 
 
 ```
