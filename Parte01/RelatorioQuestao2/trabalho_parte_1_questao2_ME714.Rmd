@@ -339,7 +339,7 @@ O objetivo é estimar a probabilidade de sementes germinadas depois de 5 dias, b
 
 ###2. Análise Descritiva
 
-Nota-se que para cada casela pode-se obter a proporção de sementes que germinaram depois de 5 dias para cada 100 sementes submetidas a cada condição experimental. Abaixo tem-se a tabela com os dados e a tabela com as proporções estimadas.
+Nota-se que para cada casela pode-se obter a proporção de sementes que germinaram depois de 5 dias para cada 100 sementes submetidas a cada condição experimental. Abaixo tem-se as tabelas com os dados e com as proporções estimadas, respectivamente.
 
 
 ```{r ler_banco_dados, echo=FALSE, eval=TRUE}
@@ -411,23 +411,6 @@ med.resumo <- cbind(med.resumo, cvs)
   \hline
  & 21ºC & 42ºC & 62ºC \\ 
   \hline
-  11ºC e BAIXO & 0.98 & 0.96 & 0.62 \\ 
-  11ºC e MÉDIO & 0.94 & 0.79 & 0.03 \\ 
-  11ºC e ALTO & 0.92 & 0.41 & 0.01 \\ 
-  21ºC e BAIXO & 0.94 & 0.93 & 0.65 \\ 
-  21ºC e MÉDIO & 0.94 & 0.71 & 0.02 \\ 
-  21ºC e ALTO & 0.91 & 0.30 & 0.01 \\ 
-   \hline
-\end{tabular}
-\end{table}
-
-
-\begin{table}[ht]
-\centering
-\begin{tabular}{rrrr}
-  \hline
- & 21ºC & 42ºC & 62ºC \\ 
-  \hline
 11ºC e BAIXO & 98.00 & 96.00 & 62.00 \\ 
 11ºC e MÉDIO & 94.00 & 79.00 & 3.00 \\ 
 11ºC e ALTO & 92.00 & 41.00 & 1.00 \\ 
@@ -438,9 +421,29 @@ med.resumo <- cbind(med.resumo, cvs)
 \end{tabular}
 \end{table}
 
-Pela tabela anterior observa-se que os valores médios de sementes germinadas após 5 dias, para uma dada temperatura de germinação, nível de umidade e desconsiderando-se a temperatura de umidade, diferem entre si. Por exemplo, a maior diferença nos valores médios está associada a seguinte combinação: temperatura de germinação de 11ºC e nível de umidade alta, com diferença média de sementes germinadas de 4. Essa diferença deve ser avaliada em conjunto com o pesquisador, pois deve-se levar em conta se essa diferença é significativa na prática, ou seja, se de fato em média essas quatro sementes teriam uma produtividade em média maior.
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & 21ºC & 42ºC & 62ºC \\ 
+  \hline
+  11ºC e BAIXO & 0.98 & 0.96 & 0.62 \\ 
+  11ºC e MÉDIO & 0.94 & 0.79 & 0.03 \\ 
+  11ºC e ALTO & 0.92 & 0.41 & 0.01 \\ 
+  21ºC e BAIXO & 0.94 & 0.93 & 0.65 \\ 
+  21ºC e MÉDIO & 0.94 & 0.71 & 0.02 \\ 
+  21ºC e ALTO & 0.91 & 0.30 & 0.01 \\ 
+   \hline
+\end{tabular}
+\end{table}
 
-Além disso, algumas medidas resumo podem ser avaliadas como quantidade de sementes germinadas em diferentes temperaturas de germinação para os diferentes níveis de umidade. Ou seja, é possível obter informações do comportamento da quantidade média de sementes germinadas em diferentes temperaturas de germinação, para cada nível de umidade e avaliar se as diferenças dos valores médios são muito discrepante.
+Pela tabela de proporções estimadas, consegue-se notar que para uma dada temperatura de germinação e temperatura de umidade, à medida em que o nível de umidade aumenta (por exemplo, de baixo para médio ou de médio para alto) a proporção de sementes germinadas após cinco dias diminui. Fixado a temperatura de germinação e o nível de umidade, quando se aumenta a temperatura de umidade (por exemplo, de 21ºC para 42ºC) a proporção de sementes germinadas também diminui. 
+
+Nota-se ainda que fixado um nível de umidade (por exemplo, baixo ou médio), para diferentes temperaturas de germinação, a proporção de sementes germinadas diminui com o aumento da temperatura  de umidade. Finalmente, fixado a temperatura de umidade, a proporção de sementes germinadas para as diferentes temperaturas de germinação e diferentes níveis de umidade também é reduzida.
+
+Assim, baseado nessas informações, à princípio pode-se conjecturar de que ao se utilizar uma temperatura de germinação mais baixa, neste caso 11ºC, com o menor nível de umidade, no contexto umidade baixa, e com menor temperatura de umidade, neste caso 21ºC, fornecerá uma combinação razoável para a maior proporção de sementes germinadas depois de 5 dias.
+
+Além disso, algumas medidas resumo podem ser avaliadas como quantidade de sementes germinadas em diferentes temperaturas de germinação para os diferentes níveis de umidade e temperatura de umidade. Ou seja, é possível obter informações do comportamento da quantidade média de sementes germinadas em diferentes temperaturas de germinação, para cada nível de umidade e observar se as diferenças dos valores médios são muito discrepante.
 
 
 \begin{table}[ht]
@@ -459,15 +462,18 @@ Além disso, algumas medidas resumo podem ser avaliadas como quantidade de semen
 \end{tabular}
 \end{table}
 
-Foi possível elaborar, também, gráficos de perfil que avalie o comportamento da umidade em uma dada temperatura de germinação, para os diferentes níveis de temperatura da umidade, isto é, as possíveis interações existentes. 
+Pela tabela anterior observa-se que os valores médios de sementes germinadas após 5 dias, para uma dada temperatura de germinação e nível de umidade, desconsiderando-se a temperatura de umidade, diferem entre si. Por exemplo, a maior diferença nos valores médios está associada a seguinte combinação: temperatura de germinação de 11ºC e 21ºC, nível de umidade alta, com diferença média de sementes germinadas de 4. Essa diferença deve ser avaliada em conjunto com o pesquisador, pois deve-se levar em conta se essa diferença é significativa na prática, ou seja, se de fato em média essas quatro sementes teriam uma produtividade em média maior.
 
-Informação relevante é obtida com o gráfico de perfil das proporções de sementes germinadas depois de 5 dias. Nota-se que para cada nível de temperatura de (11ºC e 21ºC) o comportamento é muito semelhante das proporções, isto é, para o aumento da temperatura de umidade há diminuição nas proporção de sementes germinadas. Com isso, pode-se cogitar em uma possível interação entre as variáveis nível de umidade e temperatura de umidade.
+
+Foi possível elaborar, também, gráficos de perfis que avalie o comportamento da umidade em uma dada temperatura de germinação, para os diferentes níveis de temperatura da umidade, isto é, as possíveis interações existentes. 
+
+Informação relevante é obtida com o gráfico de perfil das proporções de sementes germinadas depois de 5 dias. Nota-se que para cada nível de temperatura de (11ºC e 21ºC) o comportamento é muito semelhante das proporções estimadas, isto é, para o aumento da temperatura de umidade há diminuição das proporção estimadas de sementes germinadas. Com isso, pode-se cogitar em uma possível interação entre as variáveis nível de umidade e temperatura de umidade.
 
 
 ```{r grafico_perfil_para_cada_temperatura_de_germinacao}
 #Tentativa de construir o gráfico de perfil para temp.germ = 11, para os níveis de umidade e temperatura (ok)
 library(plotrix)
-par(mfrow=c(1,2))
+#par(mfrow=c(1,2))
 plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.7,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil", )
 axis(2,cex.axis=.5)
 axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
@@ -494,7 +500,7 @@ legend(1,0.15,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidad
 
 ```
 
-Mais do que isso, para os diferentes valores de temperatura de umidade e diferentes níveis de temperatura, num mesmo nível de umidade, o comportamento de decaimento das proporções de sementes germinadas são muito semelhantes. Isto pode ser observado, também pelos gráficos de perfis abaixo.
+Mais do que isso, para os diferentes valores de temperatura de germinação e diferentes níveis de temperatura, num mesmo nível de umidade, o comportamento de decaimento das proporções estimadas de sementes germinadas são muito semelhantes. Isto pode ser observado pelos gráficos de perfis representados abaixo.
 
 ```{r grafico_perfil_dentro_de_cada_nivel_de_umidade}
 library(plotrix)
