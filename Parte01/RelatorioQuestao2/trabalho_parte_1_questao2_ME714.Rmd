@@ -562,6 +562,7 @@ legend(1,0.3,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Temperatu
 
 ###3. Análise Inferencial
 
+#### Descrição dos Modelos
 ```{r sourcing_analysis,echo=FALSE,cache=TRUE}
 source("códigos_p2/model_results.R")
 ```
@@ -610,6 +611,30 @@ onde $i=1,2$, $j=1,2,3$, $k=1,2,3$, $\alpha_1 = \beta_3 = \gamma_1 = (\beta \gam
 
 Todos os modelos considerados foram ajustados através da metodologia de máxima verossimilhança (veja Paula (2013)). 
 
+#### Avaliação dos Ajustes
+
+##### Modelo 1
+
+Ao observar a tabela \ref{table:model1}, que mostra as características gerais sobre este modelo, pode-se perceber que vários parâmetros não são estatísticamente significantes. Este curioso fato é difícil explicação 
+
+##### Modelo 2
+
+Para a avaliação deste modelo, considere a figura abaixo. Podemos notar que até o ponto 0 do eixo horizontal, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto. Isto pode ser um indicativo de que alguma característica dos dados ainda resta a ser explicada (este argumento é suportado pelo fato de que existem, relativamente, bastante precisão em cada observação). Para isto, pode-se considerar um estudo com outros fatores experimentais. Entretanto, ao considerar que todos os pontos estão dentro do envelope e que seguem a linha de base, não existem indicativos de mal ajuste do modelo.
+
+```{r,fig.align='center',fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto."}
+envelBinom(sem_binfit_mod2,"logit")
+```
+
+Adicionalmente, os gráficos abaixo indicam
+
+```{r,fig.align='center',fig.cap="."}
+diagBern(sem_binfit_mod2)
+```
+
+
+Ao considerar a tabela \ref{table:model2}, pode-se perceber alta significância de vários parâmetros, ao contrário do modelo 2. 
+
+##### Modelo 3
 
 
 
@@ -643,6 +668,7 @@ a análise feita.
 As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente
 
 \begin{table}[ht]
+\label{table:model1}
 \centering
 \captionof{table}{Tabela Resumo para Modelo 1}
 \begin{tabular}{rrrrrrr}
@@ -671,12 +697,12 @@ As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente
 \end{table}
 
 \begin{table}[ht]
+\label{table:model2}
 \centering
 \captionof{table}{Tabela Resumo para Modelo 2}
 \begin{tabular}{rrrrrrr}
-  \hline
- & Estimate & Std. Error & 2.5 \% & 97.5 \% & z value & Pr($>$$|$z$|$) \\
-  \hline
+ & Estimativa & Erro Padrão & 2.5 \% & 97.5 \% & Estatística Z & Valor-p \\
+
   $\mu$ & 2.506 & 0.334 & 1.852 & 3.161 & 7.508 & 0.000 \\
   $\beta_1$ & 0.926 & 0.526 & -0.105 & 1.957 & 1.759 & 0.079 \\
   $\beta_2$ & 0.371 & 0.443 & -0.496 & 1.239 & 0.839 & 0.402 \\
@@ -696,6 +722,7 @@ As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente
 \end{table}
 
 \begin{table}[ht]
+\label{table:model3}
 \centering
 \captionof{table}{Tabela Resumo para Modelo 3}
 \begin{tabular}{rrrrrrr}

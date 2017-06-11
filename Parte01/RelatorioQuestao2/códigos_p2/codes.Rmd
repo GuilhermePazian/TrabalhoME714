@@ -1,6 +1,6 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output: html_document
 ---
 
 # To do
@@ -9,6 +9,7 @@ output: html_notebook
 - Analise Preditiva (ok)
 - Estimativa Pontual e Intervalar (ok)
 - Interpretação (+/-)
+- TRV para redução do modelo
 - Referencias bibliograficas (final do projeto)
 
 
