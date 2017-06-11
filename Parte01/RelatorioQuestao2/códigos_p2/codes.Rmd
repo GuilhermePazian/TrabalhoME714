@@ -6,10 +6,10 @@ output: html_notebook
 # To do
 
 - Selecao (ok - AIC/BIC)
-- Analise Preditiva (+/-)
-- Estimativa Pontual e Intervalar (+/-)
-- Interpretação 
-- Referencias bibliograficas (+/-)
+- Analise Preditiva (ok)
+- Estimativa Pontual e Intervalar (ok)
+- Interpretação (+/-)
+- Referencias bibliograficas (final do projeto)
 
 
 ```{r,echo=FALSE}
