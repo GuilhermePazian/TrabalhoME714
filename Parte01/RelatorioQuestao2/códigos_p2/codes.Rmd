@@ -32,7 +32,6 @@ sapply(sem,class)
 prop.germ <- sem$N_de_sementes/100
 sem <- cbind(sem, prop.germ)
 
-print(sem)
 m=rep(100,18)
 ```
 
@@ -83,9 +82,10 @@ diagBern(sem_binfit_mod3)
 envelBinom(sem_binfit_mod3,"logit")
 rbind(penal_vec_mod1,penal_vec_mod2,penal_vec_mod3)
 desvs <- c(deviance(sem_binfit_mod2),deviance(sem_binfit_mod3))
-desvs_pvals <- c(1-pchisq(desvs[1],df=18-length(sem_binfit_mod2$coefficients)),
+pvals <- c(1-pchisq(desvs[1],df=18-length(sem_binfit_mod2$coefficients)),
                   1-pchisq(desvs[2],df=18-length(sem_binfit_mod3$coefficients)))
-rownames(cbind(desvs,desvs_pvals)) <- c("modelo2","modelo3")
+desvs_pvals <- cbind(desvs,pvals); rownames(desvs_pvals) <- c("modelo2","modelo3")
+desvs_pvals
 
 ```
 

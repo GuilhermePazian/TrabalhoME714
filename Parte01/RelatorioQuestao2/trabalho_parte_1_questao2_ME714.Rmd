@@ -7,8 +7,11 @@ header-includes:
 - \usepackage[utf8]{inputenc}
 - \usepackage{mathptmx}
 - \usepackage{enumerate}
+- \usepackage{float}
 - \usepackage{url}
 - \usepackage{lipsum}
+- \usepackage{caption}
+- \usepackage{subcaption}
 output:
   pdf_document: null
   html_document: default
@@ -315,13 +318,13 @@ return(result)
 }
 ```
 
-```{r libraries, echo=FALSE, eval=TRUE}
+```{r libraries, echo=FALSE, eval=TRUE,cache=FALSE}
+#bibliotecas que possivelmente serão utilizadas
 library(dplyr)
 library(ggplot2)
 library(xtable)
 library(plotrix)
 library(plyr)
-#bibliotecas que possivelmente serão utilizadas
 ```
 
 
@@ -344,7 +347,6 @@ Nota-se que para cada casela pode-se obter a proporção de sementes que germina
 
 
 ```{r ler_banco_dados, echo=FALSE, eval=TRUE}
-library(xtable)
 #df_2 = read.table("http://www.ime.unicamp.br/~cnaber/sementes.dat")
 #names(df_2) = c("Temperatura","Nivel_Umidade","Temp_Umidade","N_de_sementes")
 teste <- read.table("códigos_p2/sementes.dat")
@@ -392,7 +394,7 @@ dados <- cbind(dados, prop_sd)
 
 
 ```{r parte_descritiva_da_tabela_de_contingencia}
-library(dplyr)
+
 ajuda <- dados %>% group_by(temp.germ,nivel.um) %>% summarise(medias=mean(sem.germ), DP = sd(sem.germ))
 ajuda <- data.frame(ajuda)
 cvs <- 100*ajuda$DP/ajuda$medias
@@ -480,7 +482,6 @@ c <- c(a,b)
 
 ```{r grafico_perfil_para_cada_temperatura_de_germinacao, fig.cap= c}
 #Tentativa de construir o gráfico de perfil para temp.germ = 11, para os níveis de umidade e temperatura (ok)
-library(plotrix)
 #par(mfrow=c(1,2))
 plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.8,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Temperatura de germinação à 11ºC")
 axis(2,cex.axis=.7)
@@ -522,7 +523,6 @@ g <- c(d,e,f)
 
 
 ```{r grafico_perfil_dentro_de_cada_nivel_de_umidade, fig.cap=g}
-library(plotrix)
 #par(mfrow=c(3,1))
 
 plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.8,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil para umidade baixa")
@@ -562,15 +562,157 @@ legend(1,0.3,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Temperatu
 
 ###3. Análise Inferencial
 
-Descrição do(s) modelo(s), análise(s) de resíduo(s), comparações de interesse, gráficos e
-comentários (a escolha dos níveis de significância fica à cargo de cada equipe, devendo os
-valores adotadas, serem informados no relatório). Naturalmente, quando determinado,
-deverão ser usadas as metodologias constantes na questão. Caso a metodologia (modelo)
-usado não se adeque bem aos dados, comentários a respeito deverão ser feitos,
-mencionando que outras metodologias devem ser utilizadas (não, necessariamente, precisa
-ser dito qual(is)).
+```{r sourcing_analysis,echo=FALSE,cache=TRUE}
+source("códigos_p2/model_results.R")
+```
+
+
+Ao considerar o problema posto e a análise descritiva realizada, foram propostos os seguintes modelos 
+
+- Modelo 1
+
+$$
+\begin{aligned}
+Y_{ijk} &\overset{ind}{\sim} Binomial(100,p_{ik}) \\
+ln \left( \frac{p_{ijk}}{1-p_{ijk}} \right) &= \mu + \alpha_i + \beta_j + \gamma_k + (\alpha \beta)_{ij} +(\alpha \gamma)_{ik} + (\beta \gamma)_{jk} + (\alpha \beta \gamma)_{ijk}
+\end{aligned}
+$$
+onde $i=1,2$, $j=1,2,3$, $k=1,2,3$, $\alpha_1 = \beta_3 = \gamma_1 = (\beta \gamma)_{j1} = (\beta \gamma)_{3k} = (\alpha \beta)_{1j} =(\alpha \beta)_{23} = (\alpha \gamma)_{1k}= (\alpha \gamma)_{21} = (\alpha \beta \gamma)_{1kj} = (\alpha \beta \gamma)_{23k} =(\alpha \beta \gamma)_{2j1} = 0$
+
+*observação:* este modelo é saturado (ou seja, a quantidade de parâmetros é igual ao número de observações). Logo, não é possível realizar análise de resíduos e cálculos de desvios.
+
+- Modelo 2
+
+$$
+\begin{aligned}
+Y_{ijk} &\overset{ind}{\sim} Binomial(100,p_{ik}) \\
+ln \left( \frac{p_{ijk}}{1-p_{ijk}} \right) &= \mu + \alpha_i + \beta_j + \gamma_k + (\alpha \beta)_{ij} +(\alpha \gamma)_{ik} + (\beta \gamma)_{jk}
+\end{aligned}
+$$
+onde $i=1,2$, $j=1,2,3$, $k=1,2,3$, $\alpha_1 = \beta_3 = \gamma_1 = (\beta \gamma)_{j1} = (\beta \gamma)_{3k} = (\alpha \beta)_{1j} =(\alpha \beta)_{23} = (\alpha \gamma)_{1k} = (\alpha \gamma)_{21} = 0$.
+
+- Modelo 3
+
+$$
+\begin{aligned}
+Y_{ijk} &\overset{ind}{\sim} Binomial(100,p_{ik}) \\
+ln \left( \frac{p_{ijk}}{1-p_{ijk}} \right) &= \mu + \alpha_i + \beta_j + \gamma_k + (\beta \gamma)_{jk}
+\end{aligned}
+$$
+
+onde $i=1,2$, $j=1,2,3$, $k=1,2,3$, $\alpha_1 = \beta_3 = \gamma_1 = (\beta \gamma)_{j1} = (\beta \gamma)_{3k} = 0$ e 
+
+- $Y_{ijk}$ : reflete a quantidade de sementes germinadas, após 5 dias, de um total de 100, para a i-ésima temperatura de germinação, o j-ésimo nível de umidade e k-ésima temperatura de umidade.
+
+- $\mu$ : 
+
+- $\beta_j$
+
+Todos os modelos considerados foram ajustados através da metodologia de máxima verossimilhança (veja Paula (2013)). 
+
+
+
+
+A tabela a seguir fornece algumas informações sobre o ajuste do modelo. 
+
+\begin{table}[ht]
+\centering
+\captionof{table}{Critérios de Seleção para os Modelos Ajustados}
+\begin{tabular}{rrrrr}
+  \hline
+  & Desvios & Valor-p & AIC & BIC \\
+  modelo 1 & 0 & 0 & 103.10 & 119.13 \\ 
+  modelo 2 & 1.65 & 0.80 & 96.76 & 109.22 \\ 
+  modelo 3 & 4.43 & 0.82 & 91.53 & 100.44 \\ 
+   \hline
+\end{tabular} 
+\captionof{table}{Nesta tabela, estão relatados os Desvios, AIC (Critério de Informação de Akaike), BIC (Critério de Informação Bayesiana) e o Valor-p associado à cada modelo (de forma que os graus de liberdade são dados pela diferença entre as quantidade de observações e parâmetros ajustados). Pode-se perceber, ao comparar os critérios de informação, o modelo superior é terceiro. Entretanto, modelo 2 apresenta desvio menor do que o modelo 3 (que se reflete no valor-p). Note, também, que o modelo 1 apresenta desvio nulo, isto deve-se à sua saturação, o que não fornece muita informação. (Para mais detalhes, veja (Paula, 2013))}
+\end{table}
+
+Dela, podemos depreender que,
 
 ###4. Conclusões
 
 O que se pode concluir da análise, em termos do problema apresentado, e críticas em relação
 a análise feita.
+
+### Anexos
+ 
+
+##### Tabelas com estimativas pontuais e intervalares, erros padrão e valores-p.
+As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente
+
+\begin{table}[ht]
+\centering
+\captionof{table}{Tabela Resumo para Modelo 1}
+\begin{tabular}{rrrrrrr}
+ & Estimativa & Erro Padrão & 2.5 \% & 97.5 \% & Estatística Z & Valor-p \\ 
+
+  $\mu$  & 2.442 & 0.369 & 1.720 & 3.165 & 6.626 & 0.000 \\ 
+  $\beta_1$ & 1.450 & 0.804 & -0.126 & 3.025 & 1.803 & 0.071 \\ 
+  $\beta_2$ & 0.309 & 0.560 & -0.788 & 1.406 & 0.552 & 0.581 \\ 
+  $\gamma_1$ & -2.806 & 0.421 & -3.631 & -1.981 & -6.666 & 0.000 \\ 
+  $\gamma_2$ & -7.037 & 1.071 & -9.136 & -4.939 & -6.574 & 0.000 \\ 
+  $\alpha_2$ & -0.129 & 0.508 & -1.124 & 0.867 & -0.253 & 0.800 \\ 
+  $(\beta \gamma)_{11}$ & 2.092 & 0.974 & 0.184 & 4.001 & 2.149 & 0.032 \\ 
+  $(\beta \gamma)_{21}$ & 1.380 & 0.644 & 0.117 & 2.642 & 2.142 & 0.032 \\ 
+  $(\beta \gamma)_{12}$ & 3.635 & 1.303 & 1.081 & 6.190 & 2.789 & 0.005 \\ 
+  $(\beta \gamma)_{22}$ & 0.810 & 1.291 & -1.721 & 3.340 & 0.627 & 0.530 \\ 
+  $(\alpha \beta )_{21}$& -1.012 & 0.972 & -2.917 & 0.894 & -1.040 & 0.298 \\ 
+  $(\alpha \beta)_{22}$& 0.129 & 0.783 & -1.405 & 1.663 & 0.165 & 0.869 \\ 
+  $(\alpha \gamma)_{21}$& -0.355 & 0.589 & -1.509 & 0.800 & -0.602 & 0.547 \\ 
+  $(\alpha \gamma)_{22}$& 0.129 & 1.509 & -2.830 & 3.087 & 0.085 & 0.932 \\ 
+  $(\alpha \beta \gamma)_{211}$& 0.903 & 1.204 & -1.455 & 3.262 & 0.751 & 0.453 \\ 
+  $(\alpha \beta \gamma)_{221}$ & -0.075 & 0.900 & -1.839 & 1.690 & -0.083 & 0.934 \\ 
+  $(\alpha \beta \gamma)_{212}$& 1.141 & 1.747 & -2.283 & 4.565 & 0.653 & 0.514 \\ 
+  $(\alpha \beta \gamma)_{222}$& -0.544 & 1.867 & -4.204 & 3.115 & -0.292 & 0.771 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\captionof{table}{Tabela Resumo para Modelo 2}
+\begin{tabular}{rrrrrrr}
+  \hline
+ & Estimate & Std. Error & 2.5 \% & 97.5 \% & z value & Pr($>$$|$z$|$) \\
+  \hline
+  $\mu$ & 2.506 & 0.334 & 1.852 & 3.161 & 7.508 & 0.000 \\
+  $\beta_1$ & 0.926 & 0.526 & -0.105 & 1.957 & 1.759 & 0.079 \\
+  $\beta_2$ & 0.371 & 0.443 & -0.496 & 1.239 & 0.839 & 0.402 \\
+  $\gamma_1$ & -2.884 & 0.365 & -3.599 & -2.169 & -7.907 & 0.000 \\
+  $\gamma_2$ & -7.239 & 0.811 & -8.829 & -5.650 & -8.929 & 0.000 \\
+  $\alpha_1$ & -0.247 & 0.394 & -1.019 & 0.524 & -0.628 & 0.530 \\
+  $(\beta \gamma)_{11}$ & 2.678 & 0.562 & 1.576 & 3.779 & 4.765 & 0.000 \\
+  $(\beta \gamma)_{21}$ & 1.341 & 0.450 & 0.458 & 2.223 & 2.978 & 0.003 \\
+  $(\beta \gamma)_{12}$ & 4.338 & 0.850 & 2.672 & 6.003 & 5.103 & 0.000 \\
+  $(\beta \gamma)_{22}$ & 0.556 & 0.929 & -1.265 & 2.377 & 0.599 & 0.549 \\
+  $(\alpha \beta )_{21}$ & -0.212 & 0.486 & -1.165 & 0.741 & -0.436 & 0.662 \\
+  $(\alpha \beta )_{22}$ & 0.008 & 0.375 & -0.728 & 0.744 & 0.021 & 0.983 \\
+  $(\alpha \gamma)_{21}$& -0.207 & 0.406 & -1.002 & 0.589 & -0.509 & 0.611 \\
+  $(\alpha \gamma)_{22}$& 0.507 & 0.530 & -0.531 & 1.545 & 0.957 & 0.339 \\
+   \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\captionof{table}{Tabela Resumo para Modelo 3}
+\begin{tabular}{rrrrrrr}
+ & Estimativa & Erro Padrão & 2.5 \% & 97.5 \% & Estatística Z & Valor-p \\
+
+  $\mu$ & 2.522 & 0.267 & 1.999 & 3.046 & 9.447 & 0.000 \\
+  $\beta_1$ & 0.803 & 0.441 & -0.062 & 1.667 & 1.819 & 0.069 \\
+  $\beta_2$ & 0.376 & 0.391 & -0.391 & 1.143 & 0.960 & 0.337 \\
+  $\gamma_1$ & -2.984 & 0.294 & -3.560 & -2.408 & -10.149 & 0.000 \\
+  $\gamma_2$ & -6.989 & 0.755 & -8.468 & -5.509 & -9.258 & 0.000 \\
+  $\alpha_2$ & -0.276 & 0.149 & -0.569 & 0.016 & -1.853 & 0.064 \\
+  $(\beta \gamma)_{11}$ & 2.650 & 0.559 & 1.553 & 3.746 & 4.736 & 0.000 \\
+  $(\beta \gamma)_{21}$ & 1.328 & 0.449 & 0.447 & 2.208 & 2.955 & 0.003 \\
+  $(\beta \gamma)_{12}$ & 4.358 & 0.849 & 2.693 & 6.023 & 5.130 & 0.000 \\
+  $(\beta \gamma)_{22}$  & 0.556 & 0.929 & -1.265 & 2.377 & 0.598 & 0.550 \\
+   \hline
+\end{tabular}
+\end{table}
+
+
