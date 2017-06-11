@@ -22,7 +22,7 @@ source("source_files/gml_tests.R")
 
 # Reading etc
 ```{r}
-sem <- read.table("~/a_link_to_papers/*2017-1/Categorical/caio_2017/sementes.dat")
+sem <- read.table("sementes.dat")
 names(sem) = c("Temperatura","Nivel_Umidade","Temp_Umidade","N_de_sementes")
 sem$Nivel_Umidade <- gsub("m\xe9dio","medio",sem$Nivel_Umidade)
 
@@ -87,8 +87,10 @@ rbind(penal_vec_mod1,penal_vec_mod2,penal_vec_mod3)
 (betas_coef <- (summary(sem_binfit_mod3))$coef)
 (betas_est <- cbind(betas_coef[,1:2],confint.default(sem_binfit_mod3),betas_coef[,3:4]))
 pred <- predict(sem_binfit_mod3,type=c("response"),se.fit = TRUE) #parte da analise preditiva
-sem_fitted <- sem_binfit_mod3$fitted.values #parte das estimativas pontuais
 ```
 
+```{r}
+pred_2 <- predict(sem_binfit_mod3,type=c("response"),se.fit = TRUE) #parte da analise preditiva
+```
 
 

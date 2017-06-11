@@ -41,7 +41,7 @@ Departamento de Estatística}
 \begin{center}
 \vspace*{5cm}
 {\huge \bf Relatório - Parte I \\[7pt]
-Exercício 1}
+Exercício 2}
 \end{center}
 \vspace*{\stretch{1}}
 \begin{center}
@@ -72,28 +72,467 @@ options(OutDec= ",")
 knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='Figs/', fig.align='center', echo=FALSE, warning=FALSE, message=FALSE)
 ```
 
-# Exercício 2
+```{r funcoes_exercicio,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
 
-```{r}
-df_2 = read.table("http://www.ime.unicamp.br/~cnaber/sementes.dat")
-names(df_2) = c("Temperatura","Nivel_Umidade","Temp_Umidade","N_de_sementes")
+# estima os parâmetros de uma única tabela
+# r x s oriunda de um modelo multinomial
+# ou produto de multinomiais
+# LEMBRETE: A FUNÇÃO SEMPRE CONCATENA VERTICALMENTE AS LINHAS. ASSIM
+# NO CASO DO MODELO PRODUTO DE MULTINOMIAIS, CADA LINHA DEVE REPRESENTAR
+# UMA MULTINOMIAL
+#input= tabela: tabela de contingência
+#       modelo: 1 - multinomial, 2 - produto de multinomais
+#       gama: nível de confiança para a construção dos IC's
+estima.theta<-function(tabela,modelo,gama)
+{
+auxl1 <-c(rownames(tabela))
+auxl2 <-c(colnames(tabela))
+label<-c(paste(auxl1[1],"&",auxl2[1]))
+for(i in 1:nrow(tabela))
+{
+for(j in 1:ncol(tabela))
+{
+label<-rbind(label,c(paste(auxl1[i],"&",auxl2[j])))
+}
+}
+label<-cbind(label[2:nrow(label),])
+if(modelo ==1) # multinomial
+{
+vn <- c(t(tabela))
+n  <- sum(vn)
+ncat <- length(vn)
+vp <- vn/n
+#vp[vp==0]=0.01
+vpc <- cbind(vp)
+aux <- vpc%*%t(vpc)
+mcov <- matrix(as.numeric((as.matrix(Diagonal(ncat,vpc))- aux)/n),ncat,ncat)
+ep <- sqrt(diag(mcov))
+epc<-cbind(ep)
+}
+else if(modelo ==2)# produto de multinomias
+{
+vn <- as.numeric(apply(tabela,1,sum))
+vpg<- tabela/vn#c(t(tabela/vn))
+ncatr<- ncol(tabela)
+nmult<-nrow(tabela)
+#vpg[vpg==0]=0.01
+vp <- vpg[1,]
+vpc <- cbind(vp)
+aux <-vpc%*%t(vpc)
+mcov <- matrix((as.matrix(Diagonal(ncatr,vpc))- aux)/vn[1],ncatr,ncatr)
+mcovg <-mcov
+for(j in 2:nmult)
+{
+vp <- vpg[j,]
+vpc <- cbind(vp)
+aux <-vpc%*%t(vpc)
+mcov <- matrix((as.matrix(Diagonal(ncatr,vpc))- aux)/vn[j],ncatr,ncatr)
+mcovg<-bdiag(mcovg,mcov)
+}
+mcov<-as.matrix(bdiag(mcovg))
+vp<- c(t(vpg))
+vpc<-cbind(vp)
+ep<- sqrt(diag(mcov))
+epc<-cbind(ep)
+}
+qic <- qnorm(0.5*(1+gama))
+LIIC <- c(vpc)-c(qic*epc)
+LSIC <- c(vpc)+ c(qic*epc)
+mIC  <- cbind(LIIC,LSIC)
+mIC[mIC[,1]<=0,1]=0
+mIC[mIC[,2]>=1,2]=1
+m.result <-cbind(round(vpc,2),round(epc,2),round(mIC,2))
+rownames(m.result)<-label
+colnames(m.result)<- c("Estimativa","EP","LIIC","LSIC")
+result<- list(vpc=vpc,epc=epc,mIC=mIC,mcov=mcov,label=label)
+return(result)
+}
 
+
+# gera gráficos das porporções estimadas (sem considerar modelos)
+#input= tabela: tabela de contingência
+#       result: objeto com o resultado da aplicação da função estima.theta
+#       oplas: orientação dos "labels" do eixo "x"
+#       eixo: dimensão dos labels dos eixos
+plot.graf.prop<-function(result,oplas,eixo)
+{
+label<-c(result$label)
+vpc<-cbind(c(result$vpc))
+mIC<-(result$mIC)
+mIC<- cbind(c(mIC[,1]),c(mIC[,2]))
+plotCI(vpc,ui=mIC[,2],li=mIC[,1],axes=F,xlab="categoria",ylab="proporções",pch=19,cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2,cex.axis=1.2) 
+axis(1,1:length(vpc),labels=label,cex.axis=eixo,las=oplas)
+}
+
+
+# Realiza testes do tipo Bpi=D para uma única tabela
+# r x s oriunda de um modelo multinomial
+# ou produto de multinomiais
+#input= result: objeto com o resultado da aplicação da função estima.theta
+#       m.B e v.D: matriz e vetor definidores das hipóteses de interesse, respectivamente
+test.Bpi.D<-function(result,m.B,v.D)
+{
+vpc<-cbind(c(result$vpc))
+mcov<-result$mcov
+mcov[mcov==0]<-0.000000000001
+e.Q <-t(m.B%*%vpc-v.D)%*%solve(m.B%*%mcov%*%t(m.B))%*%(m.B%*%vpc-v.D)
+ngl<-nrow(m.B)
+e.pvalor<-1-pchisq(e.Q,ngl)
+#cat("Estatistica Q = ",round(e.Q,2),"\n")
+#cat("pvalor = ",round(e.pvalor,4),"\n")
+#cat("g.l. =",ngl,"\n")
+#cat("Matriz B :","\n")
+#print(m.B)
+#cat("Vetor D :","\n")
+#print(v.D)
+resultado <- list(round(e.Q,2),round(e.pvalor,4),ngl,m.B,v.D)
+names(resultado) <- c("Estatistica Q","pvalor","g.l.","B","D")
+return(resultado)
+}
+
+
+# Ajusta modelos de regressão do tipo Api=Xbeta para uma única tabela
+# r x s oriunda de um modelo multinomial
+# ou produto de multinomiais
+#input= result: objeto com o o resultado da aplicação da função estima.theta
+#       m.B e m.X: matrizes definidoras do modelo de interesse
+MR.Api.Xbeta<-function(result,m.A,m.X)
+{
+label<-c(result$label)
+vpc<-cbind(c(result$vpc))
+mcov<-result$mcov
+mcov[mcov==0]<-0.000000000001
+mcovF <- m.A%*%mcov%*%t(m.A)
+auxav <- eigen(mcovF,only.values=TRUE)$values
+nlmcovF <- nrow(mcovF)
+while(min(auxav) <= 0.000000001)
+{
+ mcovF <- mcovF + diag(0.00001,nlmcovF,nlmcovF)
+ auxav <- eigen(mcovF,only.values=TRUE)$values
+}
+imcovF <- solve(mcovF)
+vF <- m.A%*%vpc
+mcovbeta <- solve(t(m.X)%*%imcovF%*%m.X)
+vbeta<- mcovbeta%*%t(m.X)%*%imcovF%*%vF
+epbeta <- cbind(c(sqrt(diag(mcovbeta))))
+epl <- m.X%*%vbeta
+eQ <-t(vF-epl)%*%imcovF%*%(vF-epl)
+ngl<-nrow(m.X)-nrow(vbeta)
+epvalor<-1-pchisq(eQ,ngl)
+result<- list(vpc=vpc,vbeta=vbeta,epbeta=epbeta,mcovbeta=mcovbeta,label=label)
+return(result)
+}
+
+# Testa hipóteses do tipo CB= M para modelos lineares ajustados
+# via função MR.Api.Xbeta
+# input = result: objeto com o resultado da aplicação da função MR.Api.Xbeta
+# Matrizes m.C e v.M
+
+testa.CB.M.Api.Xbeta<-function(result,m.C,v.M)
+{
+  vbeta <- result$vbeta
+  mcovbeta <- result$mcovbeta
+  e.QC <- t(m.C%*%vbeta - v.M)%*%solve(m.C%*%mcovbeta%*%t(m.C))%*%(m.C%*%vbeta - v.M)
+  ngl<-nrow(m.C)
+  e.pvalor<-1-pchisq(e.QC,ngl)
+  resultado <- list(round(e.QC,2),round(e.pvalor,4),ngl,m.C,v.M)
+names(resultado) <- c("Estatistica Q","pvalor","g.l.","C","M")
+return(resultado)
+}
+
+#Estima proporções sob o modelo Api=Xbeta
+#input= result: objeto com o resultado da aplicação da função MR.Api.Xbeta
+#       m.H e v.F: matriz e vetor que recuperam as proporções originais
+estim.prp.ApiXbeta<-function(result,m.H,v.F,gama)
+
+{
+label<-result$label
+vpc <- result$vpc
+vbeta<-result$vbeta
+mcovbeta<-result$mcovbeta
+vpesm <- m.H%*%vbeta + v.F
+mcovsm <- m.H%*%mcovbeta%*%t(m.H)
+vepsm <- sqrt(diag(mcovsm))
+qic <- qnorm(0.5*(1+gama))
+LIIC <- c(vpesm)-c(qic*vepsm)
+LSIC <- c(vpesm)+ c(qic*vepsm)
+mIC  <- cbind(LIIC,LSIC)
+mIC[mIC[,1]<=0,1]=0
+mIC[mIC[,2]>=1,2]=1
+result<- list(vpesm=vpesm,vepsm=vepsm,mcovbeta=mcovbeta,mIC=mIC)
+plot(vpc,axes=F,ylim=c(min(vpc,mIC),max(vpc,mIC)),xlab="categoria",ylab="proporções",cex=1.2)
+plotCI(vpesm,ui=mIC[,2],li=mIC[,1],axes=F,pch=19,cex=1.2,cex.axis=1.2,cex.lab=1.2,add=T)
+axis(2,cex.axis=1.2) 
+axis(1,1:length(vpc),labels=label,cex.axis=1.2)
+}
+
+
+# Ajusta modelos de regressão do tipo AlnGpi=Xbeta para uma única tabela
+# r x s oriunda de um modelo multinomial
+# ou produto de multinomiais
+# input= result: objeto com o o resultado da aplicação da função estima.theta
+#       m.B, m.G e m.X: matrizes definidoras do modelo de interesse
+MR.AlnGpi.Xbeta<-function(result,m.A,m.G,m.X)
+{
+label<-c(result$label)
+vpc<-cbind(c(result$vpc))
+mcov<-result$mcov
+mcov[mcov==0]<-0.000000000001
+auxmG<-m.G%*%vpc
+auxmG[auxmG==0]<-0.000000000001
+m.B <- solve(diag(c(auxmG)))
+mPsi <- m.A%*%m.B%*%m.G
+mcovF <- mPsi%*%mcov%*%t(mPsi)
+auxav <- eigen(mcovF,only.values=TRUE)$values
+nlmcovF <- nrow(mcovF)
+while(min(auxav) <= 0.001)
+{
+ mcovF <- mcovF + diag(0.00001,nlmcovF,nlmcovF)
+ auxav <- eigen(mcovF,only.values=TRUE)$values
+}
+imcovF <- solve(mcovF)
+vF <- m.A%*%(log(auxmG))
+mcovbeta <- solve(t(m.X)%*%imcovF%*%m.X)
+vbeta<- mcovbeta%*%t(m.X)%*%imcovF%*%vF
+epbeta <- cbind(c(sqrt(diag(mcovbeta))))
+epl <- m.X%*%vbeta
+eQ <-t(vF-epl)%*%imcovF%*%(vF-epl)
+ngl<-nrow(m.X)-nrow(vbeta)
+epvalor<-1-pchisq(eQ,ngl)
+cat("Est. dos par. beta","\n")
+print(round(cbind(vbeta,epbeta),2))
+cat("Teste para a qualidade do ajuste do modelo = ",round(eQ,2),"\n")
+cat("pvalor = ",round(epvalor,4),"\n")
+cat("g.l. =",ngl,"\n")
+cat("Matriz A :","\n")
+print(m.A)
+cat("Matriz X :","\n")
+print(m.X)
+result<- list(vpc=vpc,vbeta=vbeta,epbeta=epbeta,mcovbeta=mcovbeta,label=label)
+return(result)
+}
+```
+
+```{r libraries, echo=FALSE, eval=TRUE}
+library(dplyr)
+library(ggplot2)
+library(xtable)
+library(plotrix)
+library(plyr)
+#bibliotecas que possivelmente serão utilizadas
 ```
 
 
-
-SUGESTÃO:  
-O código do trabalho poderia terminar antes do início do trabalho de forma a melhorar a vizualização e organização
+# Exercício 2
 
 \doublespacing
 
 ###1.Introdução
 
-Descrição do problema, conjunto de dados e objetivos.
+Os dados a serem analisados são provenientes de um experimento desenvolvido para avaliar a germinação de um determinado tipo de semente de acordo com três condições experimentais: nível da temperatura: 21ºC, 42ºC e 62ºC; nível de umidade: baixo, médio e alto; e temperatura de germinação: 11ºC e 21ºC. Por exemplo, a uma temperatura de 11ºC, com nível de umidade baixo e temperatura de umidade de 21ºC, 100 sementes foram plantadas e observou-se que 98 delas germinaram depois de 5 dias.
+
+A tabela que contém os dados apresenta o número de sementes que germinaram após 5 dias para cada 100 sementes submetidas a cada condição experimental. Cada casela que compõem a tabela assume contagens $Y_{ijk}$ tais que representam variáveis aleatórias binomiais independentes com tamanho fixo de $n = 100$ e probabilidade de sucesso (neste caso, estimada como a proporção de sementes que germinaram depois de 5 dias).
+
+
+O objetivo é estimar a probabilidade de sementes germinadas depois de 5 dias, baseado em efeitos principais (nível de temperatura, nível de umidade e temperatura de germinação), verificar quais interações são significativas (combinações dos efeitos principais) e fornecer a combinação entre os níveis de fatores que gera a melhor taxa de germinação.
 
 ###2. Análise Descritiva
 
-Toda a parte da análise descritiva, incluindo gráficos pertinentes.
+Nota-se que para cada casela pode-se obter a proporção de sementes que germinaram depois de 5 dias para cada 100 sementes submetidas a cada condição experimental. Abaixo tem-se a tabela com os dados e a tabela com as proporções estimadas.
+
+
+```{r ler_banco_dados, echo=FALSE, eval=TRUE}
+library(xtable)
+#df_2 = read.table("http://www.ime.unicamp.br/~cnaber/sementes.dat")
+#names(df_2) = c("Temperatura","Nivel_Umidade","Temp_Umidade","N_de_sementes")
+teste <- read.table("~/Documentos/Discretos/discretos_2017/trabalho/sementes.dat")
+teste$V2 <- gsub("m\xe9dio", "médio", teste$V2)
+#temp.germ <- cbind(teste[[1]])
+#temp.germ <- cbind(factor(as.factor(teste[[1]]), levels = c("11","21"), labels = c("1","2"))) #temperatura de germinação
+#temp.germ <- cbind(as.integer(teste[[1]]))
+#nivel.um <- cbind(teste[[2]])
+#nivel.um <- cbind(factor(as.factor(teste[[2]]), levels = c("baixo", "médio", "alto"), labels = c("1", "2", "3")))  #nível de umidade #1 = baixo, 2 = médio e 3 = alto
+#nivel.temp <- cbind(teste[[3]])
+#nivel.temp <- cbind(factor(as.factor(teste[[3]]), levels = c("21","42", "62"), labels = c("1","2", "3"))) #nível de temperatura
+#nivel.temp <- cbind(as.integer(teste[[3]]))
+
+#sem.germ <- cbind((teste[[4]])) #número de sementes germinadas depois de 5 dias
+#dados <- data.frame(cbind(temp.germ, nivel.um, nivel.temp, sem.germ))
+colnames(teste) <- c("temp.germ", "nivel.um", "nivel.temp", "sem.germ")
+dados <- teste
+dados$temp.germ <- as.factor(dados$temp.germ)
+dados$nivel.um <- as.factor(dados$nivel.um)
+dados$nivel.temp <- as.factor(dados$nivel.temp)
+#dados$sem.germ <- as.numeric(dados$sem.germ)
+
+sementes <-matrix(c(98,96,62,94,79,3,92,41,1,94,93,65,94,71,2,91,30,1),nrow=6,byrow=TRUE)
+dimnames(sementes) <- list(c("11ºC & BAIXO","11ºC & MEDIO","11ºC & ALTO","21ºC & BAIXO","21ºC & MEDIO","21ºC & ALTO"),c("21ºC","42ºC", "62ºC"))
+names(dimnames(sementes)) <- c("Temp. Germinação || Nível de umidade","Nível de temperatura")
+#sementes
+#xtable(sementes)
+
+sementes_prop <-matrix(c(0.98,0.96,0.62,0.94,0.79,0.03,0.92,0.41,0.01,0.94,0.93,0.65,0.94,0.71,0.02,0.91,0.30,0.01),nrow=6,byrow=TRUE)
+dimnames(sementes_prop) <- list(c("11ºC & BAIXO","11ºC & MEDIO","11ºC & ALTO","21ºC & BAIXO","21ºC & MEDIO","21ºC & ALTO"),c("21ºC","42ºC", "62ºC"))
+names(dimnames(sementes_prop)) <- c("Temp. Germinação || Nível de umidade","Nível de temperatura")
+#sementes
+#xtable(sementes_prop)
+
+
+
+prop.sem.germ <- dados$sem.germ/100
+prop.sem.n.germ <- 1 - prop.sem.germ
+sd.binom.caselas <- sqrt(prop.sem.germ*prop.sem.n.germ/100)
+prop_sd <- cbind(prop.sem.germ, prop.sem.n.germ, sd.binom.caselas)
+colnames(prop_sd) <- c("proporção de sementes germinadas", "proporção de sementes não germinadas", "sd")
+
+dados <- cbind(dados, prop_sd)
+```
+
+```{r parte_descritiva_da_tabela_de_contingencia}
+library(dplyr)
+ajuda <- dados %>% group_by(temp.germ,nivel.um) %>% summarise(medias=mean(sem.germ), DP = sd(sem.germ))
+ajuda <- data.frame(ajuda)
+cvs <- 100*ajuda$DP/ajuda$medias
+med.resumo <- dados %>% group_by(temp.germ,nivel.um) %>% summarise(media = mean(sem.germ), vari = var(sem.germ), DP = sd(sem.germ), MAX = max(sem.germ), MIN = min(sem.germ))
+med.resumo <- data.frame(med.resumo)
+
+med.resumo <- cbind(med.resumo, cvs)
+#med.resumo
+
+#xtable(med.resumo)
+
+```
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & 21ºC & 42ºC & 62ºC \\ 
+  \hline
+  11ºC e BAIXO & 0.98 & 0.96 & 0.62 \\ 
+  11ºC e MÉDIO & 0.94 & 0.79 & 0.03 \\ 
+  11ºC e ALTO & 0.92 & 0.41 & 0.01 \\ 
+  21ºC e BAIXO & 0.94 & 0.93 & 0.65 \\ 
+  21ºC e MÉDIO & 0.94 & 0.71 & 0.02 \\ 
+  21ºC e ALTO & 0.91 & 0.30 & 0.01 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & 21ºC & 42ºC & 62ºC \\ 
+  \hline
+11ºC e BAIXO & 98.00 & 96.00 & 62.00 \\ 
+11ºC e MÉDIO & 94.00 & 79.00 & 3.00 \\ 
+11ºC e ALTO & 92.00 & 41.00 & 1.00 \\ 
+21ºC e BAIXO & 94.00 & 93.00 & 65.00 \\ 
+21ºC e MÉDIO & 94.00 & 71.00 & 2.00 \\ 
+21ºC e ALTO & 91.00 & 30.00 & 1.00 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+Pela tabela anterior observa-se que os valores médios de sementes germinadas após 5 dias, para uma dada temperatura de germinação, nível de umidade e desconsiderando-se a temperatura de umidade, diferem entre si. Por exemplo, a maior diferença nos valores médios está associada a seguinte combinação: temperatura de germinação de 11ºC e nível de umidade alta, com diferença média de sementes germinadas de 4. Essa diferença deve ser avaliada em conjunto com o pesquisador, pois deve-se levar em conta se essa diferença é significativa na prática, ou seja, se de fato em média essas quatro sementes teriam uma produtividade em média maior.
+
+Além disso, algumas medidas resumo podem ser avaliadas como quantidade de sementes germinadas em diferentes temperaturas de germinação para os diferentes níveis de umidade. Ou seja, é possível obter informações do comportamento da quantidade média de sementes germinadas em diferentes temperaturas de germinação, para cada nível de umidade e avaliar se as diferenças dos valores médios são muito discrepante.
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllrrrrrr}
+  \hline
+ Temperatura germinação & Nível umidade & Média & Variância & DP & MAX & MIN \\ 
+  \hline
+ 11 & alto & 44.67 & 2080.33 & 45.61 &  92 &   1  \\ 
+   11 & baixo & 85.33 & 409.33 & 20.23 &  98 &  62  \\ 
+   11 & médio & 58.67 & 2380.33 & 48.79 &  94 &   3 \\ 
+   21 & alto & 40.67 & 2110.33 & 45.94 &  91 &   1 \\ 
+   21 & baixo & 84.00 & 271.00 & 16.46 &  94 &  65 \\ 
+   21 & médio & 55.67 & 2292.33 & 47.88 &  94 &   2 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+Foi possível elaborar, também, gráficos de perfil que avalie o comportamento da umidade em uma dada temperatura de germinação, para os diferentes níveis de temperatura da umidade, isto é, as possíveis interações existentes. 
+
+Informação relevante é obtida com o gráfico de perfil das proporções de sementes germinadas depois de 5 dias. Nota-se que para cada nível de temperatura de (11ºC e 21ºC) o comportamento é muito semelhante das proporções, isto é, para o aumento da temperatura de umidade há diminuição nas proporção de sementes germinadas. Com isso, pode-se cogitar em uma possível interação entre as variáveis nível de umidade e temperatura de umidade.
+
+
+```{r grafico_perfil_para_cada_temperatura_de_germinacao}
+#Tentativa de construir o gráfico de perfil para temp.germ = 11, para os níveis de umidade e temperatura (ok)
+library(plotrix)
+par(mfrow=c(1,2))
+plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.7,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil", )
+axis(2,cex.axis=.5)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
+plotCI(dados$`proporção de sementes germinadas`[1:3],liw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],uiw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[1:3],lwd=2,col=4)
+plotCI(dados$`proporção de sementes germinadas`[4:6],liw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],uiw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[4:6],lwd=2,col=2)
+plotCI(dados$`proporção de sementes germinadas`[7:9],liw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],uiw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=1,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[7:9],lwd=2,col=1)
+
+legend(1,0.15,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade baixa para germinação em 11ºC","Umidade média para germinação em 11ºC", "Umidade alta para germinação em 11ºC"),bty="n",cex=.4)
+
+plot(dados$`proporção de sementes germinadas`[10:12],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.7,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil")
+axis(2,cex.axis=.5)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
+plotCI(dados$`proporção de sementes germinadas`[10:12],liw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],uiw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[10:12],lwd=2,col=4)
+plotCI(dados$`proporção de sementes germinadas`[13:15],liw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],uiw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[13:15],lwd=2,col=2)
+plotCI(dados$`proporção de sementes germinadas`[16:18],liw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],uiw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=1,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[16:18],lwd=2,col=1)
+
+legend(1,0.15,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade baixa para germinação em 21ºC","Umidade média para germinação em 21ºC", "Umidade alta para germinação em 21ºC"),bty="n",cex=.4)
+
+```
+
+Mais do que isso, para os diferentes valores de temperatura de umidade e diferentes níveis de temperatura, num mesmo nível de umidade, o comportamento de decaimento das proporções de sementes germinadas são muito semelhantes. Isto pode ser observado, também pelos gráficos de perfis abaixo.
+
+```{r grafico_perfil_dentro_de_cada_nivel_de_umidade}
+library(plotrix)
+#par(mfrow=c(3,1))
+
+plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil")
+axis(2,cex.axis=.5)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
+
+plotCI(dados$`proporção de sementes germinadas`[1:3],liw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],uiw=1.96*dados$`proporção de sementes germinadas`[1:3]*dados$sd[1:3],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[1:3],lwd=2,col=4)
+plotCI(dados$`proporção de sementes germinadas`[10:12],liw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],uiw=1.96*dados$`proporção de sementes germinadas`[10:12]*dados$sd[10:12],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[10:12],lwd=2,col=2)
+legend(1,0.15,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade baixa para germinação em 11ºC","Umidade baixa para germinação em 21ºC"),bty="n",cex=.4)
+
+plot(dados$`proporção de sementes germinadas`[4:6],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil")
+axis(2,cex.axis=.5)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
+plotCI(dados$`proporção de sementes germinadas`[4:6],liw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],uiw=1.96*dados$`proporção de sementes germinadas`[4:6]*dados$sd[4:6],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[4:6],lwd=2,col=4)
+plotCI(dados$`proporção de sementes germinadas`[13:15],liw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],uiw=1.96*dados$`proporção de sementes germinadas`[13:15]*dados$sd[13:15],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[13:15],lwd=2,col=2)
+legend(1,0.15,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade média para germinação em 11ºC","Umidade média para germinação em 21ºC"),bty="n",cex=.4)
+
+plot(dados$`proporção de sementes germinadas`[7:9],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.5,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil")
+axis(2,cex.axis=.5)
+axis(1,1:3,c("21ºC","42ºC", "62ºC"),cex.axis=.5)
+plotCI(dados$`proporção de sementes germinadas`[7:9],liw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],uiw=1.96*dados$`proporção de sementes germinadas`[7:9]*dados$sd[7:9],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=4,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[7:9],lwd=2,col=4)
+plotCI(dados$`proporção de sementes germinadas`[16:18],liw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],uiw=1.96*dados$`proporção de sementes germinadas`[16:18]*dados$sd[16:18],pch=19,add=TRUE,cex.lab=1.5,slty=1,lwd=2,col=2,cex=1.2)
+lines(dados$`proporção de sementes germinadas`[16:18],lwd=2,col=2)
+legend(1,0.15,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade alta para germinação em 11ºC","Umidade alta para germinação em 21ºC"),bty="n",cex=.4)
+
+
+```
+
+
+
+
 
 ###3. Análise Inferencial
 
