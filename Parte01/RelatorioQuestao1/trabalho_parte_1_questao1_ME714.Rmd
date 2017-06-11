@@ -70,7 +70,7 @@ options(OutDec= ",")
 
 ```{r, echo=FALSE}
 #definindo opções padrões dos chunks
-knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='Figs/', fig.align='center', echo=FALSE, warning=FALSE, message=FALSE)
+knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.align='center', echo=FALSE, warning=FALSE, message=FALSE)
 ```
 
 
@@ -116,25 +116,15 @@ tbls <- captioner(prefix="Tabela")
 legenda_table1 = tbls(name="table_dados",caption = "Dados do Problema")
 legenda_table2 = tbls(name="table_Estimativa",caption = "Estimativas dos parâmetros e respectivos desvio padrão e intervalo de confiança")
 legenda_table3 = tbls(name="coeff_fit_otimo",caption = "Estimativas dos parâmetros, intervalo de confiança e teste de nulidade para o modelo 2")
-legenda_table4 = tbls(name="table_mult",caption = "Tabela dos coeficientes de correlação linear entre as covariáveis")
-legenda_table5 = tbls(name="table_comp1",caption = "Tabela de Comparação dos modelos 1, 2 e 3")
-legenda_table6 = tbls(name="table_comp2",caption = "Tabela de Comparação dos modelos 1, 2, 3 e 4")
 
-#legendas para os gráficos
 
 #legenda para o primeiro Boxplot
-legenda_graf1 = figs(name="graf1_barra",caption = "Quantidade de Dentes selados com Allbond x Tipo de Microinfiltração")
-#legenda para o primeiro grárico de dispersão
-legenda_graf2 = figs(name="graf2_barra",caption = "Quantidade de Dentes selados com Optibond x Tipo de Microinfiltração")
-legenda_graf3 = figs(name="graf3_barra",caption = "Quantidade de Dentes selados com Scotchbond x Tipo de Microinfiltração")
+legenda_graf1 = figs(name="graf1_barra",caption = "Distribuição de frequência em relação aos níveis de Microinfiltração para o material Allbond")
+
+legenda_graf2 = figs(name="graf2_barra",caption = "Distribuição de frequência em relação aos níveis de Microinfiltração para o material Optibond ")
+legenda_graf3 = figs(name="graf3_barra",caption = "Distribuição de frequência em relação aos níveis de Microinfiltração para o material Scotchbond")
 legenda_graf4 = figs(name="graf4_Prop_medias",caption = "Gráfico de Proporções médias com seus respectivos intervalos de confiança")
 legenda_graf5 = figs(name="graf5_estimativas_ics",caption = "Gráfico com as estimativas e seus intervalos de confiança")
-legenda_graf6 = figs(name="grafico_correlacao",caption = "Gráfico de correlação")
-legenda_graf7 = figs(name="anainflu_norm(fit_otimo)",caption = "Pontos alavanca e distância de Cook")
-legenda_graf8 = figs(name="diag2norm(fit_otimo_adj1)",caption = "Análise residual para o modelo 3")
-legenda_graf9 = figs(name="envelnorm(fit_otimo_adj1)",caption = "Gráfico de envelope para os resíduos studentizado para o modelo 3")
-legenda_graf10 = figs(name="diag2norm(fit_otimo_adj2)",caption = "Análise residual para o modelo 4")
-legenda_graf11 = figs(name="envelnorm(fit_otimo_adj2)",caption = "Gráfico de envelope para os resíduos studentizado para o modelo 4")
 
 ```
 
@@ -287,7 +277,7 @@ epl <- m.X%*%vbeta
 eQ <-t(vF-epl)%*%imcovF%*%(vF-epl)
 ngl<-nrow(m.X)-nrow(vbeta)
 epvalor<-1-pchisq(eQ,ngl)
-result<- list(vpc=vpc,vbeta=vbeta,epbeta=epbeta,mcovbeta=mcovbeta,label=label)
+result<- list(eQ = eQ,ngl = ngl, epvalor = round(epvalor,4),vpc=vpc,vbeta=vbeta,epbeta=epbeta,mcovbeta=mcovbeta,label=label)
 return(result)
 }
 
@@ -490,6 +480,8 @@ A = matrix(c(0:4,numeric(10),numeric(5),(0:4),numeric(5),numeric(10),(0:4)),3,15
 
 Resultado_1 = MR.Api.Xbeta(estimado_theta_1,A,m.X1)
 
+H02_ApiXbeta <- Resultado_1
+
 # verificação do ajuste do modelo 1
 f_1 = A%*%(estimado_theta_1$vpc)
 
@@ -501,14 +493,14 @@ f_menos_xbeta_1 = (f_1-m.X1%*%(beta_1))
 
 qr_1 = t(f_menos_xbeta_1)%*%ginv(sigma_f_1)%*%(f_menos_xbeta_1)
 
+
 betas_1 = data.frame(Resultado_1$vbeta,Resultado_1$epbeta,Resultado_1$vbeta-1.96*Resultado_1$epbeta,Resultado_1$vbeta+1.96*Resultado_1$epbeta)
 names(betas_1)=c("Estimado","DP","LIIC","LSIC")
 
 pd <- position_dodge(0.1)
 
 # gráfico de de estimativas para o modelo 1 e seus respectivos erros padrão
-g1 = ggplot(betas_1, aes(x=c(1,2,3), y=Estimado)) + geom_point(position=pd, size=3, shape=21, fill="white")+ 
-  geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)+theme_bw()
+#g_IC <- ggplot(betas_1, aes(x=c(1,2,3), y=Estimado)) + geom_point(position=pd, size=3, shape=21, fill="white")+ geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)+theme_bw()
 
 
 #modelo 2 Não vamos usa-lo por enquanto
@@ -517,6 +509,8 @@ g1 = ggplot(betas_1, aes(x=c(1,2,3), y=Estimado)) + geom_point(position=pd, size
 m.X2 <- matrix(c(1,0,0,1,1,0),3,2,byrow = T)
 A_2 <- matrix(c(rep(c(0:4,rep(0,15)),3)),3,15,byrow = T)
 Resultado_2 = MR.Api.Xbeta(estimado_theta_1,A_2,m.X2)
+
+H02_ApiXbeta <- Resultado_2
 
 # verificação do ajuste do modelo 2
 f_2 = A_2%*%(estimado_theta_1$vpc)
@@ -536,6 +530,20 @@ names(betas_2)=c("Estimado","DP","LIIC","LSIC")
 # gráfico de de estimativas para o modelo 2 e seus respectivos erros padrão, não tem sentido colocar no trabalho se o modelo não se ajustar bem
 g2 = ggplot(betas_2, aes(x=c(1,2), y=Estimado)) + geom_point(position=pd, size=3, shape=21, fill="white")+ 
   geom_errorbar(aes(ymin=Estimado-DP, ymax=Estimado+DP),colour="black", width=.1, position=pd)+theme_bw()
+
+
+m.X3 <- matrix(c(1,0,1,0,0,1),3,2,byrow = T)
+A_3 <- matrix(c(rep(c(0:4,rep(0,15)),3)),3,15,byrow = T)
+Resultado_3 = MR.Api.Xbeta(estimado_theta_1,A_3,m.X3)
+
+H01_ApiXbeta <- Resultado_3
+
+
+m.X4 <- matrix(c(1,0,0,1,0,1),3,2,byrow = T)
+A_4 <- matrix(c(rep(c(0:4,rep(0,15)),3)),3,15,byrow = T)
+Resultado_4 = MR.Api.Xbeta(estimado_theta_1,A_3,m.X3)
+
+H03_ApiXbeta <- Resultado_4
 ```
 
 ```{r}
@@ -553,7 +561,7 @@ testeCB <- testa.CB.M.Api.Xbeta(Resultado_1,m.C,v.M)
 ###1.Introdução
 
 
-Um dos maiores problemas da Dentística Restauradora é a falta de adesão dos materiais restauradores às estruturas dentárias, o que permitia uma infiltração marginal, que leva à descoloração marginal, fraturas marginais, reincidência de cárie, sensibilidade pós-operatória e reações pulpares e considerando as implicações disto na saúde bucal de um paciente, o presente estudo busca comparar três tipos de materiais selantes (Allbond, Optibond e Scotchbond), segundo o nível de microinfiltração, numa escala que varia de 0 até 4 (0=sem microinfiltração 4=microinfiltração intensa). Cada um dos três pesquisados classificaram setenta e dois dentes quanto a microinfiltração, totalizando duzentos e dezesseis dentes. Foram fixados para cada tipo de material um total de setenta e dois dentes a serem analisados. Portanto, o objetivo é classificar os tipos de selante quanto ao nível de microinfiltração. Os dados do experiento se encontram abaixo no tabela 1 e maiores detalhes constam em Witzel, Grande & Singer (2000). Na próxima seção iniciamos a análise dos resultados apresentando uma análise descritiva.
+Um dos maiores problemas da Dentística Restauradora é a falta de adesão dos materiais restauradores às estruturas dentárias, o que permitia uma infiltração marginal, que leva à descoloração marginal, fraturas marginais, reincidência de cárie, sensibilidade pós-operatória e reações pulpares e considerando as implicações disto na saúde bucal de um paciente, o presente estudo busca comparar três tipos de materiais selantes (Allbond, Optibond e Scotchbond), segundo o nível de microinfiltração, numa escala que varia de 0 até 4 (0=sem microinfiltração 4=microinfiltração intensa). Cada um dos três pesquisados classificaram setenta e dois dentes quanto a microinfiltração, totalizando duzentos e dezesseis dentes. Foram fixados para cada tipo de material um total de setenta e dois dentes a serem analisados. Portanto, o objetivo é classificar os tipos de selante quanto ao nível de microinfiltração. Os dados do experimento se encontram abaixo na tabela 1 e maiores detalhes constam em Witzel, Grande & Singer (2000). Na próxima seção iniciamos a análise dos resultados apresentando uma análise descritiva.
 
 Todas as análises presentes neste trabalho foram obtidas com auxílio dos softwares "R" e "RStudio". Ambos são gratuitos e estão disponíveis nos sites *[https://cran.r-project.org/index.html]("https://cran.r-project.org/index.html")* e *[https://www.rstudio.com/products/rstudio/download/]("https://www.rstudio.com/products/rstudio/download/")* respectivamente. Para os testes estatísticos, foi-se considerado um nível de significância de 10%.
 
@@ -561,7 +569,7 @@ Todas as análises presentes neste trabalho foram obtidas com auxílio dos softw
 
 ###2. Análise Descritiva
 
-Abaixo, obervamos a tabela 1, correspondente aos dados do experimento.
+Abaixo, observamos a tabela 1, correspondente aos dados do experimento.
 
 \begin{table}[ht]
 \centering
@@ -582,13 +590,13 @@ Allbond & 9 & 18 & 31 & 12 & 2 & 72 \\
 `r legenda_table1`
 \end{center}
 
-Acima observa-se as contagens das classificações por tipo de material selante. Os dados foram obtidos são uma contagem do número de classificações dadas pelos pesquisadores para cada nível de microinfiltração em cada tipo de material selante.
+Acima observa-se as contagens das classificações por tipo de material selante. Os dados foram obtidos a partir de uma contagem do número de classificações dadas pelos pesquisadores para cada nível de microinfiltração em cada tipo de material selante.
 
-Sabendo que quanto mais dentes forem classificados com 0 ou 1, melhor será o Material e a fim de podermos captar algum indício de que algum Material Selante possui melhor desempenho do que os outros, definiu-se uma estatística:
+Sabemos que quanto mais dentes forem classificados com classificações mais baixas, melhor será o material. A  fim de podermos captar algum indício de que algum Material Selante possui melhor desempenho do que os outros, definiu-se uma estatística:
 
-Seja $soma_{01i}$ definida como a soma das contagens de classificações 0 ou 1 feita no i-ésimo material. Seja $somatotal_{i}$ igual ao total de dentes analisados por tipo de material, na qual sabe-se pelo problema ter a medida setenta e dois unidades dentárias. As quantidades $soma_{0i}$ e $soma_{1i}$ são as medidas de 0 e 1 respectivamente para cada tipo de Material. Essa estatística pode ser considerada uma proporção e visa identificar qual material produz os casos de maior interesse em relação ao problema, expressando-se os resultados numa porcentagem.
+Seja $soma_{01i}$ definida como a soma das contagens de classificações 0 ou 1 feita no i-ésimo material. Seja $somatotal_{i}$ igual ao total de dentes analisados por tipo de material, na qual sabe-se, pela descrição do experimento, que a medida é setenta e duas unidades dentárias. As quantidades $soma_{0i}$ e $soma_{1i}$ são as medidas de 0 e 1 respectivamente para cada tipo de Material. Essa estatística pode ser considerada como uma proporção e visa identificar qual material produz as classificações de maior interesse em relação ao problema, expressando-se os resultados numa porcentagem.
 
-Logo, $$soma_{01i}=\frac{soma_{0i}+soma_{1i}}{72}$$ para $i=Allbond,Optibond,Scotchbond$
+Logo, $$soma_{01i}=\frac{soma_{0i}+soma_{1i}}{72}.\ \ \ \textrm{para i=Allbond,Optibond,Scotchbond}$$.
 
 Portanto, para o material Allbond obteve-se $$soma_{01_{Allbond}}=\frac{soma_{0_{Allbond}}+soma_{1_{Allbond}}}{72}=\frac{9+18}{72}=\frac{27}{72}$$
 
@@ -598,11 +606,12 @@ Para Scotchbond, $$soma_{01_{Scotchbond}}=\frac{soma_{0_{Scotchbond}}+soma_{1_{S
 
 Logo, medindo esses resultados em porcentagem, temos que para Allbond `r medias_soma01_A` % das classificações estão alocadas entre 0 e 1. Utilizando este mesmo raciocínio, para Optibond `r medias_soma01_O` % e, Scotchbond `r medias_soma01_S` %. 
 
-Baseados nestes resultados, observa-se que o Selente Optibond possui maiores classificações situadas entre os menores níveis de microinfiltração (0 e 1), sugerindo que esse material tenha melhor desempenho que os outros. Vê-se também que os resultados para Allbond e Scotchbond são semelhantes porém, nenhuma conclusão pode ser aferida pois há de se observar onde residem as maiores proporções de classificação, se entre o valor intermediário 2 ou nos valores mais extremos 3 e 4.
+Baseados nestes resultados, observa-se que o Selente Optibond possui maiores classificações situadas entre os menores níveis de microinfiltração (0 e 1), sugerindo que esse material tenha melhor desempenho que os outros. Vê-se também que os resultados para Allbond e Scotchbond são semelhantes, porém nenhuma conclusão pode ser aferida pois há de se observar onde residem as demais proporções de classificação, ou seja, deve-se levar em consideração também as distribuições de frequência de cada material.
 
-Observa-se nas figuras 1,2 e 3 os seguintes comportamentos:
+Observa-se nas figuras 1, 2 e 3, as respectivas distribuições de frequências para os três materiais.   
+Temos os seguintes comportamentos:
 
-Na figura 1, observa-se uma prevalecência das classificações em torno de 2, e a identificação com a segunda maior quantidade é a 1 , sugerindo que esse método tem níveis razoáveis de microinfiltração e talvez não seja o que proporciona os menores níveis.
+Na figura 1, observa-se uma prevalencia das classificações em torno de 2, e a identificação com a segunda maior quantidade é a 1 , sugerindo que esse método tem níveis razoáveis de microinfiltração e talvez não seja o que proporciona os menores níveis.
 
 ```{r}
 op = melt(as.data.frame(df_11))
@@ -612,13 +621,12 @@ names(op) = c("Class","Valor","Material")
 a = subset(op, Material == "A")
 O = subset(op, Material == "O")
 S = subset(op, Material == "S")
-
-
-g_A=ggplot(data=a, aes(x=Class,y=Valor))+geom_bar(stat="identity",colour="black",fill="grey",size=1)+ expand_limits(y=c(0,40))+xlab("Tipo de Microinfiltração") + ylab("Quantidade de Dentes") +theme_bw()
 ```
 
 ```{r}
-g_A
+g_Allbond <- ggplot(data=a, aes(x=Class,y=Valor))+geom_bar(stat="identity",colour="black",fill="grey",size=1)+ expand_limits(y=c(0,40))+xlab("Tipo de Microinfiltração") + ylab("Quantidade de Dentes") +theme_bw()
+
+g_Allbond
 ```
 
 
@@ -651,7 +659,11 @@ ggplot(data=S, aes(x=Class, y=Valor))+geom_bar(stat="identity",colour="black", f
 `r legenda_graf3`
 \end{center}
 
-Já na figura 4, pode-se visualizar as diferenças entre as proporções para cada grupo, no eixo das abcissas, pode ser observar que as observações estão ordenadas por Selantes (A=Allbond, O=Optibond e S=Scotchbond) e suas respectivas classificações. Com isso, podemos observar o mesmo que no gráfico de barras, porém agora há a informação das proporções de cada categorização. Vemos que, para para Allbond a classificação 2 teve a maior proporção dentre os setente e dois dentes analisados, com cerca de 40% desta. Para Optibond, observa-se que a Classificação 1 é a que possui maior a proporção, com cerca de 40% destas. Para Scotchbond, a categorização 3 foi a mais ocorrente, com cerca de 30%. Levando em conta que quanto maior a proporção de classificação em valores menores, como 0 ou 1, melhor será o material, pode-se inferir que o melhor material é o Optibond, seguido do Allbond e do Scotchbond.
+
+
+
+Já na figura 4, pode-se visualizar estimativas pontuais e intervalares para as proporções populacionais de classificação de cada nível de microinfiltração para cada material. Portanto, podemos identificar diferenças entre as proporções para cada grupo; No eixo das abcissas, pode se ver que as observações estão ordenadas por materiais Selantes (A=Allbond, O=Optibond e S=Scotchbond) e suas respectivas classificações (0-4). 
+Com isso, podemos observar os mesmas informações que no gráfico de barras, porém agora há a informação das proporções de cada categorização, assim como as estimativas intervalares. Vemos que, para para Allbond a classificação 2 teve a maior proporção dentre os setente e dois dentes analisados, com cerca de 40% desta. Para Optibond, observa-se que a Classificação 1 é a que possui maior a proporção, com cerca de 40% destas. Para Scotchbond, a categorização 3 foi a mais ocorrente, com cerca de 30%. Levando em conta que quanto maior a proporção de classificação em valores menores, como 0 ou 1, melhor será o material, pode-se inferir que o melhor material é o Optibond, seguido do Allbond e do Scotchbond.
 
 ```{r}
 plot.graf.prop(estimado_theta_1,1,0.5)
@@ -661,7 +673,7 @@ plot.graf.prop(estimado_theta_1,1,0.5)
 `r legenda_graf4`
 \end{center}
 
-Portanto, das análises descritivas podemos concluir que há indicios de termos um material que é relativamente melhor que os outros, este é o Optibond. Seguidamente, pode-se concluir que há distinções entre os materiais Allbond e Scotchbond, tendo aquele melhor desempenho em relação a este. Portanto, a análise inferencial porcurará confrontar essas conjecturas, confirmando-as ou rejeitando-as.                      
+Portanto, das análises descritivas podemos concluir que há indicios de termos um material que é relativamente melhor que os outros, este é o Optibond. Seguidamente, pode-se concluir que há distinções, embora não tão evidente, entre os materiais Allbond e Scotchbond, tendo o primeiro melhor desempenho em relação ao segundo. Portanto, a análise inferencial porcurará confrontar essas conjecturas, confirmando-as ou rejeitando-as.                      
 
 
 \newpage
@@ -754,8 +766,8 @@ A qual é equivalente a testar:
 $$H_{01} : \ B_1\pi = D\ \ Vs\ \ H_{11} : B_1\pi \neq D$$
 OBS: Os vetores $B_1$, $\pi$ e D estão definidos em anexo.
 
-A partir do teste da hipótese acima, observou-se um valor de `r as.double(t.BpiD_ex1b_SaxSo$"Estatistica Q")` que , respeitando-se os graus de liberdade da estatística do teste ("`r t.BpiD_ex1b_SaxSo$g.l.`" nesse caso), obtemos um p-valor de `r ifelse(as.double(t.BpiD_ex1b_SaxSo$pvalor) < 0.0001,"<0,0001",as.double(t.BpiD_ex1b_SaxSo$pvalor))`, ou seja, considerando um nível de significânce de 10%, rejeita-se a hipóte nula.  
-Desta maneira, existem evidências a favor da hipótese de que as medidas de desempenho dos materiais Allbond e Optibond são diferentes. 
+A partir do teste da hipótese acima, observou-se um valor de `r as.double(t.BpiD_ex1b_SaxSo$"Estatistica Q")` para a estatística do teste que , respeitando-se os graus de liberdade da estatística do teste ("`r t.BpiD_ex1b_SaxSo$g.l.`" nesse caso), obtemos um p-valor de `r ifelse(as.double(t.BpiD_ex1b_SaxSo$pvalor) < 0.0001,"<0,0001",as.double(t.BpiD_ex1b_SaxSo$pvalor))`, ou seja, considerando um nível de significânce de 10%, rejeita-se a hipóte nula.  
+Desta maneira, existem evidências a favor da hipótese de que as medidas de desempenho dos materiais Allbond e Optibond são estatísticamente diferentes. 
 
 Para a comparação das medidas de desempenho dos materiais Allbond e Scotchbond, utilizou-se  a seguinte hipótese:
 
@@ -769,10 +781,10 @@ $$H_{02} : \ B_2\pi = D\ \ Vs\ \ H_{12} : B_2\pi \neq D$$
 
 OBS: Os vetores $B_2$, $\pi$ e D estão definidos em anexo.
 
-A partir do teste da hipótese acima, observou-se um valor de `r as.double(t.BpiD_ex1b_SaxSs$"Estatistica Q")` que , respeitando-se os graus de liberdade da estatística do teste ("`r t.BpiD_ex1b_SaxSs$g.l.`" nesse caso), obtemos um p-valor de `r ifelse(as.double(t.BpiD_ex1b_SaxSs$pvalor) < 0.0001,"<0,0001",as.double(t.BpiD_ex1b_SaxSs$pvalor))`, ou seja, considerando um nível de significânce de 10%, rejeita-se a hipóte nula.  
-Desta maneira, existem evidências a favor da hipótese de que as medidas de desempenho dos materiais Allbond e Scotchbond são diferentes. 
+A partir do teste da hipótese acima, observou-se um valor de `r as.double(t.BpiD_ex1b_SaxSs$"Estatistica Q")` para a estatística do teste que , respeitando-se os graus de liberdade da estatística do teste ("`r t.BpiD_ex1b_SaxSs$g.l.`" nesse caso), obtemos um p-valor de `r ifelse(as.double(t.BpiD_ex1b_SaxSs$pvalor) < 0.0001,"<0,0001",as.double(t.BpiD_ex1b_SaxSs$pvalor))`, ou seja, considerando um nível de significânce de 10%, rejeita-se a hipóte nula.  
+Desta maneira, existem evidências a favor da hipótese de que as medidas de desempenho dos materiais Allbond e Scotchbond são estatísticamente diferentes. 
 
-Para a comparação das medidas de desempenho dos materiais Optibond e Scotchbond, utilizou-se  a seguinte hipótese:: 
+Para a comparação das medidas de desempenho dos materiais Optibond e Scotchbond, utilizou-se  a seguinte hipótese:  
 
 $$
 H_{03}: \bar{S}_{Optibond} - \bar{S}_{Scotchbond} = 0 = 0 \ Vs \ H_{13}: \bar{S}_{Optibond} - \bar{S}_{Scotchbond} \neq 0
@@ -783,14 +795,15 @@ A qual é equivalente a testar:
 $$H_{03} : \ B_3\pi = D\ \ Vs\ \ H_{13} : B_3\pi \neq D$$
 OBS: Os vetores $B_3$, $\pi$ e D estão definidos em anexo.
 
-A partir do teste da hipótese acima, observou-se um valor de `r as.double(t.BpiD_ex1b_SoxSs$"Estatistica Q")` que , respeitando-se os graus de liberdade da estatística do teste ("`r t.BpiD_ex1b_SoxSs$g.l.`" nesse caso), obtemos um p-valor de `r ifelse(as.double(t.BpiD_ex1b_SoxSs$pvalor) < 0.0001,"<0,0001",as.double(t.BpiD_ex1b_SoxSs$pvalor))`, ou seja, considerando um nível de significânce de 10%, rejeita-se a hipóte nula.  
-Desta maneira, existem evidências a favor da hipótese de que as medidas de desempenho dos materiais Optibond e Scotchbond são diferentes.  
+A partir do teste da hipótese acima, observou-se um valor de `r as.double(t.BpiD_ex1b_SoxSs$"Estatistica Q")` para a estatística do teste que , respeitando-se os graus de liberdade da estatística do teste ("`r t.BpiD_ex1b_SoxSs$g.l.`" nesse caso), obtemos um p-valor de `r ifelse(as.double(t.BpiD_ex1b_SoxSs$pvalor) < 0.0001,"<0,0001",as.double(t.BpiD_ex1b_SoxSs$pvalor))`, ou seja, considerando um nível de significânce de 10%, rejeita-se a hipóte nula.  
+Desta maneira, existem evidências a favor da hipótese de que as medidas de desempenho dos materiais Optibond e Scotchbond são estatísticamente diferentes.  
 
 Dados os resultados dos testes de hipóteses acima, tem-se a indicação das medidas de desempenho dos três materiais diferem estatísticamente entre si.
 
-Uma outra análise poderia ser feita a partir de um modelo de regressão linear para Tabela de Contingência, escrito na forma $A\pi =X\beta$ (Veja Azevedo 2017).
+Uma outra análise poderia ser feita a partir de um modelo de regressão linear para Tabela de Contingência, escrito na forma $A\pi =X\beta$ (Veja Azevedo 2017). Levando-se em consideração as hipóteses já definidas anteriormente $H_{01}$,$H_{02}$ e $H_{03}$, ajustamos um modelo do tipo $A\pi =X\beta$ para cada hipóte e obtivemos os respectivos p-valores para a os respectivos testes do tipo $H_0: \textrm{O modelo está bem ajustado}\  Vs\ H_1: \textrm{O modelo não está bem ajustado}$ : `r ifelse(as.double(H01_ApiXbeta$epvalor) < 0.0001,"<0,0001",as.double(H01_ApiXbeta$epvalor))`, `r ifelse(as.double(H02_ApiXbeta$epvalor) < 0.0001,"<0,0001",as.double(H02_ApiXbeta$epvalor))`  e  `r ifelse(as.double(H03_ApiXbeta$epvalor) < 0.0001,"<0,0001",as.double(H03_ApiXbeta$epvalor))`, que nos dão a indicação, a um nível de significância de 10%, de mal ajuste de todos os modelos propostos, o que nos leva para exatamente as mesmas conclusões que ateriormente.  
+OBS: De fato, considerando a mesma hipótese de interesse, os p-valores dos testes do tipo $B\pi = D$ e $A\pi = X\beta$ são os mesmos.
 
-Dados os resultados expostos anteriormente, podemos testar o ajuste de um modelo que leva em consideração a hipótese de que todos as medidas de desempenho dos materiais são diferentes, e partir desse modelo, obter as estimativas para a medida de desempenho de cada material. 
+Dados os resultados expostos anteriormente, podemos testar o ajuste de um modelo que leva em consideração a hipótese de que todos as medidas de desempenho dos materiais são diferentes, e partir desse modelo, obter as estimativas pontuais e intervalares para as medidas de desempenho de cada material. 
 
 Pode-se observar, através da tabela 2 os valores estimados da medida de desempenho de cada material (MD Estimada), seus respectivos desvios padrão (DP) e intervalos de confiança (LIIIC e LSIC são respectivamente os limites inferior e superior dos intervalos de confiança para as medidas de desempenho levando-se um consideração um nível de confiança de 95%).
 
@@ -814,20 +827,23 @@ Scotchbond & 2.03 & 0.14 & 1.75 & 2.30 \\
 A figura 5 é uma representação gráfica dos Intervalos de confiança apresentados na tabela 5.
 
 ```{r}
-g1
+g_IC <- ggplot(betas_1, aes(x=c("Allbond","Optibond","Scotchbond"), y=Estimado)) + geom_point(position=pd, size=3, shape=21, fill="white")+ 
+  geom_errorbar(aes(ymin=LIIC, ymax=LSIC),colour="black", width=.1, position=pd)+theme_bw() + xlab("Materiais Selantes") + ylab("Medidas de Desempenho")
+
+g_IC
 ```
 \begin{center}
 `r legenda_graf5`
 \end{center}
 
-Note que, os intervalos de confiança para as medidas dos materiais Allbond e Scothbond, apesar de não ter nenhuma intersecção, são bem próximos, o que indica que, apesar destas medidas serem estatísticamente diferentes, temos uma proximidade das medidas de desempenho destes materiais. O respectivo intervalo de confiança para o material Opitbond é vizualmente bem distante dos demais, o que nos indica um melhor desempenho deste, uma vez que observamos este intervalo abaixo dos demais. 
+Note que, os intervalos de confiança para as medidas dos materiais Allbond e Scothbond, são bem próximos e existe uma interseção entre eles, o que indica que, apesar destas medidas serem estatísticamente diferentes, suas medidas de desempenho são bem próximas. O respectivo intervalo de confiança para o material Opitbond é vizualmente bem distante dos demais, o que nos indica um melhor desempenho deste em relação aos outros dois, uma vez que observamos este intervalo bem abaixo dos demais. 
 
 \newpage
 
 ###4. Conclusões
 
  
-A partir da análise dos dados em questão, obtivemos resultados concordantes tanto na análise descritiva quanto na análise inferêncial para responder ao principal interesse deste estudo que objetiva classificar os tipos de selante quanto ao nível de microinfiltração. Segundo as análises feitas, considerando um nível de significância de 10%, temos a indicação de que o material que apresenta o melhor desempenho é o material "Optibond", uma vez que é o material que apresenta um menor valor da medida de desempenho proposta e é também estatísticamente diferente dos demais materiais quanto à esta medida. Quanto aos demais materiais, as análises nos mostraram que os materiais "Allbond" e  "Scotchbond" são estatísticamente diferentes (a um nível de significância de 10%) quanto à medida de desempenho proposta, embora apresentam uma boa proximidade de suas medidas. Por não termos mais informações quanto às características dos materiais, seus respectivos custos, disponibilidade destes no mercado, assim como outras informações que poderiam influenciar e/ou nos dar um contexto maior quanto ao problema, podemos apenas fazer conclusões quanto as classificações apresentadas e quanto as medidas de desempenho propostas para estes materiais, porém, pessoas com um conhecimento específico na área de microinfiltração, poderiam estabelecer um elo dos resultados  presentes neste estudo com outras informações específicas da área de estudo em questão para tirar outras conclusões, como por exemplo, conclusões quanto ao custo/benefício e/ou equivalência dos tipos de materiais estudados.
+A partir da análise dos dados em questão, obtivemos resultados concordantes tanto na análise descritiva quanto na análise inferêncial para responder ao principal interesse deste estudo que objetiva classificar os tipos de selante quanto ao nível de microinfiltração. Segundo as análises feitas, considerando um nível de significância de 10%, temos a indicação de que o material que apresenta o melhor desempenho é o material "Optibond", uma vez que é o material que apresenta um menor valor da medida de desempenho proposta e é também estatísticamente diferente dos demais materiais quanto à esta medida. Quanto aos demais materiais, as análises nos mostraram que os materiais "Allbond" e  "Scotchbond" são estatísticamente diferentes (a um nível de significância de 10%) quanto à medida de desempenho proposta, embora apresentam uma boa proximidade de suas medidas. Por não termos mais informações quanto às características dos materiais, seus respectivos custos, disponibilidade destes no mercado, além outras informações que poderiam influenciar e/ou nos dar um contexto maior quanto ao problema, podemos apenas fazer conclusões quanto as classificações apresentadas e quanto as medidas de desempenho propostas para estes materiais. Contudo, pessoas com um conhecimento específico na área de microinfiltração, poderiam estabelecer um elo de ligação entre os resultados presentes neste estudo com outras informações específicas da área de estudo em questão para tirar outras conclusões, como por exemplo, conclusões quanto ao custo/benefício e/ou equivalência (do tipo financeira e/ou de qualidade) dos tipos de materiais estudados.
 
 \newpage
 
