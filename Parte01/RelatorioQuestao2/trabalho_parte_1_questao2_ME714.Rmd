@@ -389,6 +389,7 @@ colnames(prop_sd) <- c("proporção de sementes germinadas", "proporção de sem
 dados <- cbind(dados, prop_sd)
 ```
 
+
 ```{r parte_descritiva_da_tabela_de_contingencia}
 library(dplyr)
 ajuda <- dados %>% group_by(temp.germ,nivel.um) %>% summarise(medias=mean(sem.germ), DP = sd(sem.germ))
