@@ -58,7 +58,7 @@ Leonardo Uchoa Pedreira RA:156231\break
 {\large \bf Professor: Caio Lucidius Naberezny Azevedo}\\[5pt]
 \end{center}
 \vspace*{\stretch{1}}
-\centerline{\bf Campinas-SP, 05 de Junho de 2017}
+\centerline{\bf Campinas-SP, 12 de Junho de 2017}
 \vspace*{\stretch{1}}
 \end{center}
 \end{titlepage}
@@ -76,248 +76,6 @@ options(OutDec= ",")
 knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='Figs/', fig.align='center', echo=FALSE, warning=FALSE, message=FALSE)
 ```
 
-```{r funcoes_exercicio,echo=FALSE, warning = FALSE,eval=TRUE,message = FALSE, error = FALSE}
-
-# estima os parâmetros de uma única tabela
-# r x s oriunda de um modelo multinomial
-# ou produto de multinomiais
-# LEMBRETE: A FUNÇÃO SEMPRE CONCATENA VERTICALMENTE AS LINHAS. ASSIM
-# NO CASO DO MODELO PRODUTO DE MULTINOMIAIS, CADA LINHA DEVE REPRESENTAR
-# UMA MULTINOMIAL
-#input= tabela: tabela de contingência
-#       modelo: 1 - multinomial, 2 - produto de multinomais
-#       gama: nível de confiança para a construção dos IC's
-estima.theta<-function(tabela,modelo,gama)
-{
-auxl1 <-c(rownames(tabela))
-auxl2 <-c(colnames(tabela))
-label<-c(paste(auxl1[1],"&",auxl2[1]))
-for(i in 1:nrow(tabela))
-{
-for(j in 1:ncol(tabela))
-{
-label<-rbind(label,c(paste(auxl1[i],"&",auxl2[j])))
-}
-}
-label<-cbind(label[2:nrow(label),])
-if(modelo ==1) # multinomial
-{
-vn <- c(t(tabela))
-n  <- sum(vn)
-ncat <- length(vn)
-vp <- vn/n
-#vp[vp==0]=0.01
-vpc <- cbind(vp)
-aux <- vpc%*%t(vpc)
-mcov <- matrix(as.numeric((as.matrix(Diagonal(ncat,vpc))- aux)/n),ncat,ncat)
-ep <- sqrt(diag(mcov))
-epc<-cbind(ep)
-}
-else if(modelo ==2)# produto de multinomias
-{
-vn <- as.numeric(apply(tabela,1,sum))
-vpg<- tabela/vn#c(t(tabela/vn))
-ncatr<- ncol(tabela)
-nmult<-nrow(tabela)
-#vpg[vpg==0]=0.01
-vp <- vpg[1,]
-vpc <- cbind(vp)
-aux <-vpc%*%t(vpc)
-mcov <- matrix((as.matrix(Diagonal(ncatr,vpc))- aux)/vn[1],ncatr,ncatr)
-mcovg <-mcov
-for(j in 2:nmult)
-{
-vp <- vpg[j,]
-vpc <- cbind(vp)
-aux <-vpc%*%t(vpc)
-mcov <- matrix((as.matrix(Diagonal(ncatr,vpc))- aux)/vn[j],ncatr,ncatr)
-mcovg<-bdiag(mcovg,mcov)
-}
-mcov<-as.matrix(bdiag(mcovg))
-vp<- c(t(vpg))
-vpc<-cbind(vp)
-ep<- sqrt(diag(mcov))
-epc<-cbind(ep)
-}
-qic <- qnorm(0.5*(1+gama))
-LIIC <- c(vpc)-c(qic*epc)
-LSIC <- c(vpc)+ c(qic*epc)
-mIC  <- cbind(LIIC,LSIC)
-mIC[mIC[,1]<=0,1]=0
-mIC[mIC[,2]>=1,2]=1
-m.result <-cbind(round(vpc,2),round(epc,2),round(mIC,2))
-rownames(m.result)<-label
-colnames(m.result)<- c("Estimativa","EP","LIIC","LSIC")
-result<- list(vpc=vpc,epc=epc,mIC=mIC,mcov=mcov,label=label)
-return(result)
-}
-
-
-# gera gráficos das porporções estimadas (sem considerar modelos)
-#input= tabela: tabela de contingência
-#       result: objeto com o resultado da aplicação da função estima.theta
-#       oplas: orientação dos "labels" do eixo "x"
-#       eixo: dimensão dos labels dos eixos
-plot.graf.prop<-function(result,oplas,eixo)
-{
-label<-c(result$label)
-vpc<-cbind(c(result$vpc))
-mIC<-(result$mIC)
-mIC<- cbind(c(mIC[,1]),c(mIC[,2]))
-plotCI(vpc,ui=mIC[,2],li=mIC[,1],axes=F,xlab="categoria",ylab="proporções",pch=19,cex=1.2,cex.axis=1.2,cex.lab=1.2)
-axis(2,cex.axis=1.2) 
-axis(1,1:length(vpc),labels=label,cex.axis=eixo,las=oplas)
-}
-
-
-# Realiza testes do tipo Bpi=D para uma única tabela
-# r x s oriunda de um modelo multinomial
-# ou produto de multinomiais
-#input= result: objeto com o resultado da aplicação da função estima.theta
-#       m.B e v.D: matriz e vetor definidores das hipóteses de interesse, respectivamente
-test.Bpi.D<-function(result,m.B,v.D)
-{
-vpc<-cbind(c(result$vpc))
-mcov<-result$mcov
-mcov[mcov==0]<-0.000000000001
-e.Q <-t(m.B%*%vpc-v.D)%*%solve(m.B%*%mcov%*%t(m.B))%*%(m.B%*%vpc-v.D)
-ngl<-nrow(m.B)
-e.pvalor<-1-pchisq(e.Q,ngl)
-#cat("Estatistica Q = ",round(e.Q,2),"\n")
-#cat("pvalor = ",round(e.pvalor,4),"\n")
-#cat("g.l. =",ngl,"\n")
-#cat("Matriz B :","\n")
-#print(m.B)
-#cat("Vetor D :","\n")
-#print(v.D)
-resultado <- list(round(e.Q,2),round(e.pvalor,4),ngl,m.B,v.D)
-names(resultado) <- c("Estatistica Q","pvalor","g.l.","B","D")
-return(resultado)
-}
-
-
-# Ajusta modelos de regressão do tipo Api=Xbeta para uma única tabela
-# r x s oriunda de um modelo multinomial
-# ou produto de multinomiais
-#input= result: objeto com o o resultado da aplicação da função estima.theta
-#       m.B e m.X: matrizes definidoras do modelo de interesse
-MR.Api.Xbeta<-function(result,m.A,m.X)
-{
-label<-c(result$label)
-vpc<-cbind(c(result$vpc))
-mcov<-result$mcov
-mcov[mcov==0]<-0.000000000001
-mcovF <- m.A%*%mcov%*%t(m.A)
-auxav <- eigen(mcovF,only.values=TRUE)$values
-nlmcovF <- nrow(mcovF)
-while(min(auxav) <= 0.000000001)
-{
- mcovF <- mcovF + diag(0.00001,nlmcovF,nlmcovF)
- auxav <- eigen(mcovF,only.values=TRUE)$values
-}
-imcovF <- solve(mcovF)
-vF <- m.A%*%vpc
-mcovbeta <- solve(t(m.X)%*%imcovF%*%m.X)
-vbeta<- mcovbeta%*%t(m.X)%*%imcovF%*%vF
-epbeta <- cbind(c(sqrt(diag(mcovbeta))))
-epl <- m.X%*%vbeta
-eQ <-t(vF-epl)%*%imcovF%*%(vF-epl)
-ngl<-nrow(m.X)-nrow(vbeta)
-epvalor<-1-pchisq(eQ,ngl)
-result<- list(vpc=vpc,vbeta=vbeta,epbeta=epbeta,mcovbeta=mcovbeta,label=label)
-return(result)
-}
-
-# Testa hipóteses do tipo CB= M para modelos lineares ajustados
-# via função MR.Api.Xbeta
-# input = result: objeto com o resultado da aplicação da função MR.Api.Xbeta
-# Matrizes m.C e v.M
-
-testa.CB.M.Api.Xbeta<-function(result,m.C,v.M)
-{
-  vbeta <- result$vbeta
-  mcovbeta <- result$mcovbeta
-  e.QC <- t(m.C%*%vbeta - v.M)%*%solve(m.C%*%mcovbeta%*%t(m.C))%*%(m.C%*%vbeta - v.M)
-  ngl<-nrow(m.C)
-  e.pvalor<-1-pchisq(e.QC,ngl)
-  resultado <- list(round(e.QC,2),round(e.pvalor,4),ngl,m.C,v.M)
-names(resultado) <- c("Estatistica Q","pvalor","g.l.","C","M")
-return(resultado)
-}
-
-#Estima proporções sob o modelo Api=Xbeta
-#input= result: objeto com o resultado da aplicação da função MR.Api.Xbeta
-#       m.H e v.F: matriz e vetor que recuperam as proporções originais
-estim.prp.ApiXbeta<-function(result,m.H,v.F,gama)
-
-{
-label<-result$label
-vpc <- result$vpc
-vbeta<-result$vbeta
-mcovbeta<-result$mcovbeta
-vpesm <- m.H%*%vbeta + v.F
-mcovsm <- m.H%*%mcovbeta%*%t(m.H)
-vepsm <- sqrt(diag(mcovsm))
-qic <- qnorm(0.5*(1+gama))
-LIIC <- c(vpesm)-c(qic*vepsm)
-LSIC <- c(vpesm)+ c(qic*vepsm)
-mIC  <- cbind(LIIC,LSIC)
-mIC[mIC[,1]<=0,1]=0
-mIC[mIC[,2]>=1,2]=1
-result<- list(vpesm=vpesm,vepsm=vepsm,mcovbeta=mcovbeta,mIC=mIC)
-plot(vpc,axes=F,ylim=c(min(vpc,mIC),max(vpc,mIC)),xlab="categoria",ylab="proporções",cex=1.2)
-plotCI(vpesm,ui=mIC[,2],li=mIC[,1],axes=F,pch=19,cex=1.2,cex.axis=1.2,cex.lab=1.2,add=T)
-axis(2,cex.axis=1.2) 
-axis(1,1:length(vpc),labels=label,cex.axis=1.2)
-}
-
-
-# Ajusta modelos de regressão do tipo AlnGpi=Xbeta para uma única tabela
-# r x s oriunda de um modelo multinomial
-# ou produto de multinomiais
-# input= result: objeto com o o resultado da aplicação da função estima.theta
-#       m.B, m.G e m.X: matrizes definidoras do modelo de interesse
-MR.AlnGpi.Xbeta<-function(result,m.A,m.G,m.X)
-{
-label<-c(result$label)
-vpc<-cbind(c(result$vpc))
-mcov<-result$mcov
-mcov[mcov==0]<-0.000000000001
-auxmG<-m.G%*%vpc
-auxmG[auxmG==0]<-0.000000000001
-m.B <- solve(diag(c(auxmG)))
-mPsi <- m.A%*%m.B%*%m.G
-mcovF <- mPsi%*%mcov%*%t(mPsi)
-auxav <- eigen(mcovF,only.values=TRUE)$values
-nlmcovF <- nrow(mcovF)
-while(min(auxav) <= 0.001)
-{
- mcovF <- mcovF + diag(0.00001,nlmcovF,nlmcovF)
- auxav <- eigen(mcovF,only.values=TRUE)$values
-}
-imcovF <- solve(mcovF)
-vF <- m.A%*%(log(auxmG))
-mcovbeta <- solve(t(m.X)%*%imcovF%*%m.X)
-vbeta<- mcovbeta%*%t(m.X)%*%imcovF%*%vF
-epbeta <- cbind(c(sqrt(diag(mcovbeta))))
-epl <- m.X%*%vbeta
-eQ <-t(vF-epl)%*%imcovF%*%(vF-epl)
-ngl<-nrow(m.X)-nrow(vbeta)
-epvalor<-1-pchisq(eQ,ngl)
-cat("Est. dos par. beta","\n")
-print(round(cbind(vbeta,epbeta),2))
-cat("Teste para a qualidade do ajuste do modelo = ",round(eQ,2),"\n")
-cat("pvalor = ",round(epvalor,4),"\n")
-cat("g.l. =",ngl,"\n")
-cat("Matriz A :","\n")
-print(m.A)
-cat("Matriz X :","\n")
-print(m.X)
-result<- list(vpc=vpc,vbeta=vbeta,epbeta=epbeta,mcovbeta=mcovbeta,label=label)
-return(result)
-}
-```
-
 ```{r libraries, echo=FALSE, eval=TRUE}
 #bibliotecas que possivelmente serão utilizadas
 library(dplyr)
@@ -326,8 +84,6 @@ library(xtable)
 library(plotrix)
 library(plyr)
 ```
-
-
 # Exercício 2
 
 \doublespacing
@@ -336,7 +92,7 @@ library(plyr)
 
 Os dados a serem analisados são provenientes de um experimento desenvolvido para avaliar a germinação de um determinado tipo de semente de acordo com três condições experimentais: nível da temperatura: 21ºC, 42ºC e 62ºC; nível de umidade: baixo, médio e alto; e temperatura de germinação: 11ºC e 21ºC. Por exemplo, a uma temperatura de 11ºC, com nível de umidade baixo e temperatura de umidade de 21ºC, 100 sementes foram plantadas e observou-se que 98 delas germinaram depois de 5 dias.
 
-A tabela que contém os dados apresenta o número de sementes que germinaram após 5 dias para cada 100 sementes submetidas a cada condição experimental. Cada casela que compõem a tabela assume contagens $Y_{ijk}$ tais que representam variáveis aleatórias binomiais independentes com tamanho fixo de $n = 100$ e probabilidade de sucesso (neste caso, estimada como a proporção de sementes que germinaram depois de 5 dias).
+A tabela que contém os dados apresenta o número de sementes que germinaram após 5 dias para cada 100 sementes submetidas a cada condição experimental. Cada casela que compõem a tabela assume contagens $Y_{ijk}$ tais que representam variáveis aleatórias binomiais independentes com tamanho fixo de $n = 100$ e probabilidade de sucesso, neste caso, estimada como a proporção de sementes que germinaram depois de 5 dias.
 
 
 O objetivo é estimar a probabilidade de sementes germinadas depois de 5 dias, baseado em efeitos principais (nível de temperatura, nível de umidade e temperatura de germinação), verificar quais interações são significativas (combinações dos efeitos principais) e fornecer a combinação entre os níveis de fatores que gera a melhor taxa de germinação.
@@ -422,6 +178,7 @@ med.resumo <- cbind(med.resumo, cvs)
 21ºC e ALTO & 91 & 30 & 1 \\ 
    \hline
 \end{tabular}
+\captionof{table}{A tabela representa as condições experimentais para determinar a germinação de uma determinada semente. A primeira coluna refere-se à temperatura de germinação e ao nível de umidade e as três últimas colunas representam as temperaturas de umidade.}
 \end{table}
 
 \begin{table}[ht]
@@ -438,6 +195,7 @@ med.resumo <- cbind(med.resumo, cvs)
   21ºC e ALTO & 0.91 & 0.30 & 0.01 \\ 
    \hline
 \end{tabular}
+\captionof{table}{Tabela das proporções estimadas para cada condição experimental, de acordo com os dados observados.}
 \end{table}
 
 Pela tabela de proporções estimadas, consegue-se notar que para uma dada temperatura de germinação e temperatura de umidade, à medida em que o nível de umidade aumenta (por exemplo, de baixo para médio ou de médio para alto) a proporção de sementes germinadas após cinco dias diminui. Fixado a temperatura de germinação e o nível de umidade, quando se aumenta a temperatura de umidade (por exemplo, de 21ºC para 42ºC) a proporção de sementes germinadas também diminui. 
@@ -462,6 +220,7 @@ Além disso, algumas medidas resumo podem ser avaliadas como quantidade de semen
    21ºC & médio & 55.67 & 2292.33 & 47.88 &  94 &   2 \\ 
    \hline
 \end{tabular}
+\captionof{table}{Esta tabela fornece algumas medidas resumo a respeito da quantidade de sementes germinadas, para uma determinada temperatura de germinação e um determinado nível de umidade, ao se desconsiderar a temperatuda de umidade.}
 \end{table}
 
 
@@ -480,7 +239,7 @@ c <- c(a,b)
 ```
 
 
-```{r grafico_perfil_para_cada_temperatura_de_germinacao, fig.cap= c}
+```{r grafico_perfil_para_cada_temperatura_de_germinacao, fig.cap= c,fig.pos="H"}
 #Tentativa de construir o gráfico de perfil para temp.germ = 11, para os níveis de umidade e temperatura (ok)
 #par(mfrow=c(1,2))
 plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.8,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Temperatura de germinação à 11ºC")
@@ -511,7 +270,7 @@ legend(1,0.3,col=c(4,2,1),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Umidade
 
 Mais do que isso, para os diferentes valores de temperatura de germinação e diferentes níveis de temperatura, num mesmo nível de umidade, o comportamento de decaimento das proporções estimadas de sementes germinadas são muito semelhantes. Isto pode ser observado pelos gráficos de perfis representados abaixo.
 
-```{r legendas_graficos_perfil_2, eval=TRUE, echo=FALSE}
+```{r legendas_graficos_perfil_2, eval=TRUE, echo=FALSE,}
 d <- "Gráficos de perfil para temperatura de germinação à 11ºC e 21ºC. É perceptível que, para este perfil, com o aumento do nível de temperatura de umidade reduz-se a proporção de sementes grminadas. Note que o comportamento entre as temperaturas de germinação é semelhante. Com exceção do nível de temperatura de 62ºC, à uma temperatura de germinação de 21ºC, observa-se que a estimativa pontual da proporção de sementes germinadas é inferior em relação aos demais níveis de temperatura."
 
 e <- "Gráfico de perfil para temperatura de germinação à 11ºC e 21ºC. É perceptível que, para este perfil, com o aumento do nível de temperatura de umidade reduz-se a proporção estimada de sementes grminadas. Note que o comportamento entre as temperaturas de germinação é semelhante. Observa-se que, em geral, a proporção estimada de sementes germinadas à temperatura de germinação de 21ºC é inferior em relação à 11ºC."
@@ -522,7 +281,7 @@ g <- c(d,e,f)
 ```
 
 
-```{r grafico_perfil_dentro_de_cada_nivel_de_umidade, fig.cap=g}
+```{r grafico_perfil_dentro_de_cada_nivel_de_umidade, fig.cap=g,fig.pos="H"}
 #par(mfrow=c(3,1))
 
 plot(dados$`proporção de sementes germinadas`[1:3],axes=FALSE,ylim=c(0.0,1.0),cex.lab=.8,xlab="Nível de temperatura",ylab="Proporção de sementes germinadas", main = "Gráfico de perfil para umidade baixa")
@@ -567,7 +326,6 @@ legend(1,0.3,col=c(4,2),lwd=c(2,2),pch=c(19,23),pt.bg=c(2,2),legend=c("Temperatu
 source("códigos_p2/model_results.R")
 ```
 
-
 Ao considerar o problema posto e a análise descritiva realizada, foram propostos os seguintes modelos 
 
 - Modelo 1
@@ -609,41 +367,46 @@ Todos os modelos considerados foram ajustados através da metodologia de máxima
 
 ##### Modelo 1
 
-Ao observar a tabela \ref{table:model1}, que mostra as características gerais sobre este modelo, pode-se perceber que vários parâmetros não são estatísticamente significantes. Este curioso fato é difícil explicação 
+Ao observar a tabela 5, que mostra as características gerais sobre este modelo, pode-se perceber que vários parâmetros não são estatísticamente significantes. Neste caso, foi possível obter uma explicação razoável para este fato. Ademais, os efeitos estimados estão de acordo com a análise descritiva, o que é um ponto a favor de um ajuste plausível. 
+
+Vale a pena reiterar que o desvio obtido por este modelo representa o menor possível (nulo) e, portanto, é tido somente como referência para qualidade de ajuste, ao comparar com outros modelos.
 
 ##### Modelo 2
 
-Para a avaliação deste modelo, considere a figura abaixo. Podemos notar que até o ponto 0 do eixo horizontal, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto (ou seja, não existe independência entre os resíduos). Isto pode ser um indicativo de que alguma característica dos dados ainda resta a ser explicada (este argumento é suportado pelo fato de que existem, relativamente, bastante precisão em cada observação). Para isto, pode-se considerar um estudo com outros fatores experimentais. Entretanto, ao considerar que todos os pontos estão dentro do envelope e que seguem a linha de base, não existem indicativos de mal ajuste do modelo.
+Primeiramente ao observar a tabela 6, pode-se perceber que os parâmetros ajustados refletem o que foi descoberto na análise descritiva, o que é um indicativo de que o modelo é plausível. Para avaliar este modelo, considere a figura abaixo. Podemos notar que até o ponto 0 do eixo horizontal, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto (ou seja, não existe independência entre os resíduos). Isto pode ser um indicativo de que alguma característica dos dados ainda resta a ser explicada (este argumento é suportado pelo fato de que existem, relativamente, bastante precisão em cada observação). Para isto, pode-se considerar um estudo com outros fatores experimentais. Entretanto, ao considerar que todos os pontos estão dentro do envelope e que seguem a linha de base, não existem indicativos de mal ajuste do modelo.
 
-```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada). até o ponto 0 do eixo horizontal, enquanto que o oposto ocorre após este ponto."}
+```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do Resíduo Componente do Desvio (de agora em diante, tido como 'RCD'. Para mais informações, veja Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada). até o ponto 0 do eixo horizontal, enquanto que o oposto ocorre após este ponto.",fig.pos="H"}
 envelBinom(sem_binfit_mod2,"logit")
 ```
 
-Adicionalmente, os gráficos 1,2 e 3 da figura (????????????????????????) indicam que não há pontos discrepantes pois, para os dois primeiros, todos os pontos estão dentro dos limites e para o último, os pontos estão bem próximos da reta referência. Adicionalmente, o gráfico 1 sugere um comportamente aleatório dos resíduos, que nos leva a concluir que existe um comportamento homocedástico do modelo - ponto à favor do bom ajuste. Pelo gráfico 2, observa-se que os valores ajustados para as médias condizem com os valores das proporções estimadas pela tabela dos dados, ou seja, existem de fato proporções que são muito próximas de um e zero (nos extremos do intervalo [0,1]). Nota-se, ainda, pelo gráfico 3 que o preditor linear é razoável, isto é, as covariáveis utilizadas são adequadas para o ajuste, assim como é razoável a função de ligação.
+Adicionalmente, os gráficos 1,2 e 3 abaixo indicam que não há pontos discrepantes pois, para os dois primeiros, todos os pontos estão dentro dos limites e para o último, os pontos estão bem próximos da reta referência. Adicionalmente, o gráfico 1 sugere um comportamente aleatório dos resíduos, que nos leva a concluir que existe um comportamento homocedástico do modelo - ponto à favor do bom ajuste. Pelo gráfico 2, observa-se que os valores ajustados para as médias condizem com os valores das proporções estimadas pela tabela dos dados, ou seja, existem de fato proporções que são muito próximas de um e zero (nos extremos do intervalo [0,1]). Nota-se, ainda, pelo gráfico 3 que o preditor linear é razoável, isto é, as covariáveis utilizadas são adequadas para o ajuste, assim como é razoável a função de ligação.
 
+```{r,fig.align='center',fig.cap="Gráficos para verificação da adequabilidade do ajuste do modelo 2.",fig.asp=.75,fig.pos="H"}
+diagBern1(sem_binfit_mod2)
+```
 
-
-Ao considerar a tabela \ref{table:model2}, pode-se perceber alta significância de vários parâmetros, ao contrário do modelo 1 . Todavia, as interações relativas à Temperatura de Germinação são todas não significativas. Isto é um indicativo de que estes efeitos podem podem não ser estatísticamente nulos. Para verificar esta hipótese, utilizou o teste $H_0$: $C\beta = M$ vs $H_1$: $C\beta \neq M$ para verificar se a hipótese de que $(\alpha \beta )_{21} = (\alpha \beta )_{21} = (\alpha \gamma)_{21} = (\alpha \gamma)_{22} = 0$ (para mais detalhe, ver Azevedo(2017)). O valor-p resultante do teste é `r round(teste1_res,4)`, que indica a não rejeição da hipótese de que todos estes coeficientes são, simultaneamente, nulos. Isto forneceu evidências para uma redução do modelo, que levou ao modelo 3.
+Ao considerar a tabela 6, pode-se perceber alta significância de vários parâmetros, ao contrário do modelo 1 . Todavia, as interações relativas à Temperatura de Germinação são todas não significativas. Isto é um indicativo de que estes efeitos podem podem não ser estatísticamente nulos. Para verificar esta hipótese, utilizou o teste $H_0$: $C\beta = M$ vs $H_1$: $C\beta \neq M$ para verificar se a hipótese de que $(\alpha \beta )_{21} = (\alpha \beta )_{21} = (\alpha \gamma)_{21} = (\alpha \gamma)_{22} = 0$ (para mais detalhe, ver Azevedo(2017)). O valor-p resultante do teste é `r round(teste1_res,4)`, que indica a não rejeição da hipótese de que todos estes coeficientes são, simultaneamente, nulos. Isto forneceu evidências para uma redução do modelo, que levou ao modelo 3.
 
 
 ##### Modelo 3
 
-Este modelo é derivado, como citado, do modelo 2. Ao observar a figura abaixo, pode-se perceber um comportamento muito similar ao visto no modelo 2, que sugere que alguma característica dos dados ainda resta a ser explicada (devido à não independência dos resíduos). Logo, pode ser benéfico considerar outras condições experimentais, para explicar esta característica.
+Primeiramente, de forma similar aos modelos anteriores, as estimativas dos parâmetros estão de acordo com o que foi obtido na etapa descritiva, o que levou à conclusão de que este modelo é razoável, em termos do problema. Ao observar a figura abaixo, pode-se perceber um comportamento muito similar ao visto no modelo 2, que sugere que alguma característica dos dados ainda resta a ser explicada (devido à não independência dos resíduos). Logo, pode ser benéfico considerar outras condições experimentais, para explicar esta característica.
 
-```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto. Perceba, também, que este comportamento é similar ao que foi visto no modelo 2."}
+```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto. Perceba, também, que este comportamento é similar ao que foi visto no modelo 2.",fig.pos="H"}
 envelBinom(sem_binfit_mod3,"logit")
 ```
 
-Os gráficos de diagnósticos para o modelo 3 possuem características semelhantes aqueles do modelo 2. Percebe-se para os gráficos 1 e 2, no entanto, que existem valores dos resíduos que estão mais próximos limites inferior e superior. O gráfico 3 representa, assim como para o modelo 2, que a função de ligação utilizada e o preditor linear são razoáveis. No caso do preditor linear, possivelmente, as covariáveis utilizadas não nos indicam a falta de informação.  
+Os gráficos de diagnósticos para o modelo 3 possuem características semelhantes aqueles do modelo 2. Percebe-se para os gráficos 4 e 5, no entanto, que existem valores dos resíduos que estão mais próximos limites inferior e superior. O gráfico 6 representa, assim como para o modelo 2, que a função de ligação utilizada e o preditor linear são razoáveis. No caso do preditor linear, possivelmente, as covariáveis utilizadas não nos indicam a falta de informação.  
 
+```{r,fig.align='center',fig.cap="Gráficos para verificação da adequabilidade do ajuste do modelo 3.",fig.asp=.75,fig.pos="H"}
+diagBern2(sem_binfit_mod3)
+```
 
 ##### Seleção dos Modelos Ajustados
 A tabela a seguir fornece algumas informações sobre os modelos ajustados.
 
-pode-se considerar um estudo com outros fatores experimentais
 \begin{table}[ht]
 \centering
-\captionof{table}{Critérios de Seleção para os Modelos Ajustados}
 \begin{tabular}{rrrrr}
   \hline
   & Desvios & Valor-p & AIC & BIC \\
@@ -655,12 +418,9 @@ pode-se considerar um estudo com outros fatores experimentais
 \captionof{table}{Nesta tabela, estão relatados os Desvios e seus valores-p associados (de forma que os graus de liberdade são dados pela diferença entre as quantidade de observações e parâmetros ajustados), AIC (Critério de Informação de Akaike), BIC (Critério de Informação Bayesiana) à cada modelo. Pode-se perceber que o terceiro modelo possui os menores critérios de informação. Entretanto, modelo 2 apresenta desvio menor do que o modelo 3. Note, também, que o modelo 1 apresenta desvio nulo, isto deve-se à sua saturação, o que não fornece muita informação. (Para mais detalhes, veja (Paula, 2013))}
 \end{table}
 
-
 Dela, pode-se depreender que de acordo com os critérios de informação, o modelo 3 é superior, pois possui os menores valores. Por outro lado, de acordo com os Desvios, o modelo 2 é superior, pois apresenta menor Desvio. Porém, basear-se somente nos desvios é insuficiente, pois estes valores desconsideram o preditor linear e funçaõ de ligação (para mais detalhes, ver Paula, 2013). Por outro, considerar somente os critérios de informação não é suficiente, mas também desconsidera a função de ligação. 
 
 Adicionalmente, ao utilizar o Teste da Razão de Verossimilhanças para testar $H_0 : (\alpha \beta )_{21} = (\alpha \beta )_{21} = (\alpha \gamma)_{21} = (\alpha \gamma)_{22} = 0$, obtêm-se o valor-p de `r teste2_res`, o que leva à não rejeição da hipótese nula, o que fornece suporte ao resultado do teste citado ao final da análise do modelo 3 e nos leva a preferir o modelo 3. Portanto, optou-se por manter o modelo 3, como definitivo.
-
-
 
 Para este modelo, com probabilidades 
 
@@ -673,19 +433,21 @@ abaixo estão as interpretações dos parâmetros para tal modelo.
 
 - $Y_{ijk}$ : reflete a quantidade de sementes germinadas, após 5 dias, de um total de 100, para a i-ésima temperatura de germinação, o j-ésimo nível de umidade e k-ésima temperatura de umidade.
 
-- $e^{\beta_{1}} = \frac{\left(\frac{p_{111}}{1-p_{111}}\right)}{\left(\frac{p_{131}}{1-p_{131}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para umidade baixa em relação a alta.
+- $e^{\beta_{1}} = \frac{\left(\frac{p_{111}}{1-p_{111}}\right)}{\left(\frac{p_{131}}{1-p_{131}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para umidade baixa em relação a alta. Neste caso, $e^{\hat{\beta_{1}}} =$ `r round(exp(coef(sem_binfit_mod3)[[2]]),4)` indica que é mais provável que uma semente germine no nível baixo de umidade, do que alto, ao manter fixas as temperaturas de germinação e umidade.
 
-- $e^{\beta_{2}} = \frac{\left(\frac{p_{121}}{1-p_{121}}\right)}{\left(\frac{p_{131}}{1-p_{131}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para umidade média em relação a alta.
+- $e^{\beta_{2}} = \frac{\left(\frac{p_{121}}{1-p_{121}}\right)}{\left(\frac{p_{131}}{1-p_{131}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para umidade média em relação a alta. Neste caso, $e^{\hat{\beta_{2}}} =$ `r round(exp(coef(sem_binfit_mod3)[[3]]),4)` indica que é mais provável que uma semente germine no nível médio de umidade, do que alto, ao manter fixas as temperaturas de germinação e umidade.
 
-- $e^{\gamma_{2}} = \frac{\left(\frac{p_{232}}{1-p_{232}}\right)}{\left(\frac{p_{231}}{1-p_{231}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de 21ºC em relação à 42ºC.
+- $e^{\gamma_{2}} = \frac{\left(\frac{p_{232}}{1-p_{232}}\right)}{\left(\frac{p_{231}}{1-p_{231}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de 21ºC em relação à 42ºC. Neste caso, $e^{\hat{\gamma_{2}}} =$ `r round(exp(coef(sem_binfit_mod3)[[4]]),4)` indica que é menos provável que uma semente germine à um temperatura de umidade de 42ºC, do que a 21ºC, ao manter fixos o nível de umidade e a temperatura de germinação.
 
-- $e^{\gamma_{3}} = \frac{\left(\frac{p_{233}}{1-p_{233}}\right)}{\left(\frac{p_{231}}{1-p_{231}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de 21ºC em relação à 62ºC.
+- $e^{\gamma_{3}} = \frac{\left(\frac{p_{233}}{1-p_{233}}\right)}{\left(\frac{p_{231}}{1-p_{231}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de 21ºC em relação à 62ºC. Neste caso, $e^{\hat{\gamma_{3}}} =$ 0.0009 indica que é menos provável que uma semente germine à um temperatura de umidade de 62ºC, do que a 21ºC, ao manter fixos o nível de umidade e a temperatura de germinação.
 
-- $e^{\alpha_{2}} = \frac{\left(\frac{p_{213}}{1-p_{213}}\right)}{\left(\frac{p_{113}}{1-p_{113}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de germinação de 21ºC em relação à 11ºC.
+- $e^{\alpha_{2}} = \frac{\left(\frac{p_{213}}{1-p_{213}}\right)}{\left(\frac{p_{113}}{1-p_{113}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de germinação de 21ºC em relação à 11ºC. Neste caso, $e^{\hat{\alpha_{2}}} =$ `r round(exp(coef(sem_binfit_mod3)[[6]]),4)` indica que é menos provável que uma semente germine à um temperatura de germinação de 21ºC em relação a 11ºC, ao manter fixos o níveis de umidade e a temperatura de umidade.
 
-Para este modelo, a figura acima mostra o resultado da análise preditiva. Pode-se perceber que o modelo fornece um resultado satisfatório, pois o intervalo de 95% confiança contempla todos os valores observados.
+<!-- - $\hat{(\beta \gamma)}_{12} =$ `r round(exp(coef(sem_binfit_mod3)[[7]]),4)` -->
 
-```{r ,fig.align='center',fig.cap= "Gráfico da análise preditiva. O eixo horizontal deste gráfico representa as observações (casela), enquanto que o eixo vertical representa a proporção de sementes germinadas. Os pontos azuis representam as estimativas pontuais preditas pelo modelo, com seus respectivos intervalos de 95 porcento de confiança. Além disso, o círculo vazio representa a proporção observada nos dados. Note que todos os valores observados estão conditos nos intervalos.",fig.asp=.7}
+Para este modelo, a figura abaixo mostra o resultado da análise preditiva. Pode-se perceber que o modelo fornece um resultado satisfatório, pois o intervalo de 95% confiança contempla todos os valores observados. 
+
+```{r ,fig.align='center',fig.cap= "Gráfico da análise preditiva. O eixo horizontal deste gráfico representa as observações (casela), enquanto que o eixo vertical representa a proporção de sementes germinadas. Os pontos azuis representam as estimativas pontuais preditas pelo modelo, com seus respectivos intervalos de 95 porcento de confiança. Além disso, o círculo vazio representa a proporção observada nos dados. Note que todos os valores observados estão conditos nos intervalos.",fig.asp=.7,fig.pos="H"}
 
 plot(sem$prop.germ,axes=FALSE,ylim=c(0.0,1.0),cex.lab=1,xlab="Número de valores preditos",ylab="Proporção de sementes germinadas",cex.lab=.7)
 axis(2,seq(0,1,by=.1),cex.axis=.5)
@@ -695,26 +457,27 @@ plotCI(pred$fit,liw=1.96*pred$se.fit,uiw=1.96*pred$se.fit,pch=19,add=TRUE,cex.la
 
 Por fim, sob este modelo, a melhor combinação de fatores experimentais é dada por baixa temperatura de umidade, temperatura de germinação de 11ºC e temperatura de umidade de 21ºC.
 
-
 ###4. Conclusões
 
-1. descritiva
-    - a quantidade de 100 aparanetemente é perquena p/ ver se o efeito da temperatura de germinacao é alto
-    - ao aumentar nivel de umidade, temperatura de germinacao e umidade, pior fica a cosia
-2. inferencial
-    - nao sabemos explicar pq o modelo saturado apresenta aqueles valores-p
-    - o envelope mostra um efeito nao capturado pelo modelo com tais variaveis (dependencia nos residuos)
-    - modelo preferido é o 3
-    - as interacoes tem impacto mt alto
-    - a analise preditiva mostra que o modelo é razoavel
-    - 
+Desta análise, as principais conclusões são:
 
+  1. Com o aumento do nível de umidade e temperaturas de germinação e umidade, menor é proporção de sementes germinadas. Ou seja, a melhor combinação de fatores é dada por : umidade baixa, temperatura de germinação de 11ºC e temperatura de umidade de 21ºC;
+  2. A combinação dos fatores nível de umidade e temperatura de umidade tem um impacto muito forte sobre a quantidade de sementes germinadas;
+  3. Possivelmente, a quantidade de sementes utilizadas no experimento é pequena para argumentar a favor de um impacto considerável da variável temperatura de germinação. Entretanto, os analistas responsáveis por esta análise não conhecem outra metodologia que seja mais apropriada para utilizar nesta análise;
+
+Ademais, não foi possível justificar o motivo da insignificância de vários parâmetros, no saturado (modelo 1). Entretanto, após a remoção da interação entre todos os fatores principais, obtêm-se um modelo muito mais próximo do que foi observado na análise descritiva. 
+  
 ### Bibliografia
 
-1. Azevedo, C. L. N. (2017). Notas de aula sobre análise de dados discretos, (http://www.ime.unicamp.br/~cnaber/Material_ADD_1S_2017.htm)
+1. Azevedo, C. L. N. (2017). Notas de aula sobre análise de dados discretos, (disponível em http://www.ime.unicamp.br/~cnaber/Material_ADD_1S_2017.htm)
 
-2. Paula, G. A. (2013). Modelos de regressão com apoio computacional, versão pré-eliminar, (http://www.ime.usp.br/~giapaula/texto_2013.pdf)
+2. Paula, G. A. (2013). Modelos de regressão com apoio computacional, versão pré-eliminar, (disponível em http://www.ime.usp.br/~giapaula/texto_2013.pdf)
 
+3. Agresti. A. (2012). Categorical data analysis, terceira edição. New York, John Wiley.
+
+4. Agresti. A. (2007). An introduction to categorical data analysis, segunda edição.
+
+\newpage
 ### Anexos
 ##### Tabelas com estimativas pontuais e intervalares, erros padrão e valores-p.
 As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente
@@ -722,15 +485,14 @@ As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente
 \begin{table}[ht]
 \label{table:model1}
 \centering
-\captionof{table}{Tabela Resumo para Modelo 1}
 \begin{tabular}{rrrrrrr}
  & Estimativa & Erro Padrão & 2.5 \% & 97.5 \% & Estatística Z & Valor-p \\ 
-
-  $\mu$  & 2.442 & 0.369 & 1.720 & 3.165 & 6.626 & 0.000 \\ 
+ \hline
+  $\mu$  & 2.442 & 0.369 & 1.720 & 3.165 & 6.626 & <0.0001 \\ 
   $\beta_1$ & 1.450 & 0.804 & -0.126 & 3.025 & 1.803 & 0.071 \\ 
   $\beta_2$ & 0.309 & 0.560 & -0.788 & 1.406 & 0.552 & 0.581 \\ 
-  $\gamma_1$ & -2.806 & 0.421 & -3.631 & -1.981 & -6.666 & 0.000 \\ 
-  $\gamma_2$ & -7.037 & 1.071 & -9.136 & -4.939 & -6.574 & 0.000 \\ 
+  $\gamma_1$ & -2.806 & 0.421 & -3.631 & -1.981 & -6.666 & <0.0001 \\ 
+  $\gamma_2$ & -7.037 & 1.071 & -9.136 & -4.939 & -6.574 & <0.0001 \\ 
   $\alpha_2$ & -0.129 & 0.508 & -1.124 & 0.867 & -0.253 & 0.800 \\ 
   $(\beta \gamma)_{11}$ & 2.092 & 0.974 & 0.184 & 4.001 & 2.149 & 0.032 \\ 
   $(\beta \gamma)_{21}$ & 1.380 & 0.644 & 0.117 & 2.642 & 2.142 & 0.032 \\ 
@@ -744,62 +506,53 @@ As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente
   $(\alpha \beta \gamma)_{221}$ & -0.075 & 0.900 & -1.839 & 1.690 & -0.083 & 0.934 \\ 
   $(\alpha \beta \gamma)_{212}$& 1.141 & 1.747 & -2.283 & 4.565 & 0.653 & 0.514 \\ 
   $(\alpha \beta \gamma)_{222}$& -0.544 & 1.867 & -4.204 & 3.115 & -0.292 & 0.771 \\ 
-   \hline
 \end{tabular}
+\captionof{table}{Tabela Resumo para Modelo 1}
 \end{table}
 
 \begin{table}[ht]
 \label{table:model2}
 \centering
-\captionof{table}{Tabela Resumo para Modelo 2}
 \begin{tabular}{rrrrrrr}
  & Estimativa & Erro Padrão & 2.5 \% & 97.5 \% & Estatística Z & Valor-p \\
-
-  $\mu$ & 2.506 & 0.334 & 1.852 & 3.161 & 7.508 & 0.000 \\
+   \hline
+  $\mu$ & 2.506 & 0.334 & 1.852 & 3.161 & 7.508 & <0.0001 \\
   $\beta_1$ & 0.926 & 0.526 & -0.105 & 1.957 & 1.759 & 0.079 \\
   $\beta_2$ & 0.371 & 0.443 & -0.496 & 1.239 & 0.839 & 0.402 \\
-  $\gamma_1$ & -2.884 & 0.365 & -3.599 & -2.169 & -7.907 & 0.000 \\
-  $\gamma_2$ & -7.239 & 0.811 & -8.829 & -5.650 & -8.929 & 0.000 \\
+  $\gamma_1$ & -2.884 & 0.365 & -3.599 & -2.169 & -7.907 & <0.0001 \\
+  $\gamma_2$ & -7.239 & 0.811 & -8.829 & -5.650 & -8.929 & <0.0001 \\
   $\alpha_1$ & -0.247 & 0.394 & -1.019 & 0.524 & -0.628 & 0.530 \\
-  $(\beta \gamma)_{11}$ & 2.678 & 0.562 & 1.576 & 3.779 & 4.765 & 0.000 \\
+  $(\beta \gamma)_{11}$ & 2.678 & 0.562 & 1.576 & 3.779 & 4.765 & <0.0001 \\
   $(\beta \gamma)_{21}$ & 1.341 & 0.450 & 0.458 & 2.223 & 2.978 & 0.003 \\
-  $(\beta \gamma)_{12}$ & 4.338 & 0.850 & 2.672 & 6.003 & 5.103 & 0.000 \\
+  $(\beta \gamma)_{12}$ & 4.338 & 0.850 & 2.672 & 6.003 & 5.103 & <0.0001 \\
   $(\beta \gamma)_{22}$ & 0.556 & 0.929 & -1.265 & 2.377 & 0.599 & 0.549 \\
   $(\alpha \beta )_{21}$ & -0.212 & 0.486 & -1.165 & 0.741 & -0.436 & 0.662 \\
   $(\alpha \beta )_{22}$ & 0.008 & 0.375 & -0.728 & 0.744 & 0.021 & 0.983 \\
   $(\alpha \gamma)_{21}$& -0.207 & 0.406 & -1.002 & 0.589 & -0.509 & 0.611 \\
   $(\alpha \gamma)_{22}$& 0.507 & 0.530 & -0.531 & 1.545 & 0.957 & 0.339 \\
-   \hline
 \end{tabular}
+\captionof{table}{Tabela Resumo para Modelo 2}
 \end{table}
 
 \begin{table}[ht]
 \label{table:model3}
 \centering
-\captionof{table}{Tabela Resumo para Modelo 3}
 \begin{tabular}{rrrrrrr}
  & Estimativa & Erro Padrão & 2.5 \% & 97.5 \% & Estatística Z & Valor-p \\
-
-  $\mu$ & 2.522 & 0.267 & 1.999 & 3.046 & 9.447 & 0.000 \\
+   \hline
+  $\mu$ & 2.522 & 0.267 & 1.999 & 3.046 & 9.447 & <0.0001 \\
   $\beta_1$ & 0.803 & 0.441 & -0.062 & 1.667 & 1.819 & 0.069 \\
   $\beta_2$ & 0.376 & 0.391 & -0.391 & 1.143 & 0.960 & 0.337 \\
-  $\gamma_1$ & -2.984 & 0.294 & -3.560 & -2.408 & -10.149 & 0.000 \\
-  $\gamma_2$ & -6.989 & 0.755 & -8.468 & -5.509 & -9.258 & 0.000 \\
+  $\gamma_1$ & -2.984 & 0.294 & -3.560 & -2.408 & -10.149 & <0.0001 \\
+  $\gamma_2$ & -6.989 & 0.755 & -8.468 & -5.509 & -9.258 & <0.0001 \\
   $\alpha_2$ & -0.276 & 0.149 & -0.569 & 0.016 & -1.853 & 0.064 \\
-  $(\beta \gamma)_{11}$ & 2.650 & 0.559 & 1.553 & 3.746 & 4.736 & 0.000 \\
+  $(\beta \gamma)_{11}$ & 2.650 & 0.559 & 1.553 & 3.746 & 4.736 & <0.0001 \\
   $(\beta \gamma)_{21}$ & 1.328 & 0.449 & 0.447 & 2.208 & 2.955 & 0.003 \\
-  $(\beta \gamma)_{12}$ & 4.358 & 0.849 & 2.693 & 6.023 & 5.130 & 0.000 \\
+  $(\beta \gamma)_{12}$ & 4.358 & 0.849 & 2.693 & 6.023 & 5.130 & <0.0001 \\
   $(\beta \gamma)_{22}$  & 0.556 & 0.929 & -1.265 & 2.377 & 0.598 & 0.550 \\
-   \hline
 \end{tabular}
+\captionof{table}{Tabela Resumo para Modelo 3}
 \end{table}
 
-##### Graficos
 
-```{r,fig.align='center',fig.cap="Gráficos para verificação da adequabilidade do ajuste do modelo 2.",fig.asp=.75}
-diagBern(sem_binfit_mod2)
-```
 
-```{r,fig.align='center',fig.cap="Gráficos para verificação da adequabilidade do ajuste do modelo 3.",fig.asp=.75}
-diagBern(sem_binfit_mod3)
-```
