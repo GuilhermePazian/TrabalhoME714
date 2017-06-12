@@ -318,7 +318,7 @@ return(result)
 }
 ```
 
-```{r libraries, echo=FALSE, eval=TRUE,cache=FALSE}
+```{r libraries, echo=FALSE, eval=TRUE}
 #bibliotecas que possivelmente serão utilizadas
 library(dplyr)
 library(ggplot2)
@@ -625,36 +625,30 @@ Ao observar a tabela \ref{table:model1}, que mostra as características gerais s
 
 Para a avaliação deste modelo, considere a figura abaixo. Podemos notar que até o ponto 0 do eixo horizontal, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto (ou seja, não existe independência entre os resíduos). Isto pode ser um indicativo de que alguma característica dos dados ainda resta a ser explicada (este argumento é suportado pelo fato de que existem, relativamente, bastante precisão em cada observação). Para isto, pode-se considerar um estudo com outros fatores experimentais. Entretanto, ao considerar que todos os pontos estão dentro do envelope e que seguem a linha de base, não existem indicativos de mal ajuste do modelo.
 
-```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto."}
+```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada). até o ponto 0 do eixo horizontal, enquanto que o oposto ocorre após este ponto."}
 envelBinom(sem_binfit_mod2,"logit")
 ```
 
-Adicionalmente, os gráficos 1,2 e 3 abaixo indicam que não há pontos discrepantes pois, para os dois primeiros, todos os pontos estão dentro dos limites e para o último, os pontos estão bem próximos da reta referência. Adicionalmente, o gráfico 1 sugere um comportamente aleatório dos resíduos, que nos leva a concluir que existe um comportamento homocedástico do modelo - ponto à favor do bom ajuste. Pelo gráfico 2, observa-se que os valores ajustados para as médias condizem com os valores das proporções estimadas pela tabela dos dados, ou seja, existem de fato proporções que são muito próximas de um e zero (nos extremos do intervalo [0,1]). Nota-se, ainda, pelo gráfico 3 que o preditor linear é razoável, isto é, as covariáveis utilizadas são adequadas para o ajuste, assim como é razoável a função de ligação.
+Adicionalmente, os gráficos 1,2 e 3 da figura (????????????????????????) indicam que não há pontos discrepantes pois, para os dois primeiros, todos os pontos estão dentro dos limites e para o último, os pontos estão bem próximos da reta referência. Adicionalmente, o gráfico 1 sugere um comportamente aleatório dos resíduos, que nos leva a concluir que existe um comportamento homocedástico do modelo - ponto à favor do bom ajuste. Pelo gráfico 2, observa-se que os valores ajustados para as médias condizem com os valores das proporções estimadas pela tabela dos dados, ou seja, existem de fato proporções que são muito próximas de um e zero (nos extremos do intervalo [0,1]). Nota-se, ainda, pelo gráfico 3 que o preditor linear é razoável, isto é, as covariáveis utilizadas são adequadas para o ajuste, assim como é razoável a função de ligação.
 
-```{r,fig.align='center',fig.cap="asdasd",fig.asp=.75}
-diagBern(sem_binfit_mod2)
-```
 
-Ao considerar a tabela \ref{table:model2}, pode-se perceber alta significância de vários parâmetros, ao contrário do modelo 2. Todavia, as interações relativas à Temperatura de Germinação são todas não significativas. Isto é um indicativo de que estes efeitos podem podem não ser estatísticamente nulos. Para verificar esta hipótese, utilizou o teste $H_0$: $C\beta = M$ vs $H_1$: $C\beta \neq M$ para verificar se a hipótese de que $(\alpha \beta )_{21} = (\alpha \beta )_{21} = (\alpha \gamma)_{21} = (\alpha \gamma)_{22} = 0$ (para mais detalhe, ver Azevedo(2017)). O valor-p resultante do teste é `r round(teste1_res,4)`, que indica a não rejeição da hipótese de que todos estes coeficientes são, simultaneamente, nulos. Isto forneceu evidências para uma redução do modelo, que levou ao modelo 3.
+
+Ao considerar a tabela \ref{table:model2}, pode-se perceber alta significância de vários parâmetros, ao contrário do modelo 1 . Todavia, as interações relativas à Temperatura de Germinação são todas não significativas. Isto é um indicativo de que estes efeitos podem podem não ser estatísticamente nulos. Para verificar esta hipótese, utilizou o teste $H_0$: $C\beta = M$ vs $H_1$: $C\beta \neq M$ para verificar se a hipótese de que $(\alpha \beta )_{21} = (\alpha \beta )_{21} = (\alpha \gamma)_{21} = (\alpha \gamma)_{22} = 0$ (para mais detalhe, ver Azevedo(2017)). O valor-p resultante do teste é `r round(teste1_res,4)`, que indica a não rejeição da hipótese de que todos estes coeficientes são, simultaneamente, nulos. Isto forneceu evidências para uma redução do modelo, que levou ao modelo 3.
 
 
 ##### Modelo 3
 
 Este modelo é derivado, como citado, do modelo 2. Ao observar a figura abaixo, pode-se perceber um comportamento muito similar ao visto no modelo 2, que sugere que alguma característica dos dados ainda resta a ser explicada (devido à não independência dos resíduos). Logo, pode ser benéfico considerar outras condições experimentais, para explicar esta característica.
 
-```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto. Perceba, também, que este comportamento é similar ao que foi visto no modelo2"}
+```{r,fig.align='center',fig.asp=.7,fig.cap="Este gráfico mostra uma comparação entre os quantís do RCD (ver Paula, 2013). Quanto mais pontos estiverem dentro do envelope (linha cheia) e perto da reta pontilhada, mais indicativos temos de um bom ajuste. Note, porém, todos os pontos estão acima da linha de base (linha tracejada), enquanto que o oposto ocorre após este ponto. Perceba, também, que este comportamento é similar ao que foi visto no modelo 2."}
 envelBinom(sem_binfit_mod3,"logit")
 ```
 
 Os gráficos de diagnósticos para o modelo 3 possuem características semelhantes aqueles do modelo 2. Percebe-se para os gráficos 1 e 2, no entanto, que existem valores dos resíduos que estão mais próximos limites inferior e superior. O gráfico 3 representa, assim como para o modelo 2, que a função de ligação utilizada e o preditor linear são razoáveis. No caso do preditor linear, possivelmente, as covariáveis utilizadas não nos indicam a falta de informação.  
 
-```{r,fig.align='center',fig.cap="asdasd",fig.asp=.75}
-diagBern(sem_binfit_mod3)
-```
 
-
-##### Considerações Finais Sobre os Modelos Ajustados
-A tabela a seguir fornece algumas informações sobre o ajuste do modelo. 
+##### Seleção dos Modelos Ajustados
+A tabela a seguir fornece algumas informações sobre os modelos ajustados.
 
 pode-se considerar um estudo com outros fatores experimentais
 \begin{table}[ht]
@@ -668,13 +662,24 @@ pode-se considerar um estudo com outros fatores experimentais
   modelo 3 & 4.43 & 0.82 & 91.53 & 100.44 \\ 
    \hline
 \end{tabular} 
-\captionof{table}{Nesta tabela, estão relatados os Desvios, AIC (Critério de Informação de Akaike), BIC (Critério de Informação Bayesiana) e o Valor-p associado à cada modelo (de forma que os graus de liberdade são dados pela diferença entre as quantidade de observações e parâmetros ajustados). Pode-se perceber, ao comparar os critérios de informação, o modelo superior é terceiro. Entretanto, modelo 2 apresenta desvio menor do que o modelo 3 (que se reflete no valor-p). Note, também, que o modelo 1 apresenta desvio nulo, isto deve-se à sua saturação, o que não fornece muita informação. (Para mais detalhes, veja (Paula, 2013))}
+\captionof{table}{Nesta tabela, estão relatados os Desvios e seus valores-p associados (de forma que os graus de liberdade são dados pela diferença entre as quantidade de observações e parâmetros ajustados), AIC (Critério de Informação de Akaike), BIC (Critério de Informação Bayesiana) à cada modelo. Pode-se perceber que o terceiro modelo possui os menores critérios de informação. Entretanto, modelo 2 apresenta desvio menor do que o modelo 3. Note, também, que o modelo 1 apresenta desvio nulo, isto deve-se à sua saturação, o que não fornece muita informação. (Para mais detalhes, veja (Paula, 2013))}
 \end{table}
 
 
-Dela, podemos depreender que,
+Dela, pode-se depreender que de acordo com os critérios de informação, o modelo 3 é superior, pois possui os menores valores. Por outro lado, de acordo com os Desvios, o modelo 2 é superior, pois apresenta menor Desvio. Porém, basear-se somente nos desvios é insuficiente, pois estes valores desconsideram o preditor linear e funçaõ de ligação (para mais detalhes, ver Paula, 2013). Por outro, considerar somente os critérios de informação não é suficiente, mas também desconsidera a função de ligação. 
 
-##### Escolha do Modelo Final
+Adicionalmente, ao utilizar o Teste da Razão de Verossimilhanças para testar $H_0 : (\alpha \beta )_{21} = (\alpha \beta )_{21} = (\alpha \gamma)_{21} = (\alpha \gamma)_{22} = 0$, obtêm-se o valor-p de `r teste2_res`, o que leva à não rejeição da hipótese nula, o que fornece suporte ao resultado do teste citado ao final da análise do modelo 3 e nos leva a preferir o modelo 3. Portanto, optou-se por manter o modelo 3, como definitivo.
+
+
+
+Para este modelo, com probabilidades 
+
+$$
+\begin{aligned}
+p_{ijk} &= \frac{\exp{(\mu + \alpha_{i} + \beta_{j} + \gamma_{k} + (\beta \gamma)_{jk}})}{1 + exp(\mu + \alpha_{i} + \beta_{j} + \gamma_{k} + (\beta \gamma)_{jk})},
+\end{aligned}
+$$
+abaixo estão as interpretações dos parâmetros para tal modelo.
 
 - $Y_{ijk}$ : reflete a quantidade de sementes germinadas, após 5 dias, de um total de 100, para a i-ésima temperatura de germinação, o j-ésimo nível de umidade e k-ésima temperatura de umidade.
 
@@ -688,14 +693,33 @@ Dela, podemos depreender que,
 
 - $e^{\alpha_{2}} = \frac{\left(\frac{p_{213}}{1-p_{213}}\right)}{\left(\frac{p_{113}}{1-p_{113}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de germinação de 21ºC em relação à 11ºC.
 
+Para este modelo, a figura acima mostra o resultado da análise preditiva. Pode-se perceber que o modelo fornece um resultado satisfatório, pois o intervalo de 95% confiança contempla todos os valores observados.
 
+```{r ,fig.align='center',fig.cap= "Gráfico da análise preditiva. O eixo horizontal deste gráfico representa as observações (casela), enquanto que o eixo vertical representa a proporção de sementes germinadas. Os pontos azuis representam as estimativas pontuais preditas pelo modelo, com seus respectivos intervalos de 95 porcento de confiança. Além disso, o círculo vazio representa a proporção observada nos dados. Note que todos os valores observados estão conditos nos intervalos.",fig.asp=.7}
+
+plot(sem$prop.germ,axes=FALSE,ylim=c(0.0,1.0),cex.lab=1,xlab="Número de valores preditos",ylab="Proporção de sementes germinadas",cex.lab=.7)
+axis(2,seq(0,1,by=.1),cex.axis=.5)
+axis(1,1:18,c(1:18),cex.axis=.6)
+plotCI(pred$fit,liw=1.96*pred$se.fit,uiw=1.96*pred$se.fit,pch=19,add=TRUE,cex.lab=1,slty=1,lwd=.5,col=4,cex=.8)
+```
+
+Por fim, sob este modelo, a melhor combinação de fatores experimentais é dada por baixa temperatura de umidade, temperatura de germinação de 11ºC e temperatura de umidade de 21ºC.
 
 
 ###4. Conclusões
 
-O que se pode concluir da análise, em termos do problema apresentado, e críticas em relação
-a análise feita.
+1. descritiva
+    - a quantidade de 100 aparanetemente é perquena p/ ver se o efeito da temperatura de germinacao é alto
+    - ao aumentar nivel de umidade, temperatura de germinacao e umidade, pior fica a cosia
+2. inferencial
+    - nao sabemos explicar pq o modelo saturado apresenta aqueles valores-p
+    - o envelope mostra um efeito nao capturado pelo modelo com tais variaveis (dependencia nos residuos)
+    - modelo preferido é o 3
+    - as interacoes tem impacto mt alto
+    - a analise preditiva mostra que o modelo é razoavel
+    - 
 
+<<<<<<< HEAD
 
 
 
@@ -703,7 +727,15 @@ a análise feita.
 
 ### Anexos
  
+=======
+### Bibliografia
 
+1. Azevedo, C. L. N. (2017). Notas de aula sobre análise de dados discretos, (http://www.ime.unicamp.br/~cnaber/Material_ADD_1S_2017.htm)
+
+2. Paula, G. A. (2013). Modelos de regressão com apoio computacional, versão pré-eliminar, (http://www.ime.usp.br/~giapaula/texto_2013.pdf)
+>>>>>>> 4db1096e028423c6070e6d7dc66c00465bd95cc4
+
+### Anexos
 ##### Tabelas com estimativas pontuais e intervalares, erros padrão e valores-p.
 As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente
 
@@ -782,4 +814,12 @@ As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente
 \end{tabular}
 \end{table}
 
+##### Graficos
 
+```{r,fig.align='center',fig.cap="Gráficos para verificação da adequabilidade do ajuste do modelo 2.",fig.asp=.75}
+diagBern(sem_binfit_mod2)
+```
+
+```{r,fig.align='center',fig.cap="Gráficos para verificação da adequabilidade do ajuste do modelo 3.",fig.asp=.75}
+diagBern(sem_binfit_mod3)
+```
