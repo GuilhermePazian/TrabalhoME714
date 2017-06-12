@@ -717,23 +717,38 @@ Por fim, sob este modelo, a melhor combinação de fatores experimentais é dada
     - modelo preferido é o 3
     - as interacoes tem impacto mt alto
     - a analise preditiva mostra que o modelo é razoavel
-    - 
 
-<<<<<<< HEAD
+- concordancia com analise descritiva e inferencial, assim como o resultado final do modelo
 
+
+
+A partir da análise dos dados em questão, obtivemos resultados concordantes tanto na análise descritiva quanto na análise
+inferêncial para responder ao principal interesse deste estudo que objetiva classificar os tipos de selante quanto ao nível de
+microinfiltração. Segundo as análises feitas, considerando um nível de significância de 10%, temos a indicação de que o material
+que apresenta o melhor desempenho é o material “Optibond”, uma vez que é o material que apresenta um menor valor da medida
+de desempenho proposta e é também estatísticamente diferente dos demais materiais quanto à esta medida. Quanto aos demais
+materiais, as análises nos mostraram que os materiais “Allbond” e “Scotchbond” são estatísticamente diferentes (a um nível de
+significância de 10%) quanto à medida de desempenho proposta, embora apresentam uma boa proximidade de suas medidas. Por
+não termos mais informações quanto às características dos materiais, seus respectivos custos, disponibilidade destes no mercado,
+além outras informações que poderiam influenciar e/ou nos dar um contexto maior quanto ao problema, podemos apenas fazer
+conclusões quanto as classificações apresentadas e quanto as medidas de desempenho propostas para estes materiais. Contudo,
+pessoas com um conhecimento específico na área de microinfiltração, poderiam estabelecer um elo de ligação entre os resultados
+presentes neste estudo com outras informações específicas da área de estudo em questão para tirar outras conclusões, como por
+exemplo, conclusões quanto ao custo/benefício e/ou equivalência (do tipo financeira e/ou de qualidade) dos tipos de materiais
+estudados.
 
 
 
 
 ### Anexos
  
-=======
+
 ### Bibliografia
 
 1. Azevedo, C. L. N. (2017). Notas de aula sobre análise de dados discretos, (http://www.ime.unicamp.br/~cnaber/Material_ADD_1S_2017.htm)
 
 2. Paula, G. A. (2013). Modelos de regressão com apoio computacional, versão pré-eliminar, (http://www.ime.usp.br/~giapaula/texto_2013.pdf)
->>>>>>> 4db1096e028423c6070e6d7dc66c00465bd95cc4
+
 
 ### Anexos
 ##### Tabelas com estimativas pontuais e intervalares, erros padrão e valores-p.
