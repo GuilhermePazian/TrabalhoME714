@@ -347,11 +347,10 @@ Nota-se que para cada casela pode-se obter a proporção de sementes que germina
 
 
 ```{r ler_banco_dados, echo=FALSE, eval=TRUE}
-<<<<<<< HEAD
+
 library(xtable)
 library(knitr)
-=======
->>>>>>> 455be152a410bec102870a1858bd897780e24c69
+
 #df_2 = read.table("http://www.ime.unicamp.br/~cnaber/sementes.dat")
 #names(df_2) = c("Temperatura","Nivel_Umidade","Temp_Umidade","N_de_sementes")
 teste <- read.table("códigos_p2/sementes.dat")
@@ -696,6 +695,11 @@ Dela, podemos depreender que,
 
 O que se pode concluir da análise, em termos do problema apresentado, e críticas em relação
 a análise feita.
+
+
+
+
+
 
 ### Anexos
  
