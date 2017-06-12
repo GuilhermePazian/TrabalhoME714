@@ -5,11 +5,11 @@ output: html_document
 
 # To do
 
-- Selecao (ok - AIC/BIC)
+- Selecao (ok)
 - Analise Preditiva (ok)
 - Estimativa Pontual e Intervalar (ok)
-- Interpretação (+/-)
-- TRV para redução do modelo
+- Interpretação (ok)
+- TRV para redução do modelo (ok)
 - Referencias bibliograficas (final do projeto)
 
 

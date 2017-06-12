@@ -34,7 +34,7 @@ faixa <- range(td,e1,e2)
 #par(pty="s")
 par(mfrow=c(1,1))
 qqnorm(td,xlab="Percentil da N(0,1)",
-ylab="Resíduo Componente do Desvio", ylim=faixa, pch=16,main="Gráfico Quantíl-Quantíl",cex=.7,cex.axis=.7,cex.lab=.7)
+ylab="Resíduo Componente do Desvio", ylim=faixa, pch=16,main="Gráfico Quantil-Quantil",cex=.7,cex.axis=.7,cex.lab=.7)
 #
 par(new=T)
 #
