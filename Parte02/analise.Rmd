@@ -320,3 +320,6 @@ legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
 
 ```
 
+
+#Análise inferencial e ajuste de modelos
+
