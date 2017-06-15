@@ -103,6 +103,10 @@ Nota-se que para cada casela pode-se obter a proporção de sementes que germina
 
 
 ```{r ler_banco_dados, echo=FALSE, eval=TRUE}
+
+library(xtable)
+library(knitr)
+
 #df_2 = read.table("http://www.ime.unicamp.br/~cnaber/sementes.dat")
 #names(df_2) = c("Temperatura","Nivel_Umidade","Temp_Umidade","N_de_sementes")
 teste <- read.table("códigos_p2/sementes.dat")
@@ -131,6 +135,8 @@ names(dimnames(sementes)) <- c("Temp. Germinação || Nível de umidade","Nível
 #sementes
 #xtable(sementes)
 
+#kable(dados)
+
 sementes_prop <-matrix(c(0.98,0.96,0.62,0.94,0.79,0.03,0.92,0.41,0.01,0.94,0.93,0.65,0.94,0.71,0.02,0.91,0.30,0.01),nrow=6,byrow=TRUE)
 dimnames(sementes_prop) <- list(c("11ºC & BAIXO","11ºC & MEDIO","11ºC & ALTO","21ºC & BAIXO","21ºC & MEDIO","21ºC & ALTO"),c("21ºC","42ºC", "62ºC"))
 names(dimnames(sementes_prop)) <- c("Temp. Germinação || Nível de umidade","Nível de temperatura")
@@ -146,6 +152,8 @@ prop_sd <- cbind(prop.sem.germ, prop.sem.n.germ, sd.binom.caselas)
 colnames(prop_sd) <- c("proporção de sementes germinadas", "proporção de sementes não germinadas", "sd")
 
 dados <- cbind(dados, prop_sd)
+
+
 ```
 
 
@@ -166,16 +174,17 @@ med.resumo <- cbind(med.resumo, cvs)
 
 \begin{table}[ht]
 \centering
-\begin{tabular}{rrrr}
+\begin{tabular}{|l|l|l|l|l|}
+  
   \hline
- & 21ºC & 42ºC & 62ºC \\ 
+ &Temperatura de germinação &21ºC & 42ºC & 62ºC \\ 
   \hline
-11ºC e BAIXO & 98 & 96 & 62 \\ 
-11ºC e MÉDIO & 94 & 79 & 3 \\ 
-11ºC e ALTO & 92 & 41 & 1 \\ 
-21ºC e BAIXO & 94 & 93 & 65 \\ 
-21ºC e MÉDIO & 94 & 71 & 2 \\ 
-21ºC e ALTO & 91 & 30 & 1 \\ 
+Baxia & 11ºC & 98 & 96 & 62 \\ 
+Média & 11ºC & 94 & 79 & 3 \\ 
+Alta & 11ºC & 92 & 41 & 1 \\ 
+Baixa & 21ºC & 94 & 93 & 65 \\ 
+Média & 21ºC & 94 & 71 & 2 \\ 
+Alta & 21ºC & 91 & 30 & 1 \\ 
    \hline
 \end{tabular}
 \captionof{table}{A tabela representa as condições experimentais para determinar a germinação de uma determinada semente. A primeira coluna refere-se à temperatura de germinação e ao nível de umidade e as três últimas colunas representam as temperaturas de umidade.}
@@ -183,16 +192,17 @@ med.resumo <- cbind(med.resumo, cvs)
 
 \begin{table}[ht]
 \centering
-\begin{tabular}{rrrr}
+\begin{tabular}{|l|l|l|l|l|}
+  
   \hline
- & 21ºC & 42ºC & 62ºC \\ 
+ &Temperatura de germinação &21ºC & 42ºC & 62ºC \\ 
   \hline
-  11ºC e BAIXO & 0.98 & 0.96 & 0.62 \\ 
-  11ºC e MÉDIO & 0.94 & 0.79 & 0.03 \\ 
-  11ºC e ALTO & 0.92 & 0.41 & 0.01 \\ 
-  21ºC e BAIXO & 0.94 & 0.93 & 0.65 \\ 
-  21ºC e MÉDIO & 0.94 & 0.71 & 0.02 \\ 
-  21ºC e ALTO & 0.91 & 0.30 & 0.01 \\ 
+Baxia & 11ºC & 0.98 & 0.96 & 0.62 \\ 
+Média & 11ºC & 0.94 & 0.79 & 0.03 \\ 
+Alta & 11ºC & 0.92 & 0.41 & 0.01 \\ 
+Baixa & 21ºC & 0.94 & 0.93 & 0.65 \\ 
+Média & 21ºC & 0.94 & 0.71 & 0.02 \\ 
+Alta & 21ºC & 0.91 & 0.30 & 0.01 \\ 
    \hline
 \end{tabular}
 \captionof{table}{Tabela das proporções estimadas para cada condição experimental, de acordo com os dados observados.}
@@ -459,7 +469,44 @@ Por fim, sob este modelo, a melhor combinação de fatores experimentais é dada
 
 ###4. Conclusões
 
+<<<<<<< HEAD
+1. descritiva
+    - a quantidade de 100 aparanetemente é perquena p/ ver se o efeito da temperatura de germinacao é alto
+    - ao aumentar nivel de umidade, temperatura de germinacao e umidade, pior fica a cosia
+2. inferencial
+    - nao sabemos explicar pq o modelo saturado apresenta aqueles valores-p
+    - o envelope mostra um efeito nao capturado pelo modelo com tais variaveis (dependencia nos residuos)
+    - modelo preferido é o 3
+    - as interacoes tem impacto mt alto
+    - a analise preditiva mostra que o modelo é razoavel
+
+- concordancia com analise descritiva e inferencial, assim como o resultado final do modelo
+
+
+
+A partir da análise dos dados em questão, obtivemos resultados concordantes tanto na análise descritiva quanto na análise
+inferêncial para responder ao principal interesse deste estudo que objetiva classificar os tipos de selante quanto ao nível de
+microinfiltração. Segundo as análises feitas, considerando um nível de significância de 10%, temos a indicação de que o material
+que apresenta o melhor desempenho é o material “Optibond”, uma vez que é o material que apresenta um menor valor da medida
+de desempenho proposta e é também estatísticamente diferente dos demais materiais quanto à esta medida. Quanto aos demais
+materiais, as análises nos mostraram que os materiais “Allbond” e “Scotchbond” são estatísticamente diferentes (a um nível de
+significância de 10%) quanto à medida de desempenho proposta, embora apresentam uma boa proximidade de suas medidas. Por
+não termos mais informações quanto às características dos materiais, seus respectivos custos, disponibilidade destes no mercado,
+além outras informações que poderiam influenciar e/ou nos dar um contexto maior quanto ao problema, podemos apenas fazer
+conclusões quanto as classificações apresentadas e quanto as medidas de desempenho propostas para estes materiais. Contudo,
+pessoas com um conhecimento específico na área de microinfiltração, poderiam estabelecer um elo de ligação entre os resultados
+presentes neste estudo com outras informações específicas da área de estudo em questão para tirar outras conclusões, como por
+exemplo, conclusões quanto ao custo/benefício e/ou equivalência (do tipo financeira e/ou de qualidade) dos tipos de materiais
+estudados.
+
+
+
+
+### Anexos
+ 
+=======
 Desta análise, as principais conclusões são:
+>>>>>>> 2b1dc85d7c76fba769b24e7475d9a2c2caae45a2
 
   1. Com o aumento do nível de umidade e temperaturas de germinação e umidade, menor é proporção de sementes germinadas. Ou seja, a melhor combinação de fatores é dada por : umidade baixa, temperatura de germinação de 11ºC e temperatura de umidade de 21ºC;
   2. A combinação dos fatores nível de umidade e temperatura de umidade tem um impacto muito forte sobre a quantidade de sementes germinadas;
@@ -477,7 +524,11 @@ Ademais, não foi possível justificar o motivo da insignificância de vários p
 
 4. Agresti. A. (2007). An introduction to categorical data analysis, segunda edição.
 
+<<<<<<< HEAD
+
+=======
 \newpage
+>>>>>>> 2b1dc85d7c76fba769b24e7475d9a2c2caae45a2
 ### Anexos
 ##### Tabelas com estimativas pontuais e intervalares, erros padrão e valores-p.
 As tabelas a seguir são referentes aos modelos 1,2 e 3, respectivamente

@@ -1,0 +1,325 @@
+---
+title: "Trab."
+header-includes:
+- \usepackage{setspace}
+- \usepackage{indentfirst}
+- \usepackage[utf8]{inputenc}
+- \usepackage{mathptmx}
+- \usepackage{enumerate}
+- \usepackage{float}
+- \usepackage{url}
+- \usepackage{lipsum}
+- \usepackage{caption}
+- \usepackage{subcaption}
+output: pdf_document
+lang: pt-br
+---
+
+#Parte descritiva
+
+De maneira geral, pode-se observar, pelas tabelas 1, 2, 3 e 4, as seguintes características:
+
+- A quantidade de indivíduos que tem pelo menos uma infecção, para o grupo cujo hábito de nadar é frequente, é menor do que para o grupo que nada ocasionalmente;
+
+- A quantidade de indivíduos que tem pelo menos uma infecção, para o grupo cujo local onde costuma nadar é a praia, é menor do que para o grupo que não costuma nadar na praia;
+
+- A quantidade de indivíduos que tem pelo menos uma infecção, para a faixa etária 15-19, é maior do que para os grupos das demais faixas; e o número de indivíduos que tem pelo menos uma infecção na faixa etária 20-24 é maior do que a faixa etária 25-29;
+
+- A quantidade de indivíduos que tem pelo menos uma infecção, para o sexo masculino, é maior do que para o para o sexo feminino;
+
+Avaliar o comportamento do número de infecções para as diferentes covariáveis e suas possíveis interações, é de fundamental importância para a futura modelagem. A seguir, são apresentados os gráficos de perfis para verificar as possíveis interações entre fatores (em geral a combinação de dois fatores). Por estes gráficos, é aceitável considerar as interações entre a faixa etária e as demais covariáveis: hábito de nadar, local onde nada e o sexo; interações entre sexo e as covariáveis: local onde nada e o hábito de nadar e a interação entre o local onde costuma nadar e o hábito de nadar.
+
+
+
+
+```{r ler_dados, echo=FALSE,message=FALSE}
+library(dplyr)
+library(xtable)
+dados <- read.table("recrutas.dat")
+colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de infecções")
+#table(is.na(dados))
+
+# table(dados$`Hab. de nadar`, dados$`Nº de infecções`)
+# table(dados$Local, dados$`Nº de infecções`)
+# table(dados$`Faixa etária`, dados$`Nº de infecções`)
+# table(dados$Sexo, dados$`Nº de infecções`)
+
+# dados %>% group_by(`Hab. de nadar`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+# dados %>% group_by(Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+# dados %>% group_by(`Faixa etária`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+# dados %>% group_by(Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+# 
+# xtable(dados %>% group_by(`Hab. de nadar`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`)))
+# xtable(dados %>% group_by(Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`)))
+# xtable(dados %>% group_by(`Faixa etária`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`)))
+# xtable(dados %>% group_by(Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`)))
+
+#dados %>% group_by(`Hab. de nadar`, Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+#dados %>% group_by(`Hab. de nadar`, Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+
+#número médio de infecções para indivíduos que tiveram pelo menos uma infecção, agrupdos pelo Local, Habito de nadar e sexo
+#dados %>% group_by(Local, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
+#dados %>% group_by(`Hab. de nadar`, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
+#dados %>% group_by(Sexo, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
+```
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Hábito de nadar & Contagem do número de infecções \\ 
+  \hline
+&Frequente & 140 \\ 
+&Ocasional & 258 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para os diferentes níveis de hábito de nadar.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Local & Contagem do número de infecções \\ 
+  \hline
+& Praia & 155 \\ 
+& Piscina & 243 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para os diferentes níveis do lugar onde se costuma nadar.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Faixa etária & Contagem do número de infecções \\ 
+  \hline
+& 15-19 & 223 \\ 
+& 20-24 &  92 \\ 
+& 25-29 &  83 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para os diferentes níveis de faixa etária.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Sexo & Contagem do número de infecções \\ 
+  \hline
+& Feminino & 131 \\ 
+& Masculino & 267 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para os sexos.}
+\end{table}
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Hábito de nadar & Local & Contagem do número de infecções \\ 
+  \hline
+& Frequente & Praia &  59 \\ 
+& Frequente & Piscina &  81 \\ 
+& Ocasional & Praia &  96 \\ 
+& Ocasional & Piscina & 162 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e local onde se costuma nadar.}
+\end{table}
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Hábito de nadar & Sexo & Contagem do número de infecções \\ 
+  \hline
+& Frequente & Feminino &  47 \\ 
+& Frequente & Masculino &  93 \\ 
+& Ocasional & Feminino &  84 \\ 
+& Ocasional & Masculino & 174 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e os sexos.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Hábito de nadar & Faixa etária & Contagem do número de infecções\\ 
+  \hline
+  & Frequente & 15-19 &  87 \\ 
+  & Frequente & 20-24 &  33 \\ 
+  & Frequente & 25-29 &  20 \\ 
+  & Ocasional & 15-19 & 136 \\ 
+  & Ocasional & 20-24 &  59 \\ 
+  & Ocasional & 25-29 &  63 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e as diferentes faixas etárias.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Local & Faixa etária & Contagem do número de infecções\\ 
+  \hline
+& Praia & 15-19 &  90 \\ 
+& Praia & 20-24 &  20 \\ 
+& Praia & 25-29 &  45 \\ 
+& Piscina & 15-19 & 133 \\ 
+& Piscina & 20-24 &  72 \\ 
+& Piscina & 25-29 &  38 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes locais onde se costuma nadar e as diferentes faixas etárias.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Local & Sexo & Contagem do número de infecções\\ 
+  \hline
+ & Praia & Feminino &  81 \\ 
+ & Praia & Masculino &  74 \\ 
+ & Piscina & Feminino &  50 \\ 
+ & Piscina & Masculino & 193 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes locais onde se costuma nadar e os sexos.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Sexo & Faixa etária & Contagem do número de infecções\\ 
+  \hline
+& Feminino & 15-19 &  64 \\ 
+& Feminino & 20-24 &  37 \\ 
+& Feminino & 25-29 &  30 \\ 
+& Masculino & 15-19 & 159 \\ 
+& Masculino & 20-24 &  55 \\ 
+& Masculino & 25-29 &  53 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos sexos as diferentes faixas etárias.}
+\end{table}
+
+
+```{r legendas_grafico_perfil, echo=FALSE}
+fig1 <- "Gráfico de perfil que representa o número de infecções de ouvido para cada sexo. Nota-se que ao mudar de faixa etária há diminuição do número de infecções para ambos os sexos. Observa-se que a redução é maior ao mudar da faixa etária de 15-19 para 20-24 para o sexo masculino. Pelo gráfico, pode-se pensar que existe interação entre as covariáveis faixa etária e sexo."
+
+fig2 <- "Gráfico de perfil que representa o número de infecções para os grupos que têm hábitos (frequente e ocasional) de nadar diferentes. Para estes diferentes grupos de hábitos de nadar, nota-se que o número de infecções diminui. No entanto, para aqueles cujo hábito é ocasional, a quantidade de infecções é superior para os diferentes níveis de faixa etária. Cogita-se que possa existir interação entre o hábito de nadar e a faixa etária."
+
+fig3 <- "Gráfico de perfil que representa o número de infecções para os indivíduos que costumam nadar na praia ou na piscina. Com exceção da última faixa etária (25-29), o número de infecções para indivíduos que costumam nadar em piscinas é maior para as diferentes faixas etárias, de 15-19 e 20-24. Observa-se que para os diferentes lugares onde se costuma nadar, nas faixas etárias 15-19 e 20-14, as retas possuem um pequeno desnível que as tornam não paralelas. No entanto, para a última faixa etária, nota-se que o comportamento é diferente para os diferentes locais onde se costuma nadar. Assim, é possível pensar em interação entre a faixa etária e o local onde se costuma nadar."
+
+fig4 <- "Gráfico de perfil que representa o número de infecções para os indivíduos que tem um determinado hábito de nadar, para os diferentes sexos. Observa-se que as retas não são paralelas, com isso pode-se pensar que existe interação entre o sexo e o hábito de nadar."
+
+fig5 <- "Gráfico de perfil que representa o número de infecções para os indivíduos que tem determinado hábito de nadar e o local que costumam nadar. O comportamento é muito similar em relação à figura 4 e cogita-se na possível interação entre local onde costuma nadar e hábito de nadar."
+
+fig6 <- "Gráfico de perfil que representa o número de infecções para os sexos, para indivíduos que tem costume de nadar em diferentes lugares. Nota-se que é plusível a interação entre sexo e o lugar onde costuma nadar."
+```
+
+```{r fig.cap = fig1, fig.pos="H", echo=FALSE}
+#fig.pos="H"
+# teste <- dados %>% group_by(Sexo, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
+# par(mfrow=c(1,1))
+# plot(teste[[3]][teste[[1]] == "Female"],pch=19,lty=1,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2,axes=F,ylim=c(0,2),xlab="faixa etária",ylab="nº médio de infecções")
+# lines(teste[[3]][teste[[1]] == "Male"],pch=17,lty=2,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+# #lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+# #lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+# axis(2)
+# axis(1,c(1,2,3),labels=c("15-19","20-24","25-29"))
+# legend(1,0.5,c("Feminino","Masculino"),lty=c(1,2),pch=c(19,17),bty="n",cex=1)
+
+SFE <- dados %>% group_by(Sexo, `Faixa etária`) %>% summarise(contagem_infec = sum(`Nº de infecções`))
+par(mfrow=c(1,1))
+plot(SFE[[3]][SFE[[1]] == "Female"],pch=19,lty=1,type="b",cex=.7,cex.axis=.7,cex.lab=.7,axes=F,ylim=c(0,200),xlab="faixa etária",ylab="nº de infecções")
+lines(SFE[[3]][SFE[[1]] == "Male"],pch=17,lty=2,type="b",cex=.7,cex.axis=.7,cex.lab=.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2,3),labels=c("15-19","20-24","25-29"), cex.axis = 0.7)
+legend(1,40,c("Feminino","Masculino"),lty=c(1,2),pch=c(19,17),bty="n",cex=.7)
+
+```
+
+```{r fig.cap = fig2, fig.pos="H", echo=FALSE}
+HNFE <- dados %>% group_by(`Hab. de nadar`, `Faixa etária`) %>% summarise(contagem_infec = sum(`Nº de infecções`))
+
+par(mfrow=c(1,1))
+plot(HNFE[[3]][HNFE[[1]] == "Freq"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="faixa etária",ylab="nº de infecções")
+lines(HNFE[[3]][HNFE[[1]] == "Occas"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2,3),labels=c("15-19","20-24","25-29"), cex.axis = 0.7)
+legend(1,40,c("Frequente","Ocasional"),lty=c(1,2),pch=c(19,17),bty="n",cex=.7)
+
+```
+
+```{r fig.cap = fig3, fig.pos="H", echo=FALSE}
+LFE <- dados %>% group_by(Local, `Faixa etária`) %>% summarise(contagem_infec = sum(`Nº de infecções`))
+
+par(mfrow=c(1,1))
+plot(LFE[[3]][LFE[[1]] == "Beach"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="faixa etária",ylab="nº de infecções")
+lines(LFE[[3]][LFE[[1]] == "NonBeach"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2,3),labels=c("15-19","20-24","25-29"), cex.axis = 0.7)
+legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
+
+```
+
+```{r fig.cap = fig4, fig.pos="H", echo=FALSE}
+HNS <- dados %>% group_by(`Hab. de nadar`, Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+par(mfrow=c(1,1))
+plot(HNS[[3]][HNS[[1]] == "Freq"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="Sexo",ylab="nº de infecções")
+lines(HNS[[3]][HNS[[1]] == "Occas"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2),labels=c("Feminino","Masculino"), cex.axis = 0.7)
+legend(1,40,c("Frequente","Ocasional"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
+
+```
+
+```{r fig.cap = fig5, fig.pos="H", echo=FALSE}
+HNL <- dados %>% group_by(`Hab. de nadar`, Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+par(mfrow=c(1,1))
+plot(HNL[[3]][HNL[[1]] == "Freq"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="Local onde costuma nadar",ylab="nº de infecções")
+lines(HNL[[3]][HNL[[1]] == "Occas"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2),labels=c("Praia","Piscina"), cex.axis = 0.7)
+legend(1,40,c("Frequente","Ocasional"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
+
+```
+
+```{r fig.cap = fig6, fig.pos="H", echo=FALSE}
+LS <- dados %>% group_by(Local, Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+par(mfrow=c(1,1))
+plot(LS[[3]][LS[[1]] == "Beach"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="Sexo",ylab="nº de infecções")
+lines(LS[[3]][LS[[1]] == "NonBeach"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2),labels=c("Feminino","Masculino"), cex.axis = 0.7)
+legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
+
+```
+
+
+#Análise inferencial e ajuste de modelos
+

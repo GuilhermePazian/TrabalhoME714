@@ -1,0 +1,74 @@
+---
+title: "teste"
+output: pdf_document
+---
+
+Para o modelo reduzido, com vetor de parâmetros $\beta = (\mu, \alpha_{2}, \beta_{1}, \beta_{2}, \gamma_{2}, \gamma_{3}, (\beta \gamma)_{12}, (\beta \gamma)_{13}, (\beta \gamma)_{22}, (\beta \gamma)_{23})'$, as probabilidades de sementes germinadas, para i = $1,2$, j = $1,2,3$ e k = $1,2,3$, podem ser escritas como seguem:
+
+$$
+\begin{aligned}
+p_{ijk} &= \frac{\exp{(\mu + \alpha_{i} + \beta_{j} + \gamma_{k} + (\beta \gamma)_{jk}})}{1 + exp(\mu + \alpha_{i} + \beta_{j} + \gamma_{k} + (\beta \gamma)_{jk})}
+\end{aligned}
+$$
+
+Os logitos, por sua vez, são representados de acordo com as equações abaixo:
+
+$$
+\begin{aligned}
+log \left(\frac{p_{111}}{1-p_{111}}\right) &= \mu \\
+log \left(\frac{p_{121}}{1-p_{121}}\right) &= \mu + \beta_{2} \\
+log\left(\frac{p_{131}}{1-p_{131}}\right) &= \mu + \beta_{3} \\
+log\left(\frac{p_{112}}{1-p_{112}}\right) &= \mu + \beta_{1} + \gamma_{2} + (\beta \gamma)_{12} \\
+log\left(\frac{p_{113}}{1-p_{113}}\right) &= \mu + \beta_{1} + \gamma_{3} + (\beta \gamma)_{13} \\
+log\left(\frac{p_{123}}{1-p_{123}}\right) &= \mu + \beta_{2} + \gamma_{3} + (\beta \gamma)_{23} \\
+log\left(\frac{p_{122}}{1-p_{122}}\right) &= \mu + \beta_{2} + \gamma_{2} + (\beta \gamma)_{22} \\
+log\left(\frac{p_{132}}{1-p_{132}}\right) &= \mu + \gamma_{2} \\
+log\left(\frac{p_{112}}{1-p_{112}}\right) &= \mu + \gamma_{3} \\
+log\left(\frac{p_{211}}{1-p_{211}}\right) &= \mu + \alpha_{2} + \beta_{1} \\
+log\left(\frac{p_{221}}{1-p_{221}}\right) &= \mu + \alpha_{2} + \beta_{2} \\
+log\left(\frac{p_{231}}{1-p_{231}}\right) &= \mu + \alpha_{2} \\
+log\left(\frac{p_{212}}{1-p_{212}}\right) &= \mu + \alpha_{2} + \beta_{1} + \gamma_{2} + (\beta \gamma)_{12} \\
+log\left(\frac{p_{213}}{1-p_{213}}\right) &= \mu + \alpha_{2} + \beta_{1} + \gamma_{3} + (\beta \gamma)_{13} \\
+log\left(\frac{p_{222}}{1-p_{222}}\right) &= \mu + \alpha_{2} + \beta_{2} + \gamma_{2} + (\beta \gamma)_{22} \\
+log\left(\frac{p_{223}}{1-p_{223}}\right) &= \mu + \alpha_{2} + \beta_{2} + \gamma_{3} + (\beta \gamma)_{23} \\
+log\left(\frac{p_{232}}{1-p_{232}}\right) &= \mu + \alpha_{2} + \gamma_{2} \\
+log\left(\frac{p_{233}}{1-p_{233}}\right) &= \mu + \alpha_{2} + \gamma_{3}
+\end{aligned}
+$$
+
+Com isso, por meio de manipulações algébricas, consegue-se obter os seguintes resultados:
+
+$$
+\begin{aligned}
+p_{111} &= \frac{exp(\mu)}{1+exp(\mu)} \\
+p_{121} &= \frac{exp(\mu + \beta_{2})}{1 + exp(\mu + \beta_{2})} \\
+p_{131} &= \frac{exp(\mu + \beta_{3})}{1 + exp(\mu + \beta_{3})} \\
+p_{112} &= \frac{exp(\mu + \beta_{1} + \gamma_{2} + (\beta \gamma)_{12})}{1 + exp(\mu + \beta_{1} + \gamma_{2} + (\beta \gamma)_{12})} \\
+p_{113} &= \frac{exp(\mu + \beta_{1} + \gamma_{3} + (\beta \gamma)_{13})}{1 + exp(\mu + \beta_{1} + \gamma_{3} + (\beta \gamma)_{13})} \\
+p_{123} &= \frac{exp(\mu + \beta_{2} + \gamma_{3} + (\beta \gamma)_{23})}{1 + exp(\mu + \beta_{1} + \gamma_{3} + (\beta \gamma)_{23})} \\
+p_{122} &= \frac{exp(\mu + \beta_{2} + \gamma_{2} + (\beta \gamma)_{12})}{1 + exp(\mu + \beta_{2} + \gamma_{2} + (\beta \gamma)_{22})} \\
+p_{132} &= \frac{exp(\mu + \gamma_{2})}{1+exp(\mu + \gamma_{2})} \\
+p_{133} &= \frac{exp(\mu + \gamma_{3})}{1+exp(\mu + \gamma_{3})} \\
+p_{211} &= \frac{exp(\mu + \alpha_{2} + \beta_{1})}{1+exp(\mu + \alpha_{2} + \beta_{1})} \\
+p_{221} &= \frac{exp(\mu + \alpha_{2} + \beta_{1})}{1+exp(\mu + \alpha_{2} + \beta_{2})} \\
+p_{231} &= \frac{exp(\mu + \alpha_{2})}{1+exp(\mu + \alpha_{2})} \\
+p_{212} &= \frac{exp(\mu + \alpha_{2} + \beta_{1} + \gamma_{2} + (\beta \gamma)_{12})}{1+exp(\mu + \alpha_{2} + \beta_{1} + \gamma_{2} + (\beta \gamma)_{12})} \\
+p_{213} &= \frac{exp(\mu + \alpha_{2} + \beta_{1} + \gamma_{3} + (\beta \gamma)_{13})}{1+exp(\mu + \alpha_{2} + \beta_{1} + \gamma_{3} + (\beta \gamma)_{13})} \\
+p_{222} &= \frac{exp(\mu + \alpha_{2} + \beta_{2} + \gamma_{2} + (\beta \gamma)_{22})}{1+exp(\mu + \alpha_{2} + \beta_{2} + \gamma_{2} + (\beta \gamma)_{22})} \\
+p_{223} &= \frac{exp(\mu + \alpha_{2} + \beta_{2} + \gamma_{3} + (\beta \gamma)_{23})}{1+exp(\mu + \alpha_{2} + \beta_{2} + \gamma_{3} + (\beta \gamma)_{23}} \\
+p_{232} &= \frac{exp(\mu + \alpha_{2} + \gamma_{2})}{1+exp(\mu + \alpha_{2} + \gamma_{2})} \\
+p_{233} &= \frac{exp(\mu + \alpha_{2} + \gamma_{3})}{1+exp(\mu + \alpha_{2} + \gamma_{3})} \\
+\end{aligned}
+$$
+
+Mediante os resultados anteriores, consegue-se obter as razões de chances e suas interpretações. Observe, por exemplo, as seguintes razões:
+
+Note que $exp(\beta_{1}) = \frac{\left(\frac{p_{111}}{1-p_{111}}\right)}{\left(\frac{p_{131}}{1-p_{131}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para umidade baixa em relação a alta.
+
+$exp(\beta_{2}) = \frac{\left(\frac{p_{121}}{1-p_{121}}\right)}{\left(\frac{p_{131}}{1-p_{131}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para umidade média em relação a alta.
+
+$exp(\gamma_{2}) = \frac{\left(\frac{p_{232}}{1-p_{232}}\right)}{\left(\frac{p_{231}}{1-p_{231}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de 21ºC em relação à 42ºC.
+
+$exp(\gamma_{3}) = \frac{\left(\frac{p_{233}}{1-p_{233}}\right)}{\left(\frac{p_{231}}{1-p_{231}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de 21ºC em relação à 62ºC.
+
+$exp(\alpha_{2}) = \frac{\left(\frac{p_{213}}{1-p_{213}}\right)}{\left(\frac{p_{113}}{1-p_{113}}\right)}$ é a razão de chances que nos indica o quanto maior ou menor é a proporção de sementes germinadas depois de 5 dias a uma temperatura de germinação de 11ºC ou 21ºC, para temperatura de germinação de 21ºC em relação à 11ºC.
