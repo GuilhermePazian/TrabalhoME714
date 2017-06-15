@@ -1,0 +1,36 @@
+---
+title: "Trab."
+output: pdf_document
+---
+De maneira geral, pode-se observar as seguintes características:
+
+- A quantidade de indivíduos que tem pelo menos uma infecção, para o grupo cujo hábito de nadar é frequente, é menor do que para o grupo que nada ocasionalmente;
+
+- A quantidade de indivíduos que tem pelo menos uma infecção, para o grupo cujo local onde costuma nadar é a praia, é menor do que para o grupo que não costuma nadar na praia;
+
+- A quantidade de indivíduos que tem pelo menos uma infecção, para a faixa etária 15-19, é maior do que para os grupos das demais faixas; e o número de indivíduos que tem pelo menos uma infecção na faixa etária 20-24 é maior do que a faixa etária 25-29;
+
+- A quantidade de indivíduos que tem pelo menos uma infecção, para o sexo masculino, é maior do que para o para o sexo feminino;
+
+```{r ler_dados, echo=FALSE}
+library(dplyr)
+dados <- read.table("recrutas.dat")
+colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de infecções")
+#table(is.na(dados))
+
+table(dados$`Hab. de nadar`, dados$`Nº de infecções`)
+table(dados$Local, dados$`Nº de infecções`)
+table(dados$`Faixa etária`, dados$`Nº de infecções`)
+table(dados$Sexo, dados$`Nº de infecções`)
+
+dados %>% group_by(`Hab. de nadar`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+dados %>% group_by(Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+dados %>% group_by(`Faixa etária`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+dados %>% group_by(Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+
+dados %>% group_by(`Hab. de nadar`, Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+dados %>% group_by(`Hab. de nadar`, Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+dados %>% group_by(Local, `Faixa etária`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+dados %>% group_by(`Hab. de nadar`, `Faixa etária`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+```
+
