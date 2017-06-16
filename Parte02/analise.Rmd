@@ -1,5 +1,5 @@
 ---
-title: "Trab."
+title: ''
 header-includes:
 - \usepackage{setspace}
 - \usepackage{indentfirst}
@@ -14,6 +14,62 @@ header-includes:
 output: pdf_document
 lang: pt-br
 ---
+
+\begin{titlepage}
+\begin{center}
+\thispagestyle{empty}
+\begin{figure}[!htb]
+\begin{center}
+\begin{minipage}[b]{0.5\linewidth}
+\begin{center}
+\end{center}
+\end{minipage}
+\begin{minipage}[b]{0.7\linewidth}
+\begin{center}
+\vspace*{1cm}
+ {\large \bf Universidade Estadual de Campinas\\[5pt]
+Instituto de Matemática, Estatística e Computação Cientifica\\[3pt]
+Departamento de Estatística}
+\end{center}
+\end{minipage}
+\end{center}
+\end{figure}
+\vspace*{\stretch{1}}
+\begin{center}
+\vspace*{5cm}
+{\huge \bf Relatório - Parte 2 \\[7pt]
+Exercício 1}
+\end{center}
+\vspace*{\stretch{1}}
+\begin{center}
+\vspace*{4cm}
+{\Large \bf Guilherme Pazian  RA:160323 \\
+Henrique Capatto  RA:146406 \\
+Hugo Calegari  RA:155738 \\
+Leonardo Uchoa Pedreira RA:156231\break
+}\\[3pt]
+{\large \bf Professor: Caio Lucidius Naberezny Azevedo}\\[5pt]
+\end{center}
+\vspace*{\stretch{1}}
+\centerline{\bf Campinas-SP, 20 de Junho de 2017}
+\vspace*{\stretch{1}}
+\end{center}
+\end{titlepage}
+
+\onehalfspacing
+\newpage
+
+```{r echo=FALSE}
+#mudando o separador decimal para resultados "printados"
+options(OutDec= ",")
+```
+
+```{r, echo=FALSE}
+#definindo opções padrões dos chunks
+knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='Figs/', fig.align='center', echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+
 
 #Parte descritiva
 
@@ -322,4 +378,164 @@ legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
 
 
 #Análise inferencial e ajuste de modelos
+
+O modelo "saturado" considerado, foi aquele no qual os fatores principais e todas as possíveis interações foram consideradas, isto é, a interação de terceira ordem foi considerada (combinação de todas as covariáveis em estudo).
+
+Pela análise descritiva, as interações de primeira ordem (combinação de dois fatores) serão consideradas para elaboração do primeiro modelo.
+
+```{r diagnosticos_modelo_poisson, echo=FALSE}
+testeF.CBM.MLG <- function(fit.model,m.C,m.M)
+{
+v.beta <-  cbind(fit.model$coef)
+e.q <- nrow(m.C)
+m.cov.beta <- (vcov(fit.model))
+e.Q <- t(m.C%*%v.beta-m.M)%*%solve(m.C%*%m.cov.beta%*%t(m.C))%*%(m.C%*%v.beta-m.M)
+e.pvalor <- 1-pchisq(e.Q,e.q)
+cat("Estatistica Q = ",round(e.Q,2),"\n")
+cat("gl = ",e.q,"\n")
+cat("pvalor = ",round(e.pvalor,4),"\n")
+cat("Matriz C :","\n")
+print(m.C)
+cat("Matriz M :","\n")
+print(m.M)
+}
+
+TRV.MLG <- function(fit.model1,fit.model2)
+{
+ep <- ncol(model.matrix(fit.model2))
+eq <- ep-ncol(model.matrix(fit.model1))
+desv1 <- deviance(fit.model1)
+desv2 <- deviance(fit.model2)
+e.TRV <- (desv1-desv2)
+e.pvalor <- 1-pchisq(e.TRV,eq)
+cat("Estatistica F = ",round(e.TRV,2),"\n")
+cat("g.l = ",eq,"\n")
+cat("pvalor = ",round(e.pvalor,4),"\n")
+}
+
+AnaDesv.MLG <- function(fit.model1,fit.model2)
+{
+ep <- ncol(model.matrix(fit.model2))
+eq <- ep-ncol(model.matrix(fit.model1))
+n <- nrow(model.matrix(fit.model2))
+desv1 <- deviance(fit.model1)
+desv2 <- deviance(fit.model2)
+e.F <- ((desv1-desv2)/eq)/(desv2/(n-ep))
+e.pvalor <- 1-pf(e.F,eq,n-ep)
+cat("Estatistica F = ",round(e.F,2),"\n")
+cat("pvalor = ",round(e.pvalor,4),"\n")
+}
+
+
+diagPoisson<-function(fit.model){
+# fit.model: objeto com o resultado do ajuste do MLG obtido através da função glm
+X <- model.matrix(fit.model)
+n <- nrow(X)
+p <- ncol(X)
+w <- fit.model$weights
+W <- diag(w)
+H <- solve(t(X)%*%W%*%X)
+H <- sqrt(W)%*%X%*%H%*%t(X)%*%sqrt(W)
+h <- diag(H)
+ts <- resid(fit.model,type="pearson")/sqrt(1-h)
+td <- resid(fit.model,type="deviance")/sqrt(1-h)
+di <- (h/(1-h))*(ts^2)
+par(mfrow=c(2,2))
+a <- max(td)
+b <- min(td)
+plot(td,xlab="Índice", ylab="Resíduo Componente do Desvio",
+ylim=c(b-1,a+1), pch=16,cex.axis=1.1,cex.lab=1.1,cex=1.1,cex.axis=1.1,cex.lab=1.1)
+abline(2,0,lty=2)
+abline(-2,0,lty=2)
+abline(0,0,lty=2)
+
+# identify(td, n=1)
+# title(sub="(c)")
+fited = fitted(fit.model)
+plot(fited ,td,xlab="Valor ajustado (média)", ylab="Resíduo Componente do Desvio",ylim=c(b-1,a+1), pch=16,
+main="",cex=1.1,cex.axis=1.1,cex.lab=1.1)
+abline(2,0,lty=2)
+abline(-2,0,lty=2)
+abline(0,0,lty=2)
+#
+eta = predict(fit.model)
+z = eta + resid(fit.model, type="pearson")/sqrt(w)
+plot(predict(fit.model),z,xlab="Preditor Linear",ylab="Variavel z", pch=16,main="",cex=1.1,cex.axis=1.1,cex.lab=1.1)
+lines(smooth.spline(predict(fit.model), z, df=2))
+}
+
+envelPoisson <- function(fit.model,ligacao){
+# fit.model: objeto com o resultado do ajuste do MLG obtido através da função glm
+# ligacao: função de ligação (mesmo nome usado pela função glm (colocar entre aspas)
+#par(mfrow=c(1,1))
+X <- model.matrix(fit.model)
+n <- nrow(X)
+p <- ncol(X)
+w <- fit.model$weights
+W <- diag(w)
+H <- solve(t(X)%*%W%*%X)
+H <- sqrt(W)%*%X%*%H%*%t(X)%*%sqrt(W)
+h <- diag(H)
+td <- resid(fit.model,type="deviance")/sqrt((1-h))
+e <- matrix(0,n,100)
+#
+for(i in 1:100){
+nresp <- rpois(n, fitted(fit.model))
+fit <- glm(nresp ~ X, family=poisson(link=ligacao))
+w <- fit$weights
+W <- diag(w)
+H <- solve(t(X)%*%W%*%X)
+H <- sqrt(W)%*%X%*%H%*%t(X)%*%sqrt(W)
+h <- diag(H)
+e[,i] <- sort(resid(fit,type="deviance")/sqrt(1-h))}
+#
+e1 <- numeric(n)
+e2 <- numeric(n)
+#
+for(i in 1:n){
+  eo <- sort(e[i,])
+e1[i] <- (eo[2]+eo[3])/2
+e2[i] <- (eo[97]+eo[98])/2}
+#
+med <- apply(e,1,mean)
+faixa <- range(td,e1,e2)
+#par(pty="s")
+qqnorm(td,xlab="Percentil da N(0,1)",
+ylab="Resíduo Componente do Desvio", ylim=faixa, pch=16,main="",cex=1.1,cex.axis=1.1,cex.lab=1.1)
+#
+par(new=T)
+#
+qqnorm(e1,axes=F,xlab="",ylab="",type="l",ylim=faixa,lty=1,main="")
+par(new=T)
+qqnorm(e2,axes=F,xlab="",ylab="", type="l",ylim=faixa,lty=1,main="")
+par(new=T)
+qqnorm(med,axes=F,xlab="", ylab="", type="l",ylim=faixa,lty=2,main="")
+
+}
+```
+
+
+```{r ajuste_poisson, echo=FALSE, fig.align='center', fig.pos="H"}
+source("codigos/TestesMRDD.r")
+# source("codigos/envel_pois.r")
+# source("codigos/diag_pois.r")
+
+saturado <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária`*dados$Sexo, family=poisson(link="log"),data=dados)
+summary(saturado)
+diagPoisson(saturado)
+envelPoisson(saturado, "log")
+
+fit.model <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local + dados$`Hab. de nadar`*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Sexo + dados$Local*dados$`Faixa etária` + dados$Local*dados$Sexo + dados$`Faixa etária`*dados$Sexo,family=poisson(link="log"),data=dados)
+summary(fit.model)
+diagPoisson(fit.model)
+envelPoisson(fit.model, "log")
+
+
+
+#m.C <- rbind(c(rep(0,15), 1, rep(0,6)), c(rep(0,16), 1, rep(0,5)), c(rep(0,17), 1, rep(0,4)), c(rep(0,18), 1, rep(0,3)), c(rep(0,19), 1, rep(0,2)), c(rep(0,20), 1, 0), c(rep(0,21), 1))
+#m.C <- rbind(c(rep(0,7), 1, rep(0,14)), c(rep(0,8), 1, rep(0,13)), c(rep(0,9), 1, rep(0,12)), c(rep(0,10), 1, rep(0,11)), c(rep(0,15), 1, rep(0,6)), c(rep(0,16), 1, rep(0,5)))
+#m.M <- cbind(rep(0, 7))
+
+#testeF.CBM.MLG(fit.model, m.C, m.M)
+```
 
