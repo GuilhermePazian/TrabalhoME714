@@ -85,7 +85,7 @@ De maneira geral, pode-se observar, pelas tabelas 1, 2, 3 e 4, as seguintes cara
 
 Avaliar o comportamento do número de infecções para as diferentes covariáveis e suas possíveis interações, é de fundamental importância para a futura modelagem. A seguir, são apresentados os gráficos de perfis para verificar as possíveis interações entre fatores (em geral a combinação de dois fatores). Por estes gráficos, é aceitável considerar as interações entre a faixa etária e as demais covariáveis: hábito de nadar, local onde nada e o sexo; interações entre sexo e as covariáveis: local onde nada e o hábito de nadar e a interação entre o local onde costuma nadar e o hábito de nadar.
 
-
+Note pelas figuras 4 e 5 que o comportamento dos perfis para o hábito de nadar é muito semelhante para o sexo e para o local onde se costuma nadar. Consequentemente, pode-se pensar que na ausência de interação entre os fatores hábito de nadar, sexo e local onde se costuma nadar (sem interação de segunda ordem). Assim, a interação de terceira ordem, isto é, a combinação de todos os fatores, pode ser descartada.
 
 
 ```{r ler_dados, echo=FALSE,message=FALSE}
@@ -379,9 +379,7 @@ legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
 
 #Análise inferencial e ajuste de modelos
 
-O modelo "saturado" considerado, foi aquele no qual os fatores principais e todas as possíveis interações foram consideradas, isto é, a interação de terceira ordem foi considerada (combinação de todas as covariáveis em estudo).
-
-Pela análise descritiva, as interações de primeira ordem (combinação de dois fatores) serão consideradas para elaboração do primeiro modelo.
+A priori, o modelo inicial para ser considerado é aquele no qual os fatores principais e as interações de segunda ordem podem ser avaliados.
 
 ```{r diagnosticos_modelo_poisson, echo=FALSE}
 testeF.CBM.MLG <- function(fit.model,m.C,m.M)
@@ -520,15 +518,15 @@ source("codigos/TestesMRDD.r")
 # source("codigos/envel_pois.r")
 # source("codigos/diag_pois.r")
 
-saturado <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária`*dados$Sexo, family=poisson(link="log"),data=dados)
-summary(saturado)
-diagPoisson(saturado)
-envelPoisson(saturado, "log")
-
-fit.model <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local + dados$`Hab. de nadar`*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Sexo + dados$Local*dados$`Faixa etária` + dados$Local*dados$Sexo + dados$`Faixa etária`*dados$Sexo,family=poisson(link="log"),data=dados)
-summary(fit.model)
-diagPoisson(fit.model)
-envelPoisson(fit.model, "log")
+# saturado <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária`*dados$Sexo, family=poisson(link="log"),data=dados)
+# summary(saturado)
+# diagPoisson(saturado)
+# envelPoisson(saturado, "log")
+# 
+# fit.model <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local + dados$`Hab. de nadar`*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Sexo + dados$Local*dados$`Faixa etária` + dados$Local*dados$Sexo + dados$`Faixa etária`*dados$Sexo,family=poisson(link="log"),data=dados)
+# summary(fit.model)
+# diagPoisson(fit.model)
+# envelPoisson(fit.model, "log")
 
 
 
