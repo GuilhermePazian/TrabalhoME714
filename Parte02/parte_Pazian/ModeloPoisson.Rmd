@@ -1,0 +1,137 @@
+---
+title: "modelo poisson"
+author: "Guilherme Pazian"
+date: "15 de junho de 2017"
+output: pdf_document
+---
+
+
+```{r}
+dados <- read.table("recrutas.dat")
+colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de infecções")
+```
+
+
+
+```{r}
+fit_max <- glm(`Nº de infecções`~ `Hab. de nadar` * `Local` * `Faixa etária` * `Sexo`,family=poisson(link="log"),data = dados)
+
+
+fit_min <- glm(`Nº de infecções`~ 1,family=poisson(link="log"),data = dados)
+```
+
+```{r}
+step_min_to_max <- step(fit_min,scope = list(upper=fit_max),direction = "both")
+```
+
+
+```{r}
+step_max_to_min <- step(fit_max,scope = list(lower=fit_min),direction = "both")
+```
+
+
+
+```{r}
+source("codigos/envel_pois.R")
+source("codigos/diag_pois.R")
+source("codigos/gerador_tbl_coef.R")
+```
+
+
+Pelo stepwise, começando pelo modelo com somente o intercepto em direção ao modelo com todas as interações, chegamos no modelo:
+
+```{r}
+fit_step_min_to_max <- glm(`Nº de infecções` ~ `Hab. de nadar` + Local + `Faixa etária` + `Hab. de nadar`:`Faixa etária` + `Hab. de nadar`:Local + Local:`Faixa etária`, family=poisson(link="log"),data = dados)
+```
+
+```{r}
+library(xtable)
+gerador_tbl_coef(fit_step_min_to_max)
+```
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+ & Estimativa & Erro Padrão & Estatística Z & P-valor \\ 
+  \hline
+(Intercept) & 0,1356 & 0,1502 & 0,9029 & 0,3666 \\ 
+  `Hab. de nadar`Occas & 0,2421 & 0,1886 & 1,2838 & 0,1992 \\ 
+  LocalNonBeach & 0,1534 & 0,1904 & 0,8055 & 0,4205 \\ 
+  `Faixa etária`20-24 & -0,8041 & 0,2879 & -2,7931 & 0,0052 \\ 
+  `Faixa etária`25-29 & -0,7509 & 0,2762 & -2,7185 & 0,0066 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`20-24 & 0,0776 & 0,2612 & 0,2971 & 0,7664 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`25-29 & 0,7112 & 0,2930 & 2,4272 & 0,0152 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach & 0,3555 & 0,2217 & 1,6038 & 0,1088 \\ 
+  LocalNonBeach:`Faixa etária`20-24 & 0,5696 & 0,2882 & 1,9763 & 0,0481 \\ 
+  LocalNonBeach:`Faixa etária`25-29 & 0,1346 & 0,2620 & 0,5137 & 0,6075 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+```{r}
+diagPoisson(fit_step_min_to_max)
+```
+
+
+```{r}
+envelPoisson(fit_step_min_to_max,"log")
+```
+
+
+
+Pelo stepwise, começando pelo modelo com todas as interações em direção ao modelo com somente o intercepto, chegamos no modelo:
+
+```{r}
+fit_step_max_to_min <- glm(`Nº de infecções`~ `Hab. de nadar` * `Local` * `Faixa etária` * `Sexo`,family=poisson(link="log"),data = dados)
+```
+
+
+```{r}
+library(xtable)
+gerador_tbl_coef(fit_step_max_to_min)
+```
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+ & Estimativa & Erro Padrão & Estatística Z & P-valor \\ 
+  \hline
+(Intercept) & 0,3567 & 0,2236 & 1,5951 & 0,1107 \\ 
+  `Hab. de nadar`Occas & 0,1133 & 0,3028 & 0,3743 & 0,7082 \\ 
+  LocalNonBeach & 0,0488 & 0,4655 & 0,1048 & 0,9165 \\ 
+  `Faixa etária`20-24 & -1,0498 & 0,5000 & -2,0996 & 0,0358 \\ 
+  `Faixa etária`25-29 & -0,3567 & 0,4655 & -0,7663 & 0,4435 \\ 
+  SexoMale & -0,5798 & 0,3354 & -1,7287 & 0,0839 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach & 0,7340 & 0,5742 & 1,2781 & 0,2012 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`20-24 & 0,3285 & 0,6592 & 0,4983 & 0,6182 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`25-29 & 0,7517 & 0,5576 & 1,3479 & 0,1777 \\ 
+  LocalNonBeach:`Faixa etária`20-24 & 0,5390 & 0,7265 & 0,7419 & 0,4581 \\ 
+  LocalNonBeach:`Faixa etária`25-29 & -1,4351 & 1,1762 & -1,2202 & 0,2224 \\ 
+  `Hab. de nadar`Occas:SexoMale & 0,5153 & 0,4330 & 1,1900 & 0,2341 \\ 
+  LocalNonBeach:SexoMale & 0,5153 & 0,5490 & 0,9386 & 0,3479 \\ 
+  `Faixa etária`20-24:SexoMale & 1,2730 & 0,6748 & 1,8864 & 0,0592 \\ 
+  `Faixa etária`25-29:SexoMale & -0,5188 & 0,6922 & -0,7495 & 0,4536 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:`Faixa etária`20-24 & -0,6957 & 0,9199 & -0,7563 & 0,4495 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:`Faixa etária`25-29 & -0,2127 & 1,3413 & -0,1586 & 0,8740 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:SexoMale & -0,9180 & 0,6801 & -1,3498 & 0,1771 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`20-24:SexoMale & -2,9030 & 1,2935 & -2,2443 & 0,0248 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`25-29:SexoMale & -0,3462 & 0,8206 & -0,4219 & 0,6731 \\ 
+  LocalNonBeach:`Faixa etária`20-24:SexoMale & -1,1831 & 0,9158 & -1,2919 & 0,1964 \\ 
+  LocalNonBeach:`Faixa etária`25-29:SexoMale & 1,9696 & 1,3390 & 1,4709 & 0,1413 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:`Faixa etária`20-24:SexoMale & 3,9762 & 1,4946 & 2,6604 & 0,0078 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:`Faixa etária`25-29:SexoMale & 0,6356 & 1,5374 & 0,4134 & 0,6793 \\ 
+   \hline
+\end{tabular}
+\end{table}
+Que é o mesmo modelo que o modelo completo feito anteriormente.
+
+
+```{r}
+diagPoisson(fit_step_max_to_min)
+```
+
+
+```{r}
+envelPoisson(fit_step_max_to_min,"log")
+```
