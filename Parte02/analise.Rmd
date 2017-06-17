@@ -381,6 +381,12 @@ legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
 
 A priori, o modelo inicial para ser considerado é aquele no qual os fatores principais e as interações de segunda ordem podem ser avaliados.
 
+Observações à respeito do modelo completo. Este modelo é aquele no qual os fatores principais, as interações de primeira, segunda e terceira ordem foram considerados. Pode-se observar o seguinte a partir deste modelo:
+
+- A não significância de interação de terceira ordem, não significância de algumas interações de segunda ordem (nota-se que uma destas não significâncias, foi observada para a interação de hábito de nadar, local onde costuma nadar e sexo. Característica já observada na análise descritiva). A princípio, será avaliado o modelo sem a interação de terceira ordem (uma vez que interações de segunda ordem são não significativas, interação de ordem maior não precisa ser avaliada).
+
+- Retirada a interação de terceira ordem (modelo de segunda ordem), será reavaliado a significância dos efeitos nos outros modelos. O modelo com interação de segunda ordem foi avaliado, notou-se que, pelo teste $C \beta = M$ que as interações da ordem avaliada pode ser desconsiderado;
+
 ```{r diagnosticos_modelo_poisson, echo=FALSE}
 testeF.CBM.MLG <- function(fit.model,m.C,m.M)
 {
@@ -513,27 +519,83 @@ qqnorm(med,axes=F,xlab="", ylab="", type="l",ylim=faixa,lty=2,main="")
 ```
 
 
-```{r ajuste_poisson, echo=FALSE, fig.align='center', fig.pos="H"}
+```{r ajuste_poisson, echo=FALSE, fig.align='center', fig.pos="H", eval=F}
 source("codigos/TestesMRDD.r")
 # source("codigos/envel_pois.r")
 # source("codigos/diag_pois.r")
 
-# saturado <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária`*dados$Sexo, family=poisson(link="log"),data=dados)
-# summary(saturado)
-# diagPoisson(saturado)
-# envelPoisson(saturado, "log")
-# 
-# fit.model <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local + dados$`Hab. de nadar`*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Sexo + dados$Local*dados$`Faixa etária` + dados$Local*dados$Sexo + dados$`Faixa etária`*dados$Sexo,family=poisson(link="log"),data=dados)
-# summary(fit.model)
-# diagPoisson(fit.model)
-# envelPoisson(fit.model, "log")
+#dados$`Hab. de nadar` + dados$Local + dados$`Faixa etária` + dados$Sexo
+#dados$`Hab. de nadar`*dados$Local + dados$`Hab. de nadar`*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Sexo
+#dados$Local*dados$`Faixa etária` + dados$Local*dados$Sexo + dados$`Faixa etária`*dados$Sexo
+#dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Local*dados$Sexo
+#dados$`Hab. de nadar`*dados$`Faixa etária`*dados$Sexo + dados$Local*dados$`Faixa etária`*dados$Sexo
 
+#Ajuste com tudo
+fit.model_1 <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária`*dados$Sexo,family=poisson(link="log"),data=dados)
+summary(fit.model_1)
+diagPoisson(fit.model_1)
+envelPoisson(fit.model_1, "log")
 
-
-#m.C <- rbind(c(rep(0,15), 1, rep(0,6)), c(rep(0,16), 1, rep(0,5)), c(rep(0,17), 1, rep(0,4)), c(rep(0,18), 1, rep(0,3)), c(rep(0,19), 1, rep(0,2)), c(rep(0,20), 1, 0), c(rep(0,21), 1))
+################################################################################################
+#Ajuste desconsiderando a interação de terceira ordem
+fit.model_2 <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Local*dados$Sexo + dados$`Hab. de nadar`*dados$`Faixa etária`*dados$Sexo + dados$Local*dados$`Faixa etária`*dados$Sexo,family=poisson(link="log"),data=dados)
+summary(fit.model_2)
+diagPoisson(fit.model_2)
+envelPoisson(fit.model_2, "log")
+#testar do 16-22, , c(rep(0,21), 1)
+#m.C <- rbind(c(rep(0,15), 1, rep(0,6)), c(rep(0,16), 1, rep(0,5)), c(rep(0,17), 1, rep(0,4)), c(rep(0,18), 1, rep(0,3)), c(rep(0,19), 1, rep(0,2)), c(rep(0,20), 1, 0))
 #m.C <- rbind(c(rep(0,7), 1, rep(0,14)), c(rep(0,8), 1, rep(0,13)), c(rep(0,9), 1, rep(0,12)), c(rep(0,10), 1, rep(0,11)), c(rep(0,15), 1, rep(0,6)), c(rep(0,16), 1, rep(0,5)))
-#m.M <- cbind(rep(0, 7))
+#m.M <- cbind(rep(0, 6))
+#testeF.CBM.MLG(fit.model_2, m.C, m.M)
 
-#testeF.CBM.MLG(fit.model, m.C, m.M)
+#21-22
+#m.C <- rbind(c(rep(0,20), 1, 0), c(rep(0,21), 1))
+#m.M <- cbind(rep(0, 2))
+#testeF.CBM.MLG(fit.model_2, m.C, m.M)
+
+#16-22 --> adotar nível d esignificância de 0.01 (não se rejeita a H0, assim interações triplas podem ir embora)
+m.C <- rbind(c(rep(0,15), 1, rep(0,6)), c(rep(0,16), 1, rep(0,5)), c(rep(0,17), 1, rep(0,4)), c(rep(0,18), 1, rep(0,3)), c(rep(0,19), 1, rep(0,2)), c(rep(0,20), 1, 0), c(rep(0,21), 1))
+#17-22
+#m.C <- rbind(c(rep(0,16), 1, rep(0,5)), c(rep(0,17), 1, rep(0,4)), c(rep(0,18), 1, rep(0,3)), c(rep(0,19), 1, rep(0,2)), c(rep(0,20), 1, 0), c(rep(0,21), 1))
+m.M <- cbind(rep(0, 7))
+testeF.CBM.MLG(fit.model_2, m.C, m.M)
+
+#16-20 --> melhor teste que deu certo eliminar algumas interações as interações: (habito de nadar)*local*faixa_etaria, (habito de nadar)*local*sexo, (habito de nadar)*faixa_etaria_sexo
+m.C <- rbind(c(rep(0,15), 1, rep(0,6)), c(rep(0,16), 1, rep(0,5)), c(rep(0,17), 1, rep(0,4)), c(rep(0,18), 1, rep(0,3)), c(rep(0,19), 1, rep(0,2)))
+#m.C <- rbind(c(rep(0,7), 1, rep(0,14)), c(rep(0,8), 1, rep(0,13)), c(rep(0,9), 1, rep(0,12)), c(rep(0,10), 1, rep(0,11)), c(rep(0,15), 1, rep(0,6)), c(rep(0,16), 1, rep(0,5)))
+m.M <- cbind(rep(0, 5))
+testeF.CBM.MLG(fit.model_2, m.C, m.M)
+
+################################################################################################
+
+#Ajuste considerando algumas interações de primeira ordem
+fit.model_3 <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local + dados$`Hab. de nadar`*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Sexo + dados$Local*dados$`Faixa etária` + dados$Local*dados$Sexo + dados$`Faixa etária`*dados$Sexo,family=poisson(link="log"),data=dados)
+summary(fit.model_3)
+diagPoisson(fit.model_3)
+envelPoisson(fit.model_3, "log")
+
+#14-15 --> pode retirar a interação de faixa etária com sexo
+m.C <- rbind(c(rep(0,13), 1, 0), c(rep(0,14), 1))
+m.M <- cbind(rep(0, 2))
+testeF.CBM.MLG(fit.model_3, m.C, m.M)
+
+################################################################################################
+
+#teste ajustando as coisas de cada vez
+fit.model_4 <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local + dados$`Hab. de nadar`*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Sexo + dados$Local*dados$`Faixa etária` + dados$Local*dados$Sexo,family=poisson(link="log"),data=dados)
+summary(fit.model_4)
+
+#7-10 ---> retirada das interações (habito de nadar)*(local) e (habito de nadar)*(sexo)
+m.C <- rbind(c(rep(0,6), 1, rep(0,6)), c(rep(0,9), 1, rep(0,3)))
+m.M <- cbind(rep(0, 2))
+testeF.CBM.MLG(fit.model_4, m.C, m.M)
+
+
+#Modelo 4 com retirada das interações testadas
+fit.model_4 <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$`Faixa etária` + dados$Local*dados$`Faixa etária` + dados$Local*dados$Sexo,family=poisson(link="log"),data=dados)
+summary(fit.model_4)
+diagPoisson(fit.model_4)
+envelPoisson(fit.model_4, "log")
+
 ```
 
