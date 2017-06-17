@@ -7,7 +7,7 @@ output: pdf_document
 
 
 ```{r}
-dados <- read.table("recrutas.dat")
+dados <- read.table("/home/hugo/Documentos/Discretos/discretos_2017/trabalho/TrabalhoME714/Parte02/recrutas.dat")
 colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de infecções")
 ```
 
@@ -32,9 +32,166 @@ step_max_to_min <- step(fit_max,scope = list(lower=fit_min),direction = "both")
 
 
 ```{r}
-source("codigos/envel_pois.R")
-source("codigos/diag_pois.R")
-source("codigos/gerador_tbl_coef.R")
+# Testes do tipo H_0: CB=M vs H_1: CB <> M
+# fit.model: sa?da do modelo ajustado
+# m.C & m.M: matrizes de interesse
+
+testeF.CBM.MLG <- function(fit.model,m.C,m.M)
+{
+v.beta <-  cbind(fit.model$coef)
+e.q <- nrow(m.C)
+m.cov.beta <- (vcov(fit.model))
+e.Q <- t(m.C%*%v.beta-m.M)%*%solve(m.C%*%m.cov.beta%*%t(m.C))%*%(m.C%*%v.beta-m.M)
+e.pvalor <- 1-pchisq(e.Q,e.q)
+cat("Estatistica Q = ",round(e.Q,2),"\n")
+cat("gl = ",e.q,"\n")
+cat("pvalor = ",round(e.pvalor,4),"\n")
+cat("Matriz C :","\n")
+print(m.C)
+cat("Matriz M :","\n")
+print(m.M)
+}
+
+
+# fit.model 1: H_0
+# fit.model 1: modelo irrestritro
+
+TRV.MLG <- function(fit.model1,fit.model2)
+{
+ep <- ncol(model.matrix(fit.model2))
+eq <- ep-ncol(model.matrix(fit.model1))
+desv1 <- deviance(fit.model1)
+desv2 <- deviance(fit.model2)
+e.TRV <- (desv1-desv2)
+e.pvalor <- 1-pchisq(e.TRV,eq)
+cat("Estatistica F = ",round(e.TRV,2),"\n")
+cat("g.l = ",eq,"\n")
+cat("pvalor = ",round(e.pvalor,4),"\n")
+}
+
+
+# fit.model 1: H_0
+# fit.model 1: modelo irrestritro
+
+AnaDesv.MLG <- function(fit.model1,fit.model2)
+{
+ep <- ncol(model.matrix(fit.model2))
+eq <- ep-ncol(model.matrix(fit.model1))
+n <- nrow(model.matrix(fit.model2))
+desv1 <- deviance(fit.model1)
+desv2 <- deviance(fit.model2)
+e.F <- ((desv1-desv2)/eq)/(desv2/(n-ep))
+e.pvalor <- 1-pf(e.F,eq,n-ep)
+cat("Estatistica F = ",round(e.F,2),"\n")
+cat("pvalor = ",round(e.pvalor,4),"\n")
+}
+
+
+# Programa extra?do do site: https://www.ime.usp.br/~giapaula/textoregressao.htm
+# Cr?ditos: Prof. Dr. Gilberto Alvarenga Paula
+# Adaptado por Caio L. N. Azevedo
+# source("D:\\windows\\Unicamp\\Disciplinas\\1_semestre_2016\\ME 720 MLG\\Programas\\diag_pois.r")
+
+diagPoisson<-function(fit.model){
+# fit.model: objeto com o resultado do ajuste do MLG obtido atrav?s da fun??o glm
+X <- model.matrix(fit.model)
+n <- nrow(X)
+p <- ncol(X)
+w <- fit.model$weights
+W <- diag(w)
+H <- solve(t(X)%*%W%*%X)
+H <- sqrt(W)%*%X%*%H%*%t(X)%*%sqrt(W)
+h <- diag(H)
+ts <- resid(fit.model,type="pearson")/sqrt(1-h)
+td <- resid(fit.model,type="deviance")/sqrt(1-h)
+di <- (h/(1-h))*(ts^2)
+par(mfrow=c(2,2))
+a <- max(td)
+b <- min(td)
+plot(td,xlab="Índice", ylab="Resíduo Componente do Desvio",
+ylim=c(b-1,a+1), pch=16,cex.axis=1.1,cex.lab=1.1,cex=1.1,cex.axis=1.1,cex.lab=1.1)
+abline(2,0,lty=2)
+abline(-2,0,lty=2)
+abline(0,0,lty=2)
+
+# identify(td, n=1)
+# title(sub="(c)")
+fited = fitted(fit.model)
+plot(fited ,td,xlab="Valor ajustado (média)", ylab="Resíduo Componente do Desvio",ylim=c(b-1,a+1), pch=16,
+main="",cex=1.1,cex.axis=1.1,cex.lab=1.1)
+abline(2,0,lty=2)
+abline(-2,0,lty=2)
+abline(0,0,lty=2)
+
+#
+#hist(td,xlab="Res?duo Componente do Desvio",ylab="densidade",probability=TRUE,main="",cex=1.1,cex.axis=1.1,cex.lab=1.1)
+#
+eta = predict(fit.model)
+z = eta + resid(fit.model, type="pearson")/sqrt(w)
+plot(predict(fit.model),z,xlab="Preditor Linear",ylab="Variavel z", pch=16,main="",cex=1.1,cex.axis=1.1,cex.lab=1.1)
+lines(smooth.spline(predict(fit.model), z, df=2))
+#
+#---------------------------------------------------------------#
+}
+
+#------------------------------------------------------------#
+# Para rodar este programa  deixe no objeto fit.model a sa?da 
+# do  ajuste  da regress?o com  erros  Poisson e liga??o log. 
+# Programa extra?do do site: https://www.ime.usp.br/~giapaula/textoregressao.htm
+# Cr?ditos: Prof. Dr. Gilberto Alvarenga Paula
+# Adaptado por Caio L. N. Azevedo
+# source("D:\\windows\\Unicamp\\Disciplinas\\1_semestre_2016\\ME 720 MLG\\Programas\\envel_Bern.r")
+
+
+envelPoisson <- function(fit.model,ligacao){
+# fit.model: objeto com o resultado do ajuste do MLG obtido atrav?s da fun??o glm
+# ligacao: fun??o de liga??o (mesmo nome usado pela fun??o glm (colocar entre aspas)
+#par(mfrow=c(1,1))
+X <- model.matrix(fit.model)
+n <- nrow(X)
+p <- ncol(X)
+w <- fit.model$weights
+W <- diag(w)
+H <- solve(t(X)%*%W%*%X)
+H <- sqrt(W)%*%X%*%H%*%t(X)%*%sqrt(W)
+h <- diag(H)
+td <- resid(fit.model,type="deviance")/sqrt((1-h))
+e <- matrix(0,n,100)
+#
+for(i in 1:100){
+nresp <- rpois(n, fitted(fit.model))
+fit <- glm(nresp ~ X, family=poisson(link=ligacao))
+w <- fit$weights
+W <- diag(w)
+H <- solve(t(X)%*%W%*%X)
+H <- sqrt(W)%*%X%*%H%*%t(X)%*%sqrt(W)
+h <- diag(H)
+e[,i] <- sort(resid(fit,type="deviance")/sqrt(1-h))}
+#
+e1 <- numeric(n)
+e2 <- numeric(n)
+#
+for(i in 1:n){
+  eo <- sort(e[i,])
+e1[i] <- (eo[2]+eo[3])/2
+e2[i] <- (eo[97]+eo[98])/2}
+#
+med <- apply(e,1,mean)
+faixa <- range(td,e1,e2)
+#par(pty="s")
+qqnorm(td,xlab="Percentil da N(0,1)",
+ylab="Resíduo Componente do Desvio", ylim=faixa, pch=16,main="",cex=1.1,cex.axis=1.1,cex.lab=1.1)
+#
+par(new=T)
+#
+qqnorm(e1,axes=F,xlab="",ylab="",type="l",ylim=faixa,lty=1,main="")
+par(new=T)
+qqnorm(e2,axes=F,xlab="",ylab="", type="l",ylim=faixa,lty=1,main="")
+par(new=T)
+qqnorm(med,axes=F,xlab="", ylab="", type="l",ylim=faixa,lty=2,main="")
+#------------------------------------------------------------#                      
+}
+
 ```
 
 
@@ -46,6 +203,14 @@ fit_step_min_to_max <- glm(`Nº de infecções` ~ `Hab. de nadar` + Local + `Fai
 
 ```{r}
 library(xtable)
+gerador_tbl_coef <- function(fit.model){
+  options(encoding="utf-8")
+  tabela <- summary(fit.model)$coefficients
+  tabela[,4] <- ifelse(tabela[,4] < 0.0001,"<0,0001",tabela[,4])
+  colnames(tabela) <- c("Estimativa","Erro Padrão","Estatística Z", "P-valor")
+  options(OutDec= ",")
+  return(xtable(tabela,digits = 4))
+}
 gerador_tbl_coef(fit_step_min_to_max)
 ```
 \begin{table}[ht]
