@@ -519,8 +519,39 @@ qqnorm(med,axes=F,xlab="", ylab="", type="l",ylim=faixa,lty=2,main="")
 ```
 
 
+```{r modelos_pela_descritiva, echo=FALSE}
+#Modelo considerado baseado na descritiva, isto é sem interação de terceira ordem. Verificar para ordem um e dois.
+#Pela descritiva, não temos evidência suficiente de que existe interação entre local, sexo e hábito
+#21 parêmetros
+fit.model <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$`Faixa etária`*dados$Sexo + dados$Local*dados$`Faixa etária`*dados$Sexo,family=poisson(link="log"),data=dados)
+summary(fit.model)
+diagPoisson(fit.model)
+envelPoisson(fit.model, "log")
+
+#16-21 ---> interações Local*(Hab. de nadar)*(faixa etária) e Local*(faixa etária)*(sexo) foram retiradas
+#ficou somente a interação Local*(faixa etária)*sexo
+m.C <- rbind(c(rep(0,15), 1, rep(0,5)), c(rep(0,16), 1, rep(0,4)), c(rep(0,17), 1, rep(0,3)), c(rep(0,18), 1, rep(0,2)))
+m.M <- cbind(rep(0, 4))
+testeF.CBM.MLG(fit.model, m.C, m.M)
+
+#novo -> 17 parâmetros
+fit.model <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar` + dados$Local + dados$`Faixa etária` + dados$Sexo + dados$`Hab. de nadar`*dados$Local + dados$`Hab. de nadar`*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Sexo +
+dados$Local*dados$`Faixa etária` + dados$Local*dados$Sexo + dados$`Faixa etária`*dados$Sexo + dados$Local*dados$`Faixa etária`*dados$Sexo ,family=poisson(link="log"),data=dados)
+summary(fit.model)
+diagPoisson(fit.model)
+envelPoisson(fit.model, "log")
+
+m.C <- rbind(c(rep(0,13), 1, rep(0,3)), c(rep(0,14), 1, rep(0,2)), c(rep(0,15), 1, rep(0,1)), c(rep(0,16), 1))
+m.M <- cbind(rep(0, 4))
+testeF.CBM.MLG(fit.model, m.C, m.M)
+
+
+```
+
+
+
 ```{r ajuste_poisson, echo=FALSE, fig.align='center', fig.pos="H", eval=F}
-source("codigos/TestesMRDD.r")
+#source("codigos/TestesMRDD.r")
 # source("codigos/envel_pois.r")
 # source("codigos/diag_pois.r")
 
