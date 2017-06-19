@@ -392,13 +392,13 @@ legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
 
 Seja $Y_i$ o número de infecções de ouvido diagnosticadas pelo i-ésimo indivíduo.  
 
-$$Y_i \overset{ind.}{\sim} Poisson(\mu_i)$$
+$$Y_i \overset{ind.}{\sim} Poisson(\lambda_i)$$
 
 O modelo que foi considerado é obtido ao igualar o logarítimo natural da média $\mu_{i}$ para cada indivíduo as covariáveis de interesse. A estrutura abaixo ilustra um possível modelo (neste caso, o modelo é completo com todas as interações de terceira ordem):
 
 
 $$
-ln(\mu_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 (20-24)_i + \beta_2 (25-29)_i + \delta M_i +
+ln(\lambda_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 (20-24)_i + \beta_2 (25-29)_i + \delta M_i +
 $$
 $$
 (\alpha  \gamma) P_i O_i + (\alpha \beta_1) (20-24)_i O_i + (\alpha \beta_2) (25-29)_iO_i + (\alpha \delta) M_i O_i + (\beta_1 \gamma) (20-24)_iP_i + 
@@ -483,7 +483,7 @@ O modelo final obtido levou em consideração todos fatores principais como háb
 Para tal modelo, os valores do desvio e AIC foram `r round(fit.model_p$deviance, 2)`, `r round(fit.model_p$aic,2)`. Nota-se que, embora estes valores sejam maiores em relação ao modelo completo, características de qualidade de ajuste observado pelos gráficos do modelo final se apresentam razoavelmente melhor. É importante lembrar-se que considerar o valor do desvio faz com que características como o preditor e a função de ligação sejam desconsideradas, isto é, o desvio não leva em consideração tais características. 
 
 
-```{r graficos_de_diagnostico, fig.cap=fig9, fig.asp=.75, fig.pos="H", echo=FALSE}
+```{r graficos_de_diagnostico, fig.cap=fig9, fig.asp=.9, fig.pos="H", echo=FALSE}
 diagPoisson(fit.model_p)
 ```
 
@@ -492,16 +492,15 @@ envelPoisson(fit.model_p, "log")
 ```
 
 
-Para os modelos completo e reduzido, os gráficos de diagnósticos (figuras 7 e 9, respectivamente) e envelopes (figuras 8 e 10, respectivamente)  apontam  que a falta de ajuste não é muito bem justificada devido à falta de covariáveis no preditor linear, ou pela função de ligação errada. Isto indica que considerar uma estrutura probabilística de Poisson possivelmente não seja a abordagem mais adequada para estes dados.
+Para os modelos completo e reduzido, os gráficos de diagnósticos (figuras 7 e 9, respectivamente) e envelopes (figuras 8 e 10, respectivamente)  apontam  que a falta de ajuste não é muito bem justificada devido à falta de covariáveis no preditor linear, ou por uma incorreta função de ligação. Isto indica que considerar uma estrutura probabilística de Poisson possivelmente não seja a abordagem mais adequada para estes dados.
 
 **-----------------------MODIFICADO ATÉ AQUI----------------**
 
 Com o apoio da análise descritiva, um possível argumento para a falta de ajuste é a maior quantidade de contagem de infecções de ouvido para determinadas covariáveis, ou seja, variabilidade muito grande na distribuição das contagens de infecções. Note, por exemplo, as tabelas 1, 2 e 3 que representam a contagem do número de infecções de ouvido em relação às variáveis hábito de nadar, local onde costuma nadar e faixa etária. Observa-se que para um determinado nível sobressai-se um determinado valor de contagem.
 
-Com isso, pode-se pensar que existe uma superdispersão dos dados que não é captada pelo modelo proposto e ajustado. Logo, uma possível alternativa seria utilizar um modelo que contemple a superdispersão. Neste caso, será avaliado o ajuste com o modelo binomial negativo.
+Com isso, pode-se pensar que existe uma superdispersão dos dados que não é captada pelo modelo proposto e ajustado. Logo, uma possível alternativa seria utilizar um modelo que contemple a superdispersão. 
 
-
-##Modelo Binomial negativo
+##Modelo Binomial Negativo
 
 ```{r}
 media <- mean(dados$`Nº de infecções`)
@@ -512,16 +511,16 @@ Observamos, nos modelos anteriores, que nenhum deles foi adequado para os dados,
 
 Dadas as observações feitas quanto ao modelo de Poisson, um modelo de regressão construido a partir de uma distribuição binomial negativa talvez seja mais adequado (veja Azevedo 2017) para os dados em questão.
 
-Temos, portando o modelo:
+Temos, portando, o modelo:
 
 Seja $Y_i$ o número de infecções de ouvido diagnosticadas pelo i-ésimo indivíduo.  
 
-$$Y_i \overset{ind.}{\sim} BN(\mu_i,\phi)$$
+$$Y_i \overset{ind.}{\sim} BN(\lambda_i,\phi)$$
 
 Ao se modelar o logaritmo de $\mu_{i}$ tem-se a mesma estrutura da observada em Poisson, como segue:
 
 $$
-ln(\mu_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 (20-24)_i + \beta_2 (25-29)_i + \delta M_i +
+ln(\lambda_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 (20-24)_i + \beta_2 (25-29)_i + \delta M_i +
 $$
 $$
 (\alpha  \gamma) P_i O_i + (\alpha \beta_1) (20-24)_i O_i + (\alpha \beta_2) (25-29)_iO_i + (\alpha \delta) M_i O_i + (\beta_1 \gamma) (20-24)_iP_i + 
@@ -559,7 +558,9 @@ fit.model_BN <- glm.nb(dados$`Nº de infecções`~ dados$`Hab. de nadar` * dados
 ```
 
 
-Os gráficos para verificar a qualidade do ajuste binomial negativo para o modelo completo foram obtidos e avaliados como mostrados a seguir. Observe de imediato a diferença dos gráficos de diagnóstico e de envelope. O valor do desvio e do AIC são, respectivamente, `r round(fit.model_BN$deviance, 2)` e `r round(fit.model_BN$aic)`. Note que tais valores são menores do que para o modelo de Poisson completo e o modelo reduzido final.
+Os gráficos para verificar a qualidade do ajuste binomial negativo para o modelo completo foram obtidos e avaliados como mostrados a seguir. Ao comparar os gráficos de diagnóstico e de envelope, para o modelo em questão (figuras 11 e 12, respectivamente) e para os modelos que foram ajustados ao seguir uma estrutura de Poisson (figuras de números 7 a 10), a grande diferença que existe. O modelo atual consegue captar a estrutura dos dados de forma mais convincente do que os modelos anteriores. Nota que na figura 11, muitos pontos estão dentro da banda de referência, ao contrário do reportado nas figura 8 e 10. Adicionalmente, note mais pontos estão dentro dos limites (linhas tracejadas) nos gráficos da figura 11, do que os mencionados nas figuras 7 e 9. Estes são indicativos de que o modelo atual está mais bem ajustado do que os anteriores.
+
+O valor do desvio e do AIC são, respectivamente, `r round(fit.model_BN$deviance, 2)` e `r round(fit.model_BN$aic)`. Note que tais valores são menores do que para o modelo de Poisson completo e o modelo reduzido final. Ou seja, mais argumentos que favorecem o ajuste pela estrutura Binomial Negativa.
 
 
 
@@ -579,7 +580,7 @@ fig12 <- "Este gráfico compara os quantis do RCD para o modelo completo. Nota-s
 
 
 
-```{r diagnostico_BN, fig.cap = fig11, fig.pos="H", fig.asp=0.75,echo=FALSE}
+```{r diagnostico_BN, fig.cap = fig11, fig.pos="H", fig.asp=0.9,echo=FALSE}
 diagnbin(fit.model_BN)
 ```
 
@@ -591,7 +592,9 @@ envelnbin(fit.model_BN)
 
 #Conclusão
 
-Constatou-se que o modelo de Poisson, tanto o completo quanto o reduzido, não se ajustaram bem aos dados, segundo o valor do desvio, e das análises de resíduos. Entre os modelos de Poisson, ainda observou-se que o critério de informação (AIC) para o modelo completo é menor comparado com o modelo reduzido final. Foi possível notar que a característica de interesse (número nde infecções de ouvido) apresenta característica de superdispersão, com isso outra abordagem foi utilizada para que se obtivesse uma análise correta dos dados. O novo modelo considerado, baseou-se na binomial negativa, que se ajustou mmelhor tanto no que se diz respeito à análise dos resíduos, assim como nos valores dos desvios e do critério de informação usado.
+Constatou-se que o modelo de Poisson, tanto o completo quanto o reduzido, não se ajustaram bem aos dados, segundo o valor do desvio, e das análises de resíduos. Entre os modelos de Poisson, ainda observou-se que o critério de informação (AIC) para o modelo completo é menor comparado com o modelo reduzido final. Foi possível notar que a característica de interesse (número de infecções de ouvido) apresenta característica de superdispersão, com isso outra abordagem foi utilizada para que se obtivesse uma análise correta dos dados. O novo modelo considerado, baseou-se na binomial negativa, que se ajustou mmelhor tanto no que se diz respeito à análise dos resíduos, assim como nos valores dos desvios e do critério de informação usado.
+
+Concluí-se, também que covariáveis mais impactam no número de infeções dos ouvidos são :
 
 
 # Bibliografia
