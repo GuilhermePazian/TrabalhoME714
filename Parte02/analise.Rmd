@@ -77,6 +77,8 @@ options(OutDec= ",")
 knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='Figs/', fig.align='center', echo=FALSE, warning=FALSE, message=FALSE)
 ```
 
+\doublespacing
+
 #Introdução
 Em 1990, realizou-se um estudo para compreender a influência de certos fatores na quantidade de infecções auditivas de recrutas americanos. As covariáveis avalidadas foram faixa etária (15-19 anos, 20-24 anos, 25-29 anos), sexo (masculino ou feminino), local onde nada (piscina ou praia), frequência com que nada (ocasional ou freqüente) e o número de infecções relatadas pelo recruta. Neste contexto, o objetivo desta análise é avaliar o impacto de cada fator e suas possíveis interações, na quantidade de infecções auditivas. 
 
