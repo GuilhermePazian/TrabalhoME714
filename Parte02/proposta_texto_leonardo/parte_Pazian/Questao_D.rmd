@@ -1,0 +1,95 @@
+---
+title: "Questão D"
+author: "Guilherme Pazian"
+date: "15 de junho de 2017"
+output: pdf_document
+---
+
+```{r echo=FALSE}
+#mudando o separador decimal para resultados "printados"
+options(OutDec= ",")
+```
+
+```{r}
+dados <- read.table("recrutas.dat")
+colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de infecções")
+```
+
+
+```{r}
+#pacotes caio Usados no exemplo "Número de acidentes" ( que tem a binomial negativa)
+library(xtable)
+library(plotrix)
+library(plyr)
+library(lattice)
+library(HistogramTools)
+library(MASS)
+```
+
+```{r}
+fit.model <- glm.nb(`Nº de infecções`~ `Hab. de nadar` * `Local` * `Faixa etária` * `Sexo`,link=log,data = dados)
+```
+
+
+
+
+```{r}
+source("codigos/gerador_tbl_coef.R")
+#Gerando a tabela dos coeficientes para o modelo Binomial negativo
+#gerador_tbl_coef(fit.model)
+
+```
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+ & Estimativa & Erro Padrão & Estatística Z & P-valor \\ 
+  \hline
+(Intercept) & 0,3567 & 0,3975 & 0,8973 & 0,3696 \\ 
+  `Hab. de nadar`Occas & 0,1133 & 0,5482 & 0,2067 & 0,8362 \\ 
+  LocalNonBeach & 0,0488 & 0,8383 & 0,0582 & 0,9536 \\ 
+  `Faixa etária`20-24 & -1,0498 & 0,7136 & -1,4712 & 0,1413 \\ 
+  `Faixa etária`25-29 & -0,3567 & 0,7594 & -0,4697 & 0,6386 \\ 
+  SexoMale & -0,5798 & 0,5442 & -1,0655 & 0,2866 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach & 0,7340 & 1,1378 & 0,6451 & 0,5189 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`20-24 & 0,3285 & 0,9811 & 0,3348 & 0,7378 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`25-29 & 0,7517 & 0,9802 & 0,7668 & 0,4432 \\ 
+  LocalNonBeach:`Faixa etária`20-24 & 0,5390 & 1,1473 & 0,4698 & 0,6385 \\ 
+  LocalNonBeach:`Faixa etária`25-29 & -1,4351 & 1,5810 & -0,9077 & 0,3640 \\ 
+  `Hab. de nadar`Occas:SexoMale & 0,5153 & 0,7400 & 0,6964 & 0,4862 \\ 
+  LocalNonBeach:SexoMale & 0,5153 & 0,9541 & 0,5401 & 0,5892 \\ 
+  `Faixa etária`20-24:SexoMale & 1,2730 & 1,0031 & 1,2690 & 0,2044 \\ 
+  `Faixa etária`25-29:SexoMale & -0,5188 & 1,0078 & -0,5148 & 0,6067 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:`Faixa etária`20-24 & -0,6957 & 1,5553 & -0,4473 & 0,6546 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:`Faixa etária`25-29 & -0,2127 & 1,9903 & -0,1069 & 0,9149 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:SexoMale & -0,9180 & 1,2941 & -0,7094 & 0,4781 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`20-24:SexoMale & -2,9030 & 1,6687 & -1,7397 & 0,0819 \\ 
+  `Hab. de nadar`Occas:`Faixa etária`25-29:SexoMale & -0,3462 & 1,2922 & -0,2679 & 0,7888 \\ 
+  LocalNonBeach:`Faixa etária`20-24:SexoMale & -1,1831 & 1,4431 & -0,8199 & 0,4123 \\ 
+  LocalNonBeach:`Faixa etária`25-29:SexoMale & 1,9696 & 1,8226 & 1,0807 & 0,2798 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:`Faixa etária`20-24:SexoMale & 3,9762 & 2,1745 & 1,8286 & 0,0675 \\ 
+  `Hab. de nadar`Occas:LocalNonBeach:`Faixa etária`25-29:SexoMale & 0,6356 & 2,3180 & 0,2742 & 0,7839 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+
+```{r}
+source("codigos/diag_nbin.R")
+
+source("codigos/envel_nbin.R")
+```
+
+
+```{r}
+diagnbin(fit.model)
+```
+
+```{r}
+ligacaonbin <-"log"
+envelnbin(fit.model)
+```
+
+Note, pela figura XXXX, observamos, pelos dois gráficos da parte superior, que poucos pontos estão fora dos limites -2 e 2, e estes pontos, embora estejam fora, estão bem próximos dos limites aceitáveis, portanto observamos um comportamento similar ao esperado para um bom ajuste. Observamos pela figura XXXX que os resíduos estão todos contídos dentro das bandas de confiança do envelope e não se observa nehuma tendência não esperada no comportamento dos resíduos.
+Dadas as observações, temos uma boa indicação de bom ajuste do modelo log-linear binomial-negativo.

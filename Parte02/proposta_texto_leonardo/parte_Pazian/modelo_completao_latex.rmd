@@ -1,0 +1,94 @@
+---
+title: "Modelo completo com todas as interações"
+author: "Guilherme Pazian"
+date: "17 de junho de 2017"
+output: pdf_document
+---
+
+Seja $Y_i$ o número de infecções de ouvido diagnosticadas pelo i-ésimo indivíduo.  
+
+$$Y_i \overset{ind.}{\sim} Poisson(\mu_i)$$
+
+$$
+ln(\mu_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 (20-24)_i + \beta_2 (25-29)_i + \delta M_i +
+$$
+$$
+(\alpha  \gamma) P_i O_i + (\alpha \beta_1) (20-24)_i O_i + (\alpha \beta_2) (25-29)_iO_i + (\alpha \delta) M_i O_i + (\beta_1 \gamma) (20-24)_iP_i + 
+$$
+$$
+(\beta_2 \gamma) (25-29)_iP_i + (\delta \gamma) M_i P_i + (\beta_1 \delta) M_i (20-24)_i + (\beta_2 \delta) M_i(25-29)_i +
+$$
+$$
+(\alpha \beta_1 \gamma) (20-24)_i P_i O_i +  (\alpha \beta_2 \gamma) (25-29)_i P_i O_i
++(\alpha \delta \gamma) M_i P_i O_i + (\beta_1 \delta \gamma) (20-24)_i P_i M_i + 
+$$
+$$
+(\beta_2 \delta \gamma) (25-29)_i P_i M_i + (\alpha \beta_1 \delta \gamma) (20-24)_i P_i O_i M_i + (\alpha \beta_2 \delta \gamma) (25-29)_i P_i O_i M_i
+$$
+
+$O_i$ = 1 se o i-ésimo indivíduo nada ocasionalmente e $O_i$ = 0 se nada frequente.  
+$P_i$ = 1 se o i-ésimo indivíduo costuma nadar na piscina e $P_i$ = 0 costuma nadar na praia.  
+$(20-24)_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 20-24 e $(20-24)_i$ =  0 caso não pertença.  
+$(25-29)_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 25-29 e $(25-29)_i$ = 0 caso não pertença.  
+$M_i$ = 1 se o i-ésimo indivíduo é do sexo masculino e $M_i$ = 0 se do sexo feminino.  
+
+  
+
+Abaixo temos o número médio esperado (à esquerda do traço) para indivíduos com as características explicitadas (à direita do traço):  
+
+$e^\mu$ - Mulher com idade entre 15 e 19 anos que nada com frequência na praia.  
+
+$e^{\mu + \delta}$ - Homem com idade entre 15 e 19 anos que nada com frequência na praia.  
+
+$e^{\mu + \beta_1}$ - Mulher com idade entre 20 e 25 anos que nada com frequência na praia.  
+
+$e^{\mu + \delta + \beta_1 + (\beta_1 \delta)}$ - Homem com idade entre 20 e 25 anos que nada com frequência na praia.
+
+$e^{\mu + \beta_2}$ - Mulher com idade entre 25 e 29 anos que nada com frequência na praia.  
+
+$e^{\mu + \delta + \beta_2 + (\beta_2 \delta)}$ - Homem com idade entre 25 e 29 anos que nada com frequência na praia.
+
+$e^{\mu + \alpha}$ - Mulher com idade entre 15 e 19 anos que nada ocasionalmente na praia.  
+
+$e^{\mu + \delta + \alpha + (\alpha \delta)}$ - Homem com idade entre 15 e 19 anos que nada ocasionalmente na praia.  
+
+$e^{\mu + \alpha + \beta_1 + (\alpha \beta_1)}$ - Mulher com idade entre 20 e 25 anos que nada ocasionalmente na praia.  
+
+$e^{\mu + \delta + \alpha + \beta_1 (\alpha \beta_1 \delta)}$ - Homem com idade entre 20 e 25 anos que nada ocasionalmente na praia. 
+
+$e^{\mu + \alpha + \beta_2 + (\alpha \beta_2)}$ - Mulher com idade entre 25 e 29 anos que nada ocasionalmente na praia.  
+
+$e^{\mu + \delta + \alpha + \beta_2 (\alpha \beta_2 \delta)}$ - Homem com idade entre 25 e 29 anos que nada ocasionalmente na praia.  
+
+
+$e^{\mu + \gamma}$ - Mulher com idade entre 15 e 19 anos que nada com frequência na piscina.  
+
+$e^{\mu + \delta + \gamma + (\delta \gamma)}$ - Homem com idade entre 15 e 19 anos que nada com frequência na piscina.
+
+$e^{\mu + \gamma + \beta_1 + (\beta_1 \gamma)}$ - Mulher com idade entre 20 e 25 anos que nada com frequência na piscina.    
+
+$e^{\mu + \delta + \gamma + \beta_1 + (\beta_1 \delta \gamma)}$ - Homem com idade entre 20 e 25 anos que nada com frequência na piscina.  
+
+$e^{\mu + \gamma + \beta_2 + (\beta_2 \gamma)}$ - Mulher com idade entre 25 e 29 anos que nada com frequência na piscina.    
+
+$e^{\mu + \delta + \gamma + \beta_2 + (\beta_2 \delta \gamma)}$ - Homem com idade entre 25 e 29 anos que nada com frequência na piscina.  
+
+$e^{\mu + \gamma + \alpha + (\alpha \gamma)}$ - Mulher com idade entre 15 e 19 anos que nada com frequência na piscina.  
+
+$e^{\mu + \delta + \gamma + \alpha + (\alpha \delta \gamma)}$ - Homem com idade entre 15 e 19 anos que nada com frequência na piscina.
+
+$e^{\mu + \gamma + \beta_1 + \alpha + (\alpha \beta_1 \gamma)}$ - Mulher com idade entre 20 e 25 anos que nada com frequência na piscina.    
+
+$e^{\mu + \delta + \gamma + \beta_1 + \alpha + (\alpha \beta_1 \delta \gamma)}$ - Homem com idade entre 20 e 25 anos que nada com frequência na piscina.  
+
+$e^{\mu + \gamma + \beta_2 + \alpha + (\alpha \beta_2 \gamma)}$ - Mulher com idade entre 25 e 29 anos que nada com frequência na piscina.    
+
+$e^{\mu + \delta + \gamma + \beta_2 + \alpha + (\alpha \beta_2\delta \gamma \beta_2 )}$ - Homem com idade entre 25 e 29 anos que nada com frequência na piscina.  
+
+
+
+
+
+
+
+
