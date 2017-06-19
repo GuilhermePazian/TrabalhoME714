@@ -182,7 +182,6 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \captionof{table}{Tabela com as quantidades do número de infecções para os sexos.}
 \end{table}
 
-
 \begin{table}[ht]
 \centering
 \begin{tabular}{rllr}
@@ -197,7 +196,6 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \end{tabular}
 \captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e local onde se costuma nadar.}
 \end{table}
-
 
 \begin{table}[ht]
 \centering
@@ -247,9 +245,9 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \end{tabular}
 \captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes locais onde se costuma nadar e as diferentes faixas etárias.}
 \end{table}
-
 \begin{table}[ht]
 \centering
+
 \begin{tabular}{rllr}
   \hline
  & Local & Sexo & Contagem do número de infecções\\ 
@@ -295,7 +293,7 @@ fig5 <- "Gráfico de perfil que representa o número de infecções para os indi
 fig6 <- "Gráfico de perfil que representa o número de infecções para os sexos, para indivíduos que tem costume de nadar em diferentes lugares. Nota-se que é plusível a interação entre sexo e o lugar onde costuma nadar."
 ```
 
-```{r fig.cap = fig1, fig.pos="H", fig.align='center', fig.asp=0.75, echo=FALSE}
+```{r fig.cap = fig1, fig.pos="H", fig.asp=0.75, echo=FALSE}
 # teste <- dados %>% group_by(Sexo, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
 # par(mfrow=c(1,1))
 # plot(teste[[3]][teste[[1]] == "Female"],pch=19,lty=1,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2,axes=F,ylim=c(0,2),xlab="faixa etária",ylab="nº médio de infecções")
@@ -318,7 +316,7 @@ legend(1,40,c("Feminino","Masculino"),lty=c(1,2),pch=c(19,17),bty="n",cex=.7)
 
 ```
 
-```{r fig.cap = fig2, fig.pos="H", fig.align='center', fig.asp=0.75,echo=FALSE}
+```{r fig.cap = fig2, fig.pos="H",  fig.asp=0.75,echo=FALSE}
 HNFE <- dados %>% group_by(`Hab. de nadar`, `Faixa etária`) %>% summarise(contagem_infec = sum(`Nº de infecções`))
 
 par(mfrow=c(1,1))
@@ -332,7 +330,7 @@ legend(1,40,c("Frequente","Ocasional"),lty=c(1,2),pch=c(19,17),bty="n",cex=.7)
 
 ```
 
-```{r fig.cap = fig3, fig.pos="H", fig.align='center', fig.asp=0.75, echo=FALSE}
+```{r fig.cap = fig3, fig.pos="H",  fig.asp=0.75, echo=FALSE}
 LFE <- dados %>% group_by(Local, `Faixa etária`) %>% summarise(contagem_infec = sum(`Nº de infecções`))
 
 par(mfrow=c(1,1))
@@ -346,7 +344,7 @@ legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
 
 ```
 
-```{r fig.cap = fig4, fig.pos="H", fig.align='center', fig.asp=0.75,echo=FALSE}
+```{r fig.cap = fig4, fig.pos="H", fig.asp=0.75,echo=FALSE}
 HNS <- dados %>% group_by(`Hab. de nadar`, Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
 par(mfrow=c(1,1))
 plot(HNS[[3]][HNS[[1]] == "Freq"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="Sexo",ylab="nº de infecções")
@@ -359,7 +357,7 @@ legend(1,40,c("Frequente","Ocasional"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
 
 ```
 
-```{r fig.cap = fig5, fig.pos="H", fig.align='center',fig.asp=0.75,echo=FALSE}
+```{r fig.cap = fig5, fig.pos="H",fig.asp=0.75,echo=FALSE}
 HNL <- dados %>% group_by(`Hab. de nadar`, Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
 par(mfrow=c(1,1))
 plot(HNL[[3]][HNL[[1]] == "Freq"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="Local onde costuma nadar",ylab="nº de infecções")
@@ -372,7 +370,7 @@ legend(1,40,c("Frequente","Ocasional"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
 
 ```
 
-```{r fig.cap = fig6, fig.pos="H", fig.align='center',fig.asp=0.75,echo=FALSE}
+```{r fig.cap = fig6, fig.pos="H",fig.asp=0.75,echo=FALSE}
 LS <- dados %>% group_by(Local, Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
 par(mfrow=c(1,1))
 plot(LS[[3]][LS[[1]] == "Beach"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="Sexo",ylab="nº de infecções")
@@ -432,9 +430,26 @@ source("codigos/TestesMRDD.r")
 fit_completo <- glm(dados$`Nº de infecções`~ dados$`Hab. de nadar` * dados$`Local` * dados$`Faixa etária` *dados$`Sexo`,family=poisson(link="log"),data = dados)
 ```
 
+```{r modelo_final_Poisson, echo=FALSE}
+library(xtable)
+gerador_tbl_coef <- function(fit.model){
+  options(encoding="utf-8")
+  tabela <- summary(fit.model)$coefficients
+  tabela[,4] <- ifelse(tabela[,4] < 0.0001,"<0,0001",tabela[,4])
+  colnames(tabela) <- c("Estimativa","Erro Padrão","Estatística Z", "P-valor")
+  options(OutDec= ",")
+  return(xtable(tabela,digits = 4))
+}
+
+fit.model_p <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar` + dados$Local + dados$`Faixa etária` + dados$`Hab. de nadar`:dados$`Faixa etária` + dados$`Hab. de nadar`:dados$Local + dados$Local:dados$`Faixa etária`, family=poisson(link="log"),data = dados)
+
+#gerador_tbl_coef(fit.model_p)
+```
+
+
 ```{r legendas_graficos_poisson, echo=FALSE}
 fig7 <- "Gráficos para verificar a adequabilidade do ajuste para o modelo completo (note que R.C.D. é o acrônimo para Resíduo Componente do Desvio). Pelo Gráfico 1 nota-se que muitos resíduos estão fora dos limites [-2, 2], ou seja, valores dos resíduos muito extremos. Pelo Gráfico 2, também percebe-se que muitos dos valores ajustados estão fora de [-2,2], característica não procurada para um ajuste razoável. Para o Gráfico 3, observa-se possivelmente problemas com a função de ligação e/ou com o preditor linear. Neste último gráfico, o desejável é que os pontos fiquem mais próximos da reta de referência, característica não presente neste ajuste."
-fig8 <- "Este gráfico compara os quantís do RCD para o modelo reduzido (ver Paula, 2013). Note que muitos dos resíduos estão fora da banda de confiança e muito distantes da linha de referência (tracejada). Com isso, pode-se comcluir que o ajuste não é razoável para os dados em questão."
+fig8 <- "Este gráfico compara os quantís do RCD para o modelo completo (ver Paula, 2013). Note que muitos dos resíduos estão fora da banda de confiança e muito distantes da linha de referência (tracejada). Com isso, pode-se comcluir que o ajuste não é razoável para os dados em questão."
 
 fig9 <- "Gráficos para verificar a adequabilidade do ajuste para o modelo reduzido. Pelo Gráfico 1 observa-se que existem muitos pontos que estão fora dos limites -2 e 2, isto é, observações discrepantes. Pelo Gráfico 2, nota-se também muitos pontos fora do intervalo -2 e 2, além de que existem muitos valores ajustados (média) concentrados entre [0,5;1,5] e menos concentrados entre aproximadamente [1,5;2,75]. Isto se deve possivelmente as características dos próprios dados, ou seja, pode-se ter maior concentração de indivíduos cujas características do valor do preditor linear é semelhante e consequentemente, provocar a concentração mencionada. Pelo Gráfico 3, diagnosticou-se que, possivelmente, falta alguma covariável para compor o preditor linear ou há algum problema com a função de ligação."
 fig10 <- "Este gráfico compara os quantís do RCD para o modelo reduzido (ver Paula, 2013). Quanto mais pontos estiverem dentro da banda de confiança (linha cheia) e perto da reta pontilhada (linha de referência), mais indicativos temos de um bom ajuste. Observa-se claramente que o ajuste, portanto, não é razoável."
@@ -451,8 +466,9 @@ envelPoisson(fit_completo, "log")
 ```
 
 
+O valor do desvio observado e do AIC para o modelo completo foi de `r round(fit_completo$deviance, 2)`, `r round(fit_completo$aic,2)`, respectivamente.
 
-O modelo inicial para ser considerado é aquele no qual os fatores principais e as interações de segunda ordem podem ser avaliados. Pela análise descritiva, notou-se possivelmente a não interação para alguns fatores de segunda ordem. Apesar disso, o modelo com terceira ordem foi avaliado e pôde-se observar o seguinte a partir deste modelo:
+O modelo à ser considerado, agora, é aquele no qual os fatores principais e as interações de segunda ordem podem ser avaliados. Pela análise descritiva, notou-se possivelmente a não interação para alguns fatores de segunda ordem. Apesar disso, o modelo com terceira ordem foi avaliado e pôde-se observar o seguinte a partir deste modelo:
 
 - A não significância de interação de terceira ordem, não significância de algumas interações de segunda ordem (nota-se que uma destas não significâncias, foi observada para a interação de hábito de nadar, local onde costuma nadar e sexo. Característica já observada na análise descritiva como passível de ausência de interação). A princípio, será avaliado o modelo sem a interação de terceira ordem (uma vez que interações de segunda ordem são não significativas);
 
@@ -461,6 +477,7 @@ O modelo inicial para ser considerado é aquele no qual os fatores principais e 
 
 O modelo final encontrado levou em consideração algumas fatores principais como hábito de nadar, local onde costuma nadar e faixa etária. Algumas interações de primeira ordem foram mantidas, como interações entre hábito de nadar e faixa etária, hábito de nadar e local onde costuma nadar e, por fim, local onde costuma nadar e faixa etária. 
 
+O valor do desvio observado e do AIC para o modelo final reduzido foi de `r round(fit.model_p$deviance, 2)`, `r round(fit.model_p$aic,2)`. Nota-se que, embora estes valores sejam maiores em relação ao modelo completo, características de qualidade de ajuste observado pelos gráficos do modelo final se apresentam razoavelmente melhor. É importante lembrar-se de que considerar o valor do desvio, faz com que características como o preditor e a função de ligação sejam desconsideradas, isto é, o desvio não leva em consideração tais características. 
 
 \begin{table}[ht]
 \centering
@@ -482,22 +499,6 @@ Intercepto & 0,1356 & 0,1502 & 0,9029 & 0,3666 \\
 \end{tabular}
 \captionof{table}{Tabela resumo para o modelo de Poisson. Note que Hábito é o hábito que costuma nadar, para esta variável a referência é considerada como frequente; Local é o local onde se costuma nadar, cuja referência é considerada praia; Faixa etária, em que a referência é considerada 15-19; e as interações entre essas variáveis como Hábito e faixa etária, hábito e local, e local e faixa etária.}
 \end{table}
-
-```{r modelo_final_Poisson, echo=FALSE}
-library(xtable)
-gerador_tbl_coef <- function(fit.model){
-  options(encoding="utf-8")
-  tabela <- summary(fit.model)$coefficients
-  tabela[,4] <- ifelse(tabela[,4] < 0.0001,"<0,0001",tabela[,4])
-  colnames(tabela) <- c("Estimativa","Erro Padrão","Estatística Z", "P-valor")
-  options(OutDec= ",")
-  return(xtable(tabela,digits = 4))
-}
-
-fit.model_p <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar` + dados$Local + dados$`Faixa etária` + dados$`Hab. de nadar`:dados$`Faixa etária` + dados$`Hab. de nadar`:dados$Local + dados$Local:dados$`Faixa etária`, family=poisson(link="log"),data = dados)
-
-#gerador_tbl_coef(fit.model_p)
-```
 
 
 ```{r graficos_de_diagnostico, fig.cap=fig9, fig.asp=.75, fig.pos="H", echo=FALSE}
@@ -574,7 +575,7 @@ fit.model_BN <- glm.nb(dados$`Nº de infecções`~ dados$`Hab. de nadar` * dados
 ```
 
 
-Os gráficos para verificar a qualidade do ajuste binomial negativo para o modelo completo foram obtidos e avaliados como mostrado abaixo.
+Os gráficos para verificar a qualidade do ajuste binomial negativo para o modelo completo foram obtidos e avaliados como mostrados a seguir. Observe de imediato a diferença dos gráficos de diagnóstico e de envelope. O valor do desvio e do AIC são, respectivamente, `r round(fit.model_BN$deviance, 2)` e `r round(fit.model_BN$aic)`. Note que tais valores são menores do que para o modelo de Poisson completo e o modelo reduzido final.
 
 
 
@@ -588,8 +589,8 @@ p_valor_desvio <- 1-pchisq(desvio,gl_desvio)
 ```
 
 ```{r legendas, echo=FALSE}
-fig11 <- "lala"
-fig12 <- "lalaa"
+fig11 <- "Gráficos para verificar a adequabilidade do ajuste para o modelo completo. Nota-se pelos Gráficos 1 e 2 que são poucos os valores dos resíduos que estão fora do intervalo [-2,2], comportamento diferente em relação ao modelo de Poisson completo. No entanto, quando se observa o Gráfico 3, pode-se notar que o comportamento é muito similar quando se compara com o modelo de Poisson completo. Possivelmente características relacionadas com as covariáveis do preditor linear e/ou a função de ligação influenia nessa tal característica."
+fig12 <- "Este gráfico compara os quantis do RCD para o modelo completo. Nota-se que muitos dos resíduos estão dentro da banda de confiança e próximos da linha de referência. Isto evidencia um bom ajuste. Observa-se, além disso, a grande diferença quando comparado com o modelo de Poisson completo."
 ```
 
 
@@ -602,6 +603,11 @@ diagnbin(fit.model_BN)
 ligacaonbin <-"log"
 envelnbin(fit.model_BN)
 ```
+
+
+#Conclusão
+
+Constatou-se que o modelo de Poisson, tanto o completo quanto o reduzido, não se ajustaram bem aos dados, segundo o valor do desvio, e das análises de resíduos. Entre os modelos de Poisson, ainda observou-se que o critério de informação (AIC) para o modelo completo é menor comparado com o modelo reduzido final. Foi possível notar que a característica de interesse (número nde infecções de ouvido) apresenta característica de superdispersão, com isso outra abordagem foi utilizada para que se obtivesse uma análise correta dos dados. O novo modelo considerado, baseou-se na binomial negativa, que se ajustou mmelhor tanto no que se diz respeito à análise dos resíduos, assim como nos valores dos desvios e do critério de informação usado.
 
 
 ### Bibliografia
