@@ -10,27 +10,27 @@ Seja $Y_i$ o número de infecções de ouvido diagnosticadas pelo i-ésimo indiv
 $$Y_i \overset{ind.}{\sim} Poisson(\mu_i)$$
 
 $$
-ln(\mu_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 "20-25"_i + \beta_2 "25-29"_i + \delta M_i +
+ln(\mu_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 (20-24)_i + \beta_2 (25-29)_i + \delta M_i +
 $$
 $$
-(\alpha  \gamma) P_i O_i + (\alpha \beta_1) "20-25"_i O_i + (\alpha \beta_2) "25-29"_iO_i + (\alpha \delta) M_i O_i + (\beta_1 \gamma) "20-25"_iP_i + 
+(\alpha  \gamma) P_i O_i + (\alpha \beta_1) (20-24)_i O_i + (\alpha \beta_2) (25-29)_iO_i + (\alpha \delta) M_i O_i + (\beta_1 \gamma) (20-24)_iP_i + 
 $$
 $$
-(\beta_2 \gamma) "25-29"_iP_i + (\delta \gamma) M_i P_i + (\beta_1 \delta) M_i "20-25"_i + (\beta_2 \delta) M_i"25-29"_i +
+(\beta_2 \gamma) (25-29)_iP_i + (\delta \gamma) M_i P_i + (\beta_1 \delta) M_i (20-24)_i + (\beta_2 \delta) M_i(25-29)_i +
 $$
 $$
-(\alpha \beta_1 \gamma) "20-25"_i P_i O_i +  (\alpha \beta_2 \gamma) "25-29"_i P_i O_i
-+(\alpha \delta \gamma) M_i P_i O_i + (\beta_1 \delta \gamma) "20-25"_i P_i M_i + 
+(\alpha \beta_1 \gamma) (20-24)_i P_i O_i +  (\alpha \beta_2 \gamma) (25-29)_i P_i O_i
++(\alpha \delta \gamma) M_i P_i O_i + (\beta_1 \delta \gamma) (20-24)_i P_i M_i + 
 $$
 $$
-(\beta_2 \delta \gamma) "25-29"_i P_i M_i + (\alpha \beta_1 \delta \gamma) "20-25"_i P_i O_i M_i + (\alpha \beta_2 \delta \gamma) "25-29"_i P_i O_i M_i
+(\beta_2 \delta \gamma) (25-29)_i P_i M_i + (\alpha \beta_1 \delta \gamma) (20-24)_i P_i O_i M_i + (\alpha \beta_2 \delta \gamma) (25-29)_i P_i O_i M_i
 $$
 
-$O_i$ = 1 se o i-ésimo indivíduo nada ocasionalmente e $O_i$ = 0 caso contrário.  
-$P_i$ = 1 se o i-ésimo indivíduo nada na piscina e $P_i$ = 0 caso contrário.  
-$"20-25"_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 20-25 e $"20-25"_i$ =  0 caso contrário.  
-$"25-29"_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 25-29 e $"25-29"_i$ = 0 caso contrário.  
-$M_i$ = 1 se o i-ésimo indivíduo é do sexo masculino e $M_i$ = 0 caso contrário.  
+$O_i$ = 1 se o i-ésimo indivíduo nada ocasionalmente e $O_i$ = 0 se nada frequente.  
+$P_i$ = 1 se o i-ésimo indivíduo costuma nadar na piscina e $P_i$ = 0 costuma nadar na praia.  
+$(20-24)_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 20-24 e $(20-24)_i$ =  0 caso não pertença.  
+$(25-29)_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 25-29 e $(25-29)_i$ = 0 caso não pertença.  
+$M_i$ = 1 se o i-ésimo indivíduo é do sexo masculino e $M_i$ = 0 se do sexo feminino.  
 
   
 

@@ -1,11 +1,11 @@
-# Programa extraído do site: https://www.ime.usp.br/~giapaula/textoregressao.htm
-# Créditos: Prof. Dr. Gilberto Alvarenga Paula
+# Programa extra?do do site: https://www.ime.usp.br/~giapaula/textoregressao.htm
+# Cr?ditos: Prof. Dr. Gilberto Alvarenga Paula
 # Adaptado por Caio L. N. Azevedo
 # source("D:\\windows\\Unicamp\\Disciplinas\\1_semestre_2016\\ME 720 MLG\\Programas\\envel_nbin.r")
 
 
 envelnbin <- function(fit.model){
-# uma variável, com o nome, entre parênteses, da função de ligação de interesse,
+# uma vari?vel, com o nome, entre par?nteses, da fun??o de liga??o de interesse,
 # denominada "ligacaonbin", deve ser informada externamente
 #par(mfrow=c(1,1))
 X <- model.matrix(fit.model)
@@ -44,7 +44,7 @@ med <- apply(e,1,mean)
 faixa <- range(td,e1,e2)
 #par(pty="s")
 qqnorm(td, xlab="Percentil da N(0,1)",
-ylab="Resíduo Componente do Desvio", ylim=faixa, pch=16, main="",cex=1.1,cex.axis=1.1,cex.lab=1.1)
+ylab="R.C.D.", ylim=faixa, pch=16, main="GrÃ¡fico de envelope",cex=0.8,cex.axis=0.8,cex.lab=0.8)
 par(new=T)
 #
 qqnorm(e1,axes=F,xlab="",ylab="",type="l",ylim=faixa,lty=1, main="")
