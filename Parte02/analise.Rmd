@@ -131,7 +131,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 #dados %>% group_by(Sexo, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
 ```
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rlr}
   \hline
@@ -144,7 +144,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \captionof{table}{Tabela com as quantidades do número de infecções para os diferentes níveis de hábito de nadar.}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rlr}
   \hline
@@ -157,7 +157,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \captionof{table}{Tabela com as quantidades do número de infecções para os diferentes níveis do lugar onde se costuma nadar.}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rlr}
   \hline
@@ -171,7 +171,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \captionof{table}{Tabela com as quantidades do número de infecções para os diferentes níveis de faixa etária.}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rlr}
   \hline
@@ -184,7 +184,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \captionof{table}{Tabela com as quantidades do número de infecções para os sexos.}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rllr}
   \hline
@@ -199,7 +199,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e local onde se costuma nadar.}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rllr}
   \hline
@@ -214,7 +214,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e os sexos.}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rllr}
   \hline
@@ -231,7 +231,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e as diferentes faixas etárias.}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rllr}
   \hline
@@ -247,7 +247,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \end{tabular}
 \captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes locais onde se costuma nadar e as diferentes faixas etárias.}
 \end{table}
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 
 \begin{tabular}{rllr}
@@ -263,7 +263,7 @@ colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de 
 \captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes locais onde se costuma nadar e os sexos.}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rllr}
   \hline
@@ -481,7 +481,7 @@ O modelo final encontrado levou em consideração algumas fatores principais com
 
 O valor do desvio observado e do AIC para o modelo final reduzido foi de `r round(fit.model_p$deviance, 2)`, `r round(fit.model_p$aic,2)`. Nota-se que, embora estes valores sejam maiores em relação ao modelo completo, características de qualidade de ajuste observado pelos gráficos do modelo final se apresentam razoavelmente melhor. É importante lembrar-se de que considerar o valor do desvio, faz com que características como o preditor e a função de ligação sejam desconsideradas, isto é, o desvio não leva em consideração tais características. 
 
-\begin{table}[ht]
+\begin{table}[H]
 \centering
 \begin{tabular}{rrrrr}
   \hline

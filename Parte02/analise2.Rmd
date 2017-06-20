@@ -1,0 +1,727 @@
+---
+title: ''
+geometry: textwidth=18cm,textheight=24cm
+header-includes:
+- \usepackage{setspace}
+- \usepackage{indentfirst}
+- \usepackage[utf8]{inputenc}
+- \usepackage{mathptmx}
+- \usepackage{enumerate}
+- \usepackage{float}
+- \usepackage{url}
+- \usepackage{lipsum}
+- \usepackage{caption}
+- \usepackage{subcaption}
+output:
+  pdf_document: null
+  html_document: default
+  mainfont: Times New Roman
+  fig_caption: yes
+  word_document: default
+lang: pt-br
+fontsize: 10bp
+---
+
+
+\begin{titlepage}
+\begin{center}
+\thispagestyle{empty}
+\begin{figure}[!htb]
+\begin{center}
+\begin{minipage}[b]{0.5\linewidth}
+\begin{center}
+\end{center}
+\end{minipage}
+\begin{minipage}[b]{0.7\linewidth}
+\begin{center}
+\vspace*{1cm}
+ {\large \bf Universidade Estadual de Campinas\\[5pt]
+Instituto de Matemática, Estatística e Computação Cientifica\\[3pt]
+Departamento de Estatística}
+\end{center}
+\end{minipage}
+\end{center}
+\end{figure}
+\vspace*{\stretch{1}}
+\begin{center}
+\vspace*{5cm}
+{\huge \bf Relatório - Parte 2 \\[7pt]
+Exercício 1}
+\end{center}
+\vspace*{\stretch{1}}
+\begin{center}
+\vspace*{4cm}
+{\Large \bf Guilherme Pazian  RA:160323 \\
+Henrique Capatto  RA:146406 \\
+Hugo Calegari  RA:155738 \\
+Leonardo Uchoa Pedreira RA:156231\break
+}\\[3pt]
+{\large \bf Professor: Caio Lucidius Naberezny Azevedo}\\[5pt]
+\end{center}
+\vspace*{\stretch{1}}
+\centerline{\bf Campinas-SP, 20 de Junho de 2017}
+\vspace*{\stretch{1}}
+\end{center}
+\end{titlepage}
+
+\onehalfspacing
+\newpage
+
+```{r echo=FALSE}
+#mudando o separador decimal para resultados "printados"
+options(OutDec= ",")
+```
+
+```{r, echo=FALSE}
+#definindo opções padrões dos chunks
+knitr::opts_chunk$set(fig.width=6, fig.height=3.5, fig.path='Figs/', fig.align='center', echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+\doublespacing
+
+#Introdução
+Em 1990, realizou-se um estudo para compreender a influência de certos fatores na quantidade de infecções auditivas de recrutas americanos. As covariáveis avalidadas foram faixa etária (15-19 anos, 20-24 anos, 25-29 anos), sexo (masculino ou feminino), local onde nada (piscina ou praia), frequência com que nada (ocasional ou freqüente) e o número de infecções relatadas pelo recruta. Neste contexto, o objetivo desta análise é avaliar o impacto de cada fator e suas possíveis interações, na quantidade de infecções auditivas. 
+
+
+#Análise descritiva
+
+De maneira geral, pode-se observar, pelas tabelas 1, 2, 3 e 4, as seguintes características:
+
+- A quantidade de indivíduos que têm pelo menos uma infecção, para o grupo cujo hábito de nadar é frequente, é menor do que para o grupo que nada ocasionalmente;
+
+- A quantidade de indivíduos que possuem pelo menos uma infecção, para o grupo cujo local onde costuma nadar é a praia, é menor do que para o grupo que não costuma nadar na praia;
+
+- A quantidade de indivíduos que têm pelo menos uma infecção, para a faixa etária 15-19, é maior do que para os grupos das demais faixas; e o número de indivíduos que tem pelo menos uma infecção na faixa etária 20-24 é maior do que a faixa etária 25-29;
+
+- A quantidade de indivíduos que têm pelo menos uma infecção, para o sexo masculino, é maior do que para o para o sexo feminino;
+
+Avaliar o comportamento do número de infecções para as diferentes covariáveis e suas possíveis interações, é de fundamental importância para a futura modelagem. A seguir, são apresentados os gráficos de perfis para verificar as possíveis interações entre fatores (em geral a combinação de dois fatores). Por estes gráficos, é aceitável considerar as interações entre a faixa etária e as demais covariáveis: hábito de nadar, local onde nada e o sexo; interações entre sexo e as covariáveis: local onde nada e o hábito de nadar e a interação entre o local onde costuma nadar e o hábito de nadar.
+
+Note pelas figuras 4 e 5 que o comportamento dos perfis para o hábito de nadar é muito semelhante para o sexo e para o local onde se costuma nadar. Consequentemente, pode-se pensar que na ausência de interação entre os fatores hábito de nadar, sexo e local onde se costuma nadar (sem interação de segunda ordem). Assim, a interação de terceira ordem, isto é, a combinação de todos os fatores, pode ser descartada.
+
+
+```{r ler_dados, echo=FALSE,message=FALSE}
+library(dplyr)
+library(xtable)
+dados <- read.table("recrutas.dat")
+colnames(dados) <- c("Hab. de nadar", "Local", "Faixa etária", "Sexo", "Nº de infecções")
+#table(is.na(dados))
+
+# table(dados$`Hab. de nadar`, dados$`Nº de infecções`)
+# table(dados$Local, dados$`Nº de infecções`)
+# table(dados$`Faixa etária`, dados$`Nº de infecções`)
+# table(dados$Sexo, dados$`Nº de infecções`)
+
+# dados %>% group_by(`Hab. de nadar`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+# dados %>% group_by(Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+# dados %>% group_by(`Faixa etária`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+# dados %>% group_by(Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+# 
+# xtable(dados %>% group_by(`Hab. de nadar`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`)))
+# xtable(dados %>% group_by(Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`)))
+# xtable(dados %>% group_by(`Faixa etária`) %>% summarise(Cont_num_infec = sum(`Nº de infecções`)))
+# xtable(dados %>% group_by(Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`)))
+
+#dados %>% group_by(`Hab. de nadar`, Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+#dados %>% group_by(`Hab. de nadar`, Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+
+#número médio de infecções para indivíduos que tiveram pelo menos uma infecção, agrupdos pelo Local, Habito de nadar e sexo
+#dados %>% group_by(Local, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
+#dados %>% group_by(`Hab. de nadar`, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
+#dados %>% group_by(Sexo, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
+```
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Hábito de nadar & Contagem do número de infecções \\ 
+  \hline
+&Frequente & 140 \\ 
+&Ocasional & 258 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para os diferentes níveis de hábito de nadar.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Local & Contagem do número de infecções \\ 
+  \hline
+& Praia & 155 \\ 
+& Piscina & 243 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para os diferentes níveis do lugar onde se costuma nadar.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Faixa etária & Contagem do número de infecções \\ 
+  \hline
+& 15-19 & 223 \\ 
+& 20-24 &  92 \\ 
+& 25-29 &  83 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para os diferentes níveis de faixa etária.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rlr}
+  \hline
+ & Sexo & Contagem do número de infecções \\ 
+  \hline
+& Feminino & 131 \\ 
+& Masculino & 267 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para os sexos.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Hábito de nadar & Local & Contagem do número de infecções \\ 
+  \hline
+& Frequente & Praia &  59 \\ 
+& Frequente & Piscina &  81 \\ 
+& Ocasional & Praia &  96 \\ 
+& Ocasional & Piscina & 162 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e local onde se costuma nadar.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Hábito de nadar & Sexo & Contagem do número de infecções \\ 
+  \hline
+& Frequente & Feminino &  47 \\ 
+& Frequente & Masculino &  93 \\ 
+& Ocasional & Feminino &  84 \\ 
+& Ocasional & Masculino & 174 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e os sexos.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Hábito de nadar & Faixa etária & Contagem do número de infecções\\ 
+  \hline
+  & Frequente & 15-19 &  87 \\ 
+  & Frequente & 20-24 &  33 \\ 
+  & Frequente & 25-29 &  20 \\ 
+  & Ocasional & 15-19 & 136 \\ 
+  & Ocasional & 20-24 &  59 \\ 
+  & Ocasional & 25-29 &  63 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes hábitos de nadar e as diferentes faixas etárias.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Local & Faixa etária & Contagem do número de infecções\\ 
+  \hline
+& Praia & 15-19 &  90 \\ 
+& Praia & 20-24 &  20 \\ 
+& Praia & 25-29 &  45 \\ 
+& Piscina & 15-19 & 133 \\ 
+& Piscina & 20-24 &  72 \\ 
+& Piscina & 25-29 &  38 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes locais onde se costuma nadar e as diferentes faixas etárias.}
+\end{table}
+\begin{table}[ht]
+\centering
+
+\begin{tabular}{rllr}
+  \hline
+ & Local & Sexo & Contagem do número de infecções\\ 
+  \hline
+ & Praia & Feminino &  81 \\ 
+ & Praia & Masculino &  74 \\ 
+ & Piscina & Feminino &  50 \\ 
+ & Piscina & Masculino & 193 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos diferentes locais onde se costuma nadar e os sexos.}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rllr}
+  \hline
+ & Sexo & Faixa etária & Contagem do número de infecções\\ 
+  \hline
+& Feminino & 15-19 &  64 \\ 
+& Feminino & 20-24 &  37 \\ 
+& Feminino & 25-29 &  30 \\ 
+& Masculino & 15-19 & 159 \\ 
+& Masculino & 20-24 &  55 \\ 
+& Masculino & 25-29 &  53 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela com as quantidades do número de infecções para as combinações dos sexos as diferentes faixas etárias.}
+\end{table}
+
+
+```{r legendas_grafico_perfil, echo=FALSE}
+fig1 <- "Gráfico de perfil que representa o número de infecções de ouvido para cada sexo. Nota-se que ao mudar de faixa etária há diminuição do número de infecções para ambos os sexos. Observa-se que a redução é maior ao mudar da faixa etária de 15-19 para 20-24 para o sexo masculino. Pelo gráfico, pode-se pensar que existe interação entre as covariáveis faixa etária e sexo."
+
+fig2 <- "Gráfico de perfil que representa o número de infecções para os grupos que têm hábitos (frequente e ocasional) de nadar diferentes. Para estes diferentes grupos de hábitos de nadar, nota-se que o número de infecções diminui. No entanto, para aqueles cujo hábito é ocasional, a quantidade de infecções é superior para os diferentes níveis de faixa etária. Cogita-se que possa existir interação entre o hábito de nadar e a faixa etária."
+
+fig3 <- "Gráfico de perfil que representa o número de infecções para os indivíduos que costumam nadar na praia ou na piscina. Com exceção da última faixa etária (25-29), o número de infecções para indivíduos que costumam nadar em piscinas é maior para as diferentes faixas etárias, de 15-19 e 20-24. Observa-se que para os diferentes lugares onde se costuma nadar, nas faixas etárias 15-19 e 20-14, as retas possuem um pequeno desnível que as tornam não paralelas. No entanto, para a última faixa etária, nota-se que o comportamento é diferente para os diferentes locais onde se costuma nadar. Assim, é possível pensar em interação entre a faixa etária e o local onde se costuma nadar."
+
+fig4 <- "Gráfico de perfil que representa o número de infecções para os indivíduos que tem um determinado hábito de nadar, para os diferentes sexos. Observa-se que as retas não são paralelas, com isso pode-se pensar que existe interação entre o sexo e o hábito de nadar."
+
+fig5 <- "Gráfico de perfil que representa o número de infecções para os indivíduos que tem determinado hábito de nadar e o local que costumam nadar. O comportamento é muito similar em relação à figura 4 e cogita-se na possível interação entre local onde costuma nadar e hábito de nadar."
+
+fig6 <- "Gráfico de perfil que representa o número de infecções para os sexos, para indivíduos que tem costume de nadar em diferentes lugares. Nota-se que é plusível a interação entre sexo e o lugar onde costuma nadar."
+```
+
+```{r fig.cap = fig1, fig.pos="H", fig.asp=0.75, echo=FALSE}
+# teste <- dados %>% group_by(Sexo, `Faixa etária`) %>% summarise(Num_medio_infec = mean(`Nº de infecções`))
+# par(mfrow=c(1,1))
+# plot(teste[[3]][teste[[1]] == "Female"],pch=19,lty=1,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2,axes=F,ylim=c(0,2),xlab="faixa etária",ylab="nº médio de infecções")
+# lines(teste[[3]][teste[[1]] == "Male"],pch=17,lty=2,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+# #lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+# #lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+# axis(2)
+# axis(1,c(1,2,3),labels=c("15-19","20-24","25-29"))
+# legend(1,0.5,c("Feminino","Masculino"),lty=c(1,2),pch=c(19,17),bty="n",cex=1)
+
+SFE <- dados %>% group_by(Sexo, `Faixa etária`) %>% summarise(contagem_infec = sum(`Nº de infecções`))
+par(mfrow=c(1,1))
+plot(SFE[[3]][SFE[[1]] == "Female"],pch=19,lty=1,type="b",cex=.7,cex.axis=.7,cex.lab=.7,axes=F,ylim=c(0,200),xlab="faixa etária",ylab="nº de infecções")
+lines(SFE[[3]][SFE[[1]] == "Male"],pch=17,lty=2,type="b",cex=.7,cex.axis=.7,cex.lab=.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2,3),labels=c("15-19","20-24","25-29"), cex.axis = 0.7)
+legend(1,40,c("Feminino","Masculino"),lty=c(1,2),pch=c(19,17),bty="n",cex=.7)
+
+```
+
+```{r fig.cap = fig2, fig.pos="H",  fig.asp=0.75,echo=FALSE}
+HNFE <- dados %>% group_by(`Hab. de nadar`, `Faixa etária`) %>% summarise(contagem_infec = sum(`Nº de infecções`))
+
+par(mfrow=c(1,1))
+plot(HNFE[[3]][HNFE[[1]] == "Freq"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="faixa etária",ylab="nº de infecções")
+lines(HNFE[[3]][HNFE[[1]] == "Occas"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2,3),labels=c("15-19","20-24","25-29"), cex.axis = 0.7)
+legend(1,40,c("Frequente","Ocasional"),lty=c(1,2),pch=c(19,17),bty="n",cex=.7)
+
+```
+
+```{r fig.cap = fig3, fig.pos="H",  fig.asp=0.75, echo=FALSE}
+LFE <- dados %>% group_by(Local, `Faixa etária`) %>% summarise(contagem_infec = sum(`Nº de infecções`))
+
+par(mfrow=c(1,1))
+plot(LFE[[3]][LFE[[1]] == "Beach"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="faixa etária",ylab="nº de infecções")
+lines(LFE[[3]][LFE[[1]] == "NonBeach"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2,3),labels=c("15-19","20-24","25-29"), cex.axis = 0.7)
+legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
+
+```
+
+```{r fig.cap = fig4, fig.pos="H", fig.asp=0.75,echo=FALSE}
+HNS <- dados %>% group_by(`Hab. de nadar`, Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+par(mfrow=c(1,1))
+plot(HNS[[3]][HNS[[1]] == "Freq"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="Sexo",ylab="nº de infecções")
+lines(HNS[[3]][HNS[[1]] == "Occas"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2),labels=c("Feminino","Masculino"), cex.axis = 0.7)
+legend(1,40,c("Frequente","Ocasional"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
+
+```
+
+```{r fig.cap = fig5, fig.pos="H",fig.asp=0.75,echo=FALSE}
+HNL <- dados %>% group_by(`Hab. de nadar`, Local) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+par(mfrow=c(1,1))
+plot(HNL[[3]][HNL[[1]] == "Freq"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="Local onde costuma nadar",ylab="nº de infecções")
+lines(HNL[[3]][HNL[[1]] == "Occas"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2),labels=c("Praia","Piscina"), cex.axis = 0.7)
+legend(1,40,c("Frequente","Ocasional"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
+
+```
+
+```{r fig.cap = fig6, fig.pos="H",fig.asp=0.75,echo=FALSE}
+LS <- dados %>% group_by(Local, Sexo) %>% summarise(Cont_num_infec = sum(`Nº de infecções`))
+par(mfrow=c(1,1))
+plot(LS[[3]][LS[[1]] == "Beach"],pch=19,lty=1,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7,axes=F,ylim=c(0,200),xlab="Sexo",ylab="nº de infecções")
+lines(LS[[3]][LS[[1]] == "NonBeach"],pch=17,lty=2,type="b",cex=0.7,cex.axis=0.7,cex.lab=0.7)
+#lines(taxas[dadosc$consumo=="10-30"],pch=15,lty=3,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+#lines(taxas[dadosc$consumo=="+30"],pch=18,lty=4,type="b",cex=1.2,cex.axis=1.2,cex.lab=1.2)
+axis(2, cex.axis = 0.7)
+axis(1,c(1,2),labels=c("Feminino","Masculino"), cex.axis = 0.7)
+legend(1,40,c("Praia","Piscina"),lty=c(1,2),pch=c(19,17),bty="n",cex=0.7)
+
+```
+
+
+#Análise inferencial e ajuste de modelos
+
+##Modelo de Poisson
+
+Seja $Y_i$ o número de infecções de ouvido diagnosticadas pelo i-ésimo indivíduo.  
+
+$$Y_i \overset{ind.}{\sim} Poisson(\mu_i)$$
+
+Modela-se o logarítimo da de $\mu_{i}$ para cada indivíduo e para isso, considera-se as covariáveis em estudo. A estrutura abaixo ilustra um possível modelo (neste caso, o modelo é completo com todas as interações de terceira ordem):
+
+
+$$
+ln(\mu_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 (20-24)_i + \beta_2 (25-29)_i + \delta M_i +
+$$
+$$
+(\alpha  \gamma) P_i O_i + (\alpha \beta_1) (20-24)_i O_i + (\alpha \beta_2) (25-29)_iO_i + (\alpha \delta) M_i O_i + (\beta_1 \gamma) (20-24)_iP_i + 
+$$
+$$
+(\beta_2 \gamma) (25-29)_iP_i + (\delta \gamma) M_i P_i + (\beta_1 \delta) M_i (20-24)_i + (\beta_2 \delta) M_i(25-29)_i +
+$$
+$$
+(\alpha \beta_1 \gamma) (20-24)_i P_i O_i +  (\alpha \beta_2 \gamma) (25-29)_i P_i O_i
++(\alpha \delta \gamma) M_i P_i O_i + (\beta_1 \delta \gamma) (20-24)_i P_i M_i + 
+$$
+$$
+(\beta_2 \delta \gamma) (25-29)_i P_i M_i + (\alpha \beta_1 \delta \gamma) (20-24)_i P_i O_i M_i + (\alpha \beta_2 \delta \gamma) (25-29)_i P_i O_i M_i
+$$
+
+$O_i$ = 1 se o i-ésimo indivíduo nada ocasionalmente e $O_i$ = 0 se nada frequente.  
+$P_i$ = 1 se o i-ésimo indivíduo costuma nadar na piscina e $P_i$ = 0 costuma nadar na praia.  
+$(20-24)_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 20-24 e $(20-24)_i$ =  0 caso não pertença.  
+$(25-29)_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 25-29 e $(25-29)_i$ = 0 caso não pertença.  
+$M_i$ = 1 se o i-ésimo indivíduo é do sexo masculino e $M_i$ = 0 se do sexo feminino.  
+
+Primariamente o modelo completo será avaliado, isto é, aquele naqual a interação de terceira ordem está presente na especificação das variáveis. Abaixo tem-se as análises de resíduos pertinentes ao modelo proposto inicialmente.
+
+```{r diagnosticos_modelo_poisson, echo=FALSE}
+source("codigos/diag_pois.r")
+source("codigos/envel_pois.r")
+source("codigos/TestesMRDD.r")
+```
+
+```{r modelo_poisson_completo, echo=FALSE}
+fit_completo <- glm(dados$`Nº de infecções`~ dados$`Hab. de nadar` * dados$`Local` * dados$`Faixa etária` *dados$`Sexo`,family=poisson(link="log"),data = dados)
+```
+
+```{r modelo_final_Poisson, echo=FALSE}
+library(xtable)
+gerador_tbl_coef <- function(fit.model){
+  options(encoding="utf-8")
+  tabela <- summary(fit.model)$coefficients
+  tabela[,4] <- ifelse(tabela[,4] < 0.0001,"<0,0001",tabela[,4])
+  colnames(tabela) <- c("Estimativa","Erro Padrão","Estatística Z", "P-valor")
+  options(OutDec= ",")
+  return(xtable(tabela,digits = 4))
+}
+
+fit.model_p <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar` + dados$Local + dados$`Faixa etária` + dados$`Hab. de nadar`:dados$`Faixa etária` + dados$`Hab. de nadar`:dados$Local + dados$Local:dados$`Faixa etária`, family=poisson(link="log"),data = dados)
+
+#gerador_tbl_coef(fit.model_p)
+```
+
+```{r modelo_poisson_cbetam, echo=FALSE}
+#modelo com segunda ordem / 22 parâmetros
+fit.model_1 <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária` + dados$`Hab. de nadar`*dados$Local*dados$Sexo + dados$`Hab. de nadar`*dados$`Faixa etária`*dados$Sexo + dados$Local*dados$`Faixa etária`*dados$Sexo, family=poisson(link="log"),data=dados)
+#summary(fit.model_1)
+#diagPoisson(fit.model_1)
+#envelPoisson(fit.model_1, "log")
+#length(coef(fit.model_1))
+
+#avaliar nulidade 18-20 -> o teste indicou que pode-se retirar algumas interações (18-20)
+m.C <- rbind(c(rep(0,17), 1, rep(0,4)), c(rep(0,18), 1, rep(0,3)), c(rep(0,19), 1, rep(0,2)))
+m.M <- cbind(rep(0, 3))
+testeF.CBM.MLG(fit.model_1, m.C, m.M)
+
+#avaliar nulidade 18-21 -> o teste indicou que pode-se retirar algumas interações (18-21)
+m.C <- rbind(c(rep(0,17), 1, rep(0,4)), c(rep(0,18), 1, rep(0,3)), c(rep(0,19), 1, rep(0,2)), c(rep(0,20), 1, rep(0,1)))
+m.M <- cbind(rep(0, 4))
+testeF.CBM.MLG(fit.model_1, m.C, m.M)
+
+#avaliar nulidade 16-22 
+m.C <- rbind(c(rep(0,15), 1, rep(0,6)), c(rep(0,16), 1, rep(0,5)), c(rep(0,17), 1, rep(0,4)), c(rep(0,18), 1, rep(0,3)), c(rep(0,19), 1, rep(0,2)), c(rep(0,20), 1, rep(0,1)), c(rep(0,21), 1))
+m.M <- cbind(rep(0, 7))
+testeF.CBM.MLG(fit.model_1, m.C, m.M)
+
+
+#Redução do modelo de segunda ordem -> retirado: Hab. de nadar*local*sexo e Hab. de nadar*faixa etária*sexo
+fit.model_1 <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar`:dados$Sexo + dados$`Hab. de nadar`*dados$Local*dados$`Faixa etária` + dados$Local*dados$`Faixa etária`*dados$Sexo, family=poisson(link="log"),data=dados)
+#summary(fit.model_1)
+#diagPoisson(fit.model_1)
+#envelPoisson(fit.model_1, "log")
+#length(coef(fit.model_1))
+
+#avaliar nulidade 16-17 -> o teste indicou que pode-se retirar (16-17)
+m.C <- rbind(c(rep(0,15), 1, rep(0,3)), c(rep(0,16), 1, rep(0,2)))
+m.M <- cbind(rep(0, 2))
+testeF.CBM.MLG(fit.model_1, m.C, m.M)
+
+#Redução do modelo de segunda ordem -> retirado: Hab. de nadar*local*faixa etária
+fit.model_1 <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar` + dados$`Hab. de nadar`:dados$Sexo + dados$`Hab. de nadar`:dados$Local + dados$`Hab. de nadar`:dados$`Faixa etária` + dados$Local*dados$`Faixa etária`*dados$Sexo, family=poisson(link="log"),data=dados)
+#summary(fit.model_1)
+#diagPoisson(fit.model_1)
+#envelPoisson(fit.model_1, "log")
+#length(coef(fit.model_1))
+
+#avaliar nulidade 7-8 -> o teste indicou que pode-se retirar (7-8)
+m.C <- rbind(c(rep(0,6), 1, rep(0,10)), c(rep(0,7), 1, rep(0,9)))
+m.M <- cbind(rep(0, 2))
+testeF.CBM.MLG(fit.model_1, m.C, m.M)
+
+#Redução do modelo de segunda ordem -> retirado: Hab. de nadar*local e Hab. de nadar*sexo
+fit.model_1 <- glm(dados$`Nº de infecções` ~ dados$`Hab. de nadar` + dados$`Hab. de nadar`:dados$`Faixa etária` + dados$Local*dados$`Faixa etária`*dados$Sexo, family=poisson(link="log"),data=dados)
+#summary(fit.model_1)
+#diagPoisson(fit.model_1)
+#envelPoisson(fit.model_1, "log")
+#length(coef(fit.model_1))
+
+#avaliar nulidade 12-14 -> o teste indicou que pode-se retirar (12-14)
+m.C <- rbind(c(rep(0,11), 1, rep(0,3)), c(rep(0,12), 1, rep(0,2)), c(rep(0,13), 1, rep(0,1)))
+m.M <- cbind(rep(0, 3))
+testeF.CBM.MLG(fit.model_1, m.C, m.M)
+
+```
+
+
+```{r legendas_graficos_poisson, echo=FALSE}
+fig7 <- "Gráficos para verificar a adequabilidade do ajuste para o modelo completo (note que R.C.D. é o acrônimo para Resíduo Componente do Desvio). Pelo Gráfico 1 nota-se que muitos resíduos estão fora dos limites [-2, 2], ou seja, valores dos resíduos muito extremos. Pelo Gráfico 2, também percebe-se que muitos dos valores ajustados estão fora de [-2,2], característica não procurada para um ajuste razoável. Para o Gráfico 3, observa-se possivelmente problemas com a função de ligação e/ou com o preditor linear. Neste último gráfico, o desejável é que os pontos fiquem mais próximos da reta de referência, característica não presente neste ajuste."
+fig8 <- "Este gráfico compara os quantís do RCD para o modelo completo (ver Paula, 2013). Note que muitos dos resíduos estão fora da banda de confiança e muito distantes da linha de referência (tracejada). Com isso, pode-se comcluir que o ajuste não é razoável para os dados em questão."
+
+fig9 <- "Gráficos para verificar a adequabilidade do ajuste para o modelo reduzido. Pelo Gráfico 1 observa-se que existem muitos pontos que estão fora dos limites -2 e 2, isto é, observações discrepantes. Pelo Gráfico 2, nota-se também muitos pontos fora do intervalo -2 e 2, além de que existem muitos valores ajustados (média) concentrados entre [0,5;1,5] e menos concentrados entre aproximadamente [1,5;2,75]. Isto se deve possivelmente as características dos próprios dados, ou seja, pode-se ter maior concentração de indivíduos cujas características do valor do preditor linear é semelhante e consequentemente, provocar a concentração mencionada. Pelo Gráfico 3, diagnosticou-se que, possivelmente, falta alguma covariável para compor o preditor linear ou há algum problema com a função de ligação."
+fig10 <- "Este gráfico compara os quantís do RCD para o modelo reduzido (ver Paula, 2013). Quanto mais pontos estiverem dentro da banda de confiança (linha cheia) e perto da reta pontilhada (linha de referência), mais indicativos temos de um bom ajuste. Observa-se claramente que o ajuste, portanto, não é razoável."
+```
+
+
+```{r diagnostico_modelo_comlpleto, fig.cap= fig7, fig.pos="H", fig.asp=0.75,echo=FALSE}
+diagPoisson(fit_completo)
+```
+
+
+```{r envelope_modelo_completo, fig.cap= fig8, fig.pos="H", fig.asp=0.75,echo=FALSE}
+envelPoisson(fit_completo, "log")
+```
+
+Por fim, para este modelo, os valores do desvio observado (ver Paula, 2013) e do AIC (veja Paula, 2013) foram de `r round(fit_completo$deviance, 2)`, `r round(fit_completo$aic,2)`, respectivamente.
+
+
+Observando os resultados do modelo completo , avalia-se:
+
+- A não significância de interação de terceira ordem, não significância de algumas interações de segunda ordem (nota-se que uma destas não significâncias, foi observada para a interação de hábito de nadar, local onde costuma nadar e sexo. Característica já observada na análise descritiva como passível de ausência de interação). A princípio, será avaliado o modelo sem a interação de terceira ordem (uma vez que interações de segunda ordem são não significativas);
+
+- Não obstante a descrição anterior, retirar-se-á a interação de terceira ordem (agora, tem-se o modelo de segunda ordem) e será reavaliado a significância dos efeitos conjuntamente nos modelos por meio do teste $C \beta = M$;
+
+Devido o contexto da disciplina, mesmo o modelo não apresentando bom ajuste, continuaremos com a análise, portanto avaliar-se-á modelos em que os fatores principais e as interações de segunda ordem serão avaliados, e consequentemente por meio do referido teste se escolherá os efeitos que ficarão no modelo final. Pela análise descritiva, notou-se possivelmente a não interação para alguns fatores de segunda ordem. 
+
+Depois de vários testes feitos, a seleção de variáveis para o modelo final encontrado levou em consideração algumas fatores principais como hábito de nadar, local onde costuma nadar e faixa etária e suas respectivas interações de terceira ordem: interações entre hábito, faixa etária,  e local onde costuma nadar.Como representado abaixo:
+
+$$
+ln(\mu_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 (20-24)_i + \beta_2 (25-29)_i + 
+$$
+$$
+(\alpha  \gamma) P_i O_i + (\alpha \beta_1) (20-24)_i O_i + (\alpha \beta_2) (25-29)_iO_i + (\beta_1 \gamma) (20-24)_iP_i + (\beta_2 \gamma) (25-29)_iP_i
+$$
+
+$O_i$ = 1 se o i-ésimo indivíduo nada ocasionalmente e $O_i$ = 0 se nada frequente.  
+$P_i$ = 1 se o i-ésimo indivíduo costuma nadar na piscina e $P_i$ = 0 costuma nadar na praia.  
+$(20-24)_i$ = 1 se o i-ésimo indivíduo pertence a faixa etária 20-24 e $(20-24)_i$ =  0 caso não pertença.  
+$(25-29)_i$ = 1 se o i-ésimo indivíduo pertence a faixa etária 25-29 e $(25-29)_i$ = 0 caso não pertença.
+
+Abaixo temos o número médio esperado (à esquerda do traço) para indivíduos com as características explicitadas (à direita do traço):  
+
+$e^\mu$ - Recruta com idade entre 15 e 19 anos que nada com frequência na praia.  
+
+$e^{\mu + \beta_1}$ - Recruta com idade entre 20 e 25 anos que nada com frequência na praia.  
+
+$e^{\mu + \beta_2}$ - Recruta com idade entre 25 e 29 anos que nada com frequência na praia.  
+
+$e^{\mu + \alpha}$ - Recruta com idade entre 15 e 19 anos que nada ocasionalmente na praia.
+
+$e^{\mu + \alpha + \beta_1 + (\alpha \beta_1)}$ - Recruta com idade entre 20 e 25 anos que nada ocasionalmente na praia.  
+
+$e^{\mu + \alpha + \beta_2 + (\alpha \beta_2)}$ - Recruta com idade entre 25 e 29 anos que nada ocasionalmente na praia.  
+
+$e^{\mu + \gamma}$ - Recruta com idade entre 15 e 19 anos que nada com frequência na piscina.  
+
+$e^{\mu + \gamma + \beta_1 + (\beta_1 \gamma)}$ - Recruta com idade entre 20 e 25 anos que nada com frequência na piscina.    
+
+$e^{\mu + \gamma + \beta_2 + (\beta_2 \gamma)}$ - Recruta com idade entre 25 e 29 anos que nada com frequência na piscina.    
+
+$e^{\mu + \gamma + \alpha + (\alpha \gamma)}$ - Recruta com idade entre 15 e 19 anos que nada com frequência na piscina.  
+
+$e^{\mu + \gamma + \beta_1 + \alpha + (\alpha \gamma) + (\alpha \beta_1) + (\beta_1 \gamma)}$ - Recruta com idade entre 20 e 25 anos que nada com frequência na piscina.    
+
+$e^{\mu + \gamma + \beta_2 + \alpha + (\alpha \gamma) + (\alpha \beta_2) + (\beta_2 \gamma)}$ - Recruta com idade entre 25 e 29 anos que nada com frequência na piscina.  
+
+O valor do desvio observado e do AIC para o modelo final reduzido foi de `r round(fit.model_p$deviance, 2)`, `r round(fit.model_p$aic,2)`. Nota-se que, embora estes valores sejam maiores em relação ao modelo completo, características de qualidade de ajuste observado pelos gráficos do modelo final se apresentam razoavelmente melhor. É importante lembrar-se de que considerar o valor do desvio, faz com que características como o preditor e a função de ligação sejam desconsideradas, isto é, o desvio não leva em consideração tais características. 
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+& Estimativa & Erro Padrão & Estatística Z & P-valor \\ 
+  \hline
+Intercepto($\mu$) & 0,1356 & 0,1502 & 0,9029 & 0,3666 \\ 
+  Hábito (Ocasional) ($\alpha$) & 0,2421 & 0,1886 & 1,2838 & 0,1992 \\ 
+  Local  (Piscina) ($\gamma$)  & 0,1534 & 0,1904 & 0,8055 & 0,4205 \\ 
+  Faixa etária 20-24 ($\beta_1$)& -0,8041 & 0,2879 & -2,7931 & 0,0052 \\ 
+  Faixa etária 25-29 ($\beta_2$)& -0,7509 & 0,2762 & -2,7185 & 0,0066 \\ 
+  Hábito (Ocasional):Faixa etária 20-24 ($\alpha\beta_1$)& 0,0776 & 0,2612 & 0,2971 & 0,7664 \\ 
+  Hábito (Ocasional):Faixa etária 25-29 ($\alpha\beta_2$)& 0,7112 & 0,2930 & 2,4272 & 0,0152 \\ 
+  Hábito (Ocasional):Local (Piscina) ($\alpha\gamma$) & 0,3555 & 0,2217 & 1,6038 & 0,1088 \\ 
+  Local (Piscina):Faixa etária 20-24 ($\gamma\beta_1$) & 0,5696 & 0,2882 & 1,9763 & 0,0481 \\ 
+  Local (Piscina):Faixa etária 25-29 ($\gamma\beta_2$) & 0,1346 & 0,2620 & 0,5137 & 0,6075 \\ 
+   \hline
+\end{tabular}
+\captionof{table}{Tabela resumo para o modelo de Poisson. Note que Hábito é o hábito que costuma nadar, para esta variável a referência é considerada como frequente; Local é o local onde se costuma nadar, cuja referência é considerada praia; Faixa etária, em que a referência é considerada 15-19; e as interações entre essas variáveis como Hábito e faixa etária, hábito e local, e local e faixa etária.}
+\end{table}
+
+Observamos pelo modelo ajustado que as covariáveis "hábito de nadar", "local onde costuma nadar" e "faixa etária" são as mais impactantes no número de infecção de ouvido. Mesmo quando o efeito principal destas covariáveis não são significativas (a um nível de significância de 5%), como é o caso das variáveis "hábito de nadar" e "local onde costuma nadar", alguma interação com algum dos fatores da covariável "faixa etária" o é, portanto, mesmo não tendo impacto significativo do efeito principal as covariáveis têm impacto no número de infecções dos ouvidos por ter interação estatisticamente significativa com a covariável a qual tem efeito principal significativo.
+
+```{r graficos_de_diagnostico, fig.cap=fig9, fig.asp=.75, fig.pos="H", echo=FALSE}
+diagPoisson(fit.model_p)
+```
+
+```{r grafico_de_envelope, fig.cap= fig10, fig.pos="H", fig.asp=0.75,echo=FALSE}
+envelPoisson(fit.model_p, "log")
+```
+
+
+Pelos gráficos de diagnóstico e envelope para os modelos completo e reduzido pôde-se perceber que a falta de ajuste não é muito bem justificada pela falta de covariáveis no preditor linear, ou pela função de ligação errada. Características associadas ao próprio modelo proposto (Poisson), possivelmente não seja o mais adequado para os dados.
+
+Com o apoio da análise descritiva, um possível argumento para a falta de ajuste é a maior quantidade de contagem de infecções de ouvido para determinadas covariáveis, ou seja, variabilidade muito grande na distribuição das contagens de infecções. Note, por exemplo, as tabelas 1, 2 e 3 que representam a contagem do número de infecções de ouvido em relação às variáveis hábito de nadar, local onde costuma nadar e faixa etária. Observa-se que para um determinado nível sobressai-se um determinado valor de contagem.
+
+O gráfico de envelopes apresentado acima têm um comportamento de deslocamento anti-horário em relação ao gráfico de envelopes, comportamento o qual é um bom indicativo de presença de super dispersão sob o modelo, portanto  pode-se pensar que existe uma superdispersão dos dados que não é captada pelo modelo proposto e ajustado. Logo, uma possível alternativa seria utilizar um modelo que contemple a superdispersão. Neste caso, será avaliado o ajuste com o modelo
+binomial negativo.
+
+
+##Modelo Binomial negativo
+
+```{r}
+media <- mean(dados$`Nº de infecções`)
+variancia <- var(dados$`Nº de infecções`)
+```
+
+Observamos, nos modelos anteriores, que nenhum deles foi adequado para os dados, uma vez que as análises de resíduo indicaram um mal ajuste dos modelos do tipo Poisson. Possivelmente, um dos aspectos à influenciar esse mal ajuste dos modelos Poisson é a característica da variável resposta, a qual apresenta média igual a `r round(media,4)` e variância igual a `r round(variancia,4)`, ou seja, a variância observada na variável resposta é quase quatro vezes o valor observado para a média da variável resposta. Uma das imposições do modelo de Poisson é que a média da variável resposta tem a mesma magnitude do valor de sua respectiva variância, porém isso não é observado nos dados referente à variável resposta, de maneira que temos uma situação de superdispersão, ou seja, a variável resposta apresenta variância maior do que aquela imposta pelo modelo probabilístico.  
+
+Dadas as observações feitas quanto ao modelo de Poisson, um modelo de regressão construido a partir de uma distribuição binomial negativa talvez seja mais adequado (veja Azevedo 2017) para os dados em questão.
+
+Temos, portando o modelo:
+
+Seja $Y_i$ o número de infecções de ouvido diagnosticadas pelo i-ésimo indivíduo.  
+
+$$Y_i \overset{ind.}{\sim} BN(\mu_i,\phi)$$
+
+Ao se modelar o logaritmo de $\mu_{i}$ tem-se a mesma estrutura da observada em Poisson, como segue:
+
+$$
+ln(\mu_i) = \mu + \alpha O_i + \gamma P_i + \beta_1 (20-24)_i + \beta_2 (25-29)_i + \delta M_i +
+$$
+$$
+(\alpha  \gamma) P_i O_i + (\alpha \beta_1) (20-24)_i O_i + (\alpha \beta_2) (25-29)_iO_i + (\alpha \delta) M_i O_i + (\beta_1 \gamma) (20-24)_iP_i + 
+$$
+$$
+(\beta_2 \gamma) (25-29)_iP_i + (\delta \gamma) M_i P_i + (\beta_1 \delta) M_i (20-24)_i + (\beta_2 \delta) M_i(25-29)_i +
+$$
+$$
+(\alpha \beta_1 \gamma) (20-24)_i P_i O_i +  (\alpha \beta_2 \gamma) (25-29)_i P_i O_i
++(\alpha \delta \gamma) M_i P_i O_i + (\beta_1 \delta \gamma) (20-24)_i P_i M_i + 
+$$
+$$
+(\beta_2 \delta \gamma) (25-29)_i P_i M_i + (\alpha \beta_1 \delta \gamma) (20-24)_i P_i O_i M_i + (\alpha \beta_2 \delta \gamma) (25-29)_i P_i O_i M_i
+$$
+
+$O_i$ = 1 se o i-ésimo indivíduo nada ocasionalmente e $O_i$ = 0 se nada frequente.  
+$P_i$ = 1 se o i-ésimo indivíduo costuma nadar na piscina e $P_i$ = 0 costuma nadar na praia.  
+$(20-24)_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 20-24 e $(20-24)_i$ =  0 caso não pertença.  
+$(25-29)_i$ = 1 se o i-ésimo indivíduo pertence à faixa etária 25-29 e $(25-29)_i$ = 0 caso não pertença.  
+$M_i$ = 1 se o i-ésimo indivíduo é do sexo masculino e $M_i$ = 0 se do sexo feminino.  
+
+
+```{r pacotes, echo=FALSE}
+#pacotes caio Usados no exemplo "Número de acidentes" ( que tem a binomial negativa)
+library(xtable)
+library(plotrix)
+library(plyr)
+library(lattice)
+#library(HistogramTools)
+library(MASS)
+```
+
+```{r}
+fit.model_BN <- glm.nb(dados$`Nº de infecções`~ dados$`Hab. de nadar` * dados$`Local` * dados$`Faixa etária` * dados$`Sexo`,link="log",data = dados)
+```
+
+
+Os gráficos para verificar a qualidade do ajuste binomial negativo para o modelo completo foram obtidos e avaliados como mostrados a seguir. Observe de imediato a diferença dos gráficos de diagnóstico e de envelope. O valor do desvio e do AIC são, respectivamente, `r round(fit.model_BN$deviance, 2)` e `r round(fit.model_BN$aic)`. Note que tais valores são menores do que para o modelo de Poisson completo e o modelo reduzido final.
+
+
+
+```{r}
+source("codigos/envel_nbin.r")
+source("codigos/diag_nbin.r")
+
+desvio <- fit.model_BN$deviance
+gl_desvio <- fit.model_BN$df.residual
+p_valor_desvio <- 1-pchisq(desvio,gl_desvio)
+```
+
+```{r legendas, echo=FALSE}
+fig11 <- "Gráficos para verificar a adequabilidade do ajuste para o modelo completo. Nota-se pelos Gráficos 1 e 2 que são poucos os valores dos resíduos que estão fora do intervalo [-2,2], comportamento diferente em relação ao modelo de Poisson completo. No entanto, quando se observa o Gráfico 3, pode-se notar que o comportamento é muito similar quando se compara com o modelo de Poisson completo. Possivelmente características relacionadas com as covariáveis do preditor linear e/ou a função de ligação influenia nessa tal característica."
+fig12 <- "Este gráfico compara os quantis do RCD para o modelo completo. Nota-se que muitos dos resíduos estão dentro da banda de confiança e próximos da linha de referência. Isto evidencia um bom ajuste. Observa-se, além disso, a grande diferença quando comparado com o modelo de Poisson completo."
+```
+
+
+
+```{r diagnostico_BN, fig.cap = fig11, fig.pos="H", fig.asp=0.75,echo=FALSE}
+diagnbin(fit.model_BN)
+```
+
+```{r envelope_BN, fig.cap = fig12, fig.asp=0.75, fig.pos="H", echo=FALSE}
+ligacaonbin <-"log"
+envelnbin(fit.model_BN)
+```
+
+
+#Conclusão
+
+Constatou-se que o modelo de Poisson, tanto o completo quanto o reduzido, não se ajustaram bem aos dados, segundo o valor do desvio, e das análises de resíduos. Entre os modelos de Poisson, ainda observou-se que o critério de informação (AIC) para o modelo completo é menor comparado com o modelo reduzido final. Mesmo não tendo um bom ajuste, dado o contexto da disciplina, seguimos com as análise e verificamos que os fatores que mais impactam no número de infecção de ouvidos são "hábito de nadar" "local onde costuma nadar" e "faixa etária".  
+Foi possível notar que a característica de interesse (número nde infecções de ouvido) apresenta característica de superdispersão, com isso outra abordagem foi utilizada para que se obtivesse uma análise correta dos dados. O novo modelo considerado, baseou-se na binomial negativa, que se ajustou mmelhor tanto no que se diz respeito à análise dos resíduos, assim como nos valores dos desvios e do critério de informação usado.
+
+
+### Bibliografia
+
+1. Azevedo, C. L. N. (2017). Notas de aula sobre análise de dados discretos, (disponível em http://www.ime.unicamp.br/~cnaber/Material_ADD_1S_2017.htm)
+
+2. Paula, G. A. (2013). Modelos de regressão com apoio computacional, versão pré-eliminar, (disponível em http://www.ime.usp.br/~giapaula/texto_2013.pdf)
+
+3. Agresti. A. (2012). Categorical data analysis, terceira edição. New York, John Wiley.
+
+4. Agresti. A. (2007). An introduction to categorical data analysis, segunda edição.
